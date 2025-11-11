@@ -28,6 +28,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password_hash',
+        'role',
         'join_date',
     ];
 
@@ -103,5 +104,37 @@ class User extends Authenticatable
     public function likes()
     {
         return $this->hasMany(Like::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user is a regular user.
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Scope to get only admins.
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->where('role', 'admin');
+    }
+
+    /**
+     * Scope to get only regular users.
+     */
+    public function scopeRegularUsers($query)
+    {
+        return $query->where('role', 'user');
     }
 }

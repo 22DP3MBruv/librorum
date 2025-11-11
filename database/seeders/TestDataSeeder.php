@@ -17,6 +17,7 @@ class TestDataSeeder extends Seeder
             'username' => 'marks_bruveris',
             'email' => 'marks@example.com',
             'password_hash' => bcrypt('password123'),
+            'role' => 'admin',
             'join_date' => now(),
         ]);
 
@@ -24,7 +25,16 @@ class TestDataSeeder extends Seeder
             'username' => 'lasitajs_anna',
             'email' => 'anna@example.com',
             'password_hash' => bcrypt('password123'),
+            'role' => 'user',
             'join_date' => now()->subDays(30),
+        ]);
+
+        $user3 = \App\Models\User::create([
+            'username' => 'admin_janis',
+            'email' => 'janis@example.com',
+            'password_hash' => bcrypt('password123'),
+            'role' => 'admin',
+            'join_date' => now()->subDays(60),
         ]);
 
         // Create test books
