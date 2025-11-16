@@ -44,6 +44,7 @@ class TestDataSeeder extends Seeder
             'isbn' => '9780747532699',
             'cover_image_url' => 'https://example.com/harry-potter.jpg',
             'page_count' => 223,
+            'tag' => 'fantastika',
         ]);
 
         $book2 = \App\Models\Book::create([
@@ -52,6 +53,7 @@ class TestDataSeeder extends Seeder
             'isbn' => '9780451524935',
             'cover_image_url' => 'https://example.com/1984.jpg',
             'page_count' => 328,
+            'tag' => 'dystopija',
         ]);
 
         // Create reading progress
@@ -83,9 +85,9 @@ class TestDataSeeder extends Seeder
 
         $thread2 = \App\Models\Thread::create([
             'user_id' => $user2->user_id,
-            'book_id' => null,
-            'title' => 'Kādas grāmatas lasāt šobrīd?',
-            'content' => 'Dalieties ar savām pašreizējām lasāmām grāmatām!',
+            'book_id' => $book2->book_id,
+            'title' => 'Kas jums šķiet par 1984 aktualitāti?',
+            'content' => 'Pēc grāmatas izlasīšanas man radās daudz domu par Orwella vīziju un tās saistību ar mūsdienu pasauli.',
             'scope' => 'book',
             'created_at' => now()->subHours(2),
         ]);

@@ -28,9 +28,9 @@
       </div>
       
       <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 class="font-semibold text-gray-900 mb-2">Diskusijas</h3>
+        <h3 class="font-semibold text-gray-900 mb-2">Grāmatu diskusijas</h3>
         <p class="text-gray-600 text-sm">
-          Izveidojiet diskusijas par grāmatām, dalieties viedokļos un komentējiet.
+          Piedalieties diskusijās par konkrētām grāmatām, dalieties viedokļos un komentējiet.
         </p>
       </div>
       
@@ -55,10 +55,10 @@
           Pārlūkot grāmatas
         </router-link>
         <router-link 
-          to="/discussions" 
+          to="/profile" 
           class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors"
         >
-          Pievienoties diskusijām
+          Skatīt profilu
         </router-link>
       </div>
     </div>

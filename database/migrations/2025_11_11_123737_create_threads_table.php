@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('threads', function (Blueprint $table) {
             $table->id('thread_id');
             $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
-            $table->foreignId('book_id')->nullable()->constrained('books', 'book_id')->onDelete('cascade');
+            $table->foreignId('book_id')->constrained('books', 'book_id')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
             $table->enum('scope', ['book', 'page'])->default('book'); # Specify if thread is about the whole book or a specific page

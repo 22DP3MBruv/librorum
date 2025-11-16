@@ -18,6 +18,7 @@ export const useBooksStore = defineStore('books', () => {
         cover: null,
         rating: 5,
         pages: 309,
+        tag: "fantastika",
         dateAdded: "2025-01-15",
         dateStarted: "2025-02-01",
         dateFinished: "2025-02-15"
@@ -31,6 +32,7 @@ export const useBooksStore = defineStore('books', () => {
         cover: null,
         rating: null,
         pages: 328,
+        tag: "dystopija",
         dateAdded: "2025-02-10",
         dateStarted: "2025-02-16",
         dateFinished: null
@@ -44,6 +46,7 @@ export const useBooksStore = defineStore('books', () => {
         cover: null,
         rating: null,
         pages: 689,
+        tag: "mistērija",
         dateAdded: "2025-02-20",
         dateStarted: null,
         dateFinished: null

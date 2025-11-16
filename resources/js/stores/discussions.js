@@ -19,7 +19,6 @@ export const useDiscussionsStore = defineStore('discussions', () => {
         bookId: 1,
         book: "Harijs Poters",
         category: "book-discussion",
-        tags: ["harijs-poters", "fantastika", "bērnu-literatūra"],
         createdAt: "2025-11-01T10:30:00Z",
         updatedAt: "2025-11-01T10:30:00Z",
         commentsCount: 12,
@@ -41,15 +40,14 @@ export const useDiscussionsStore = defineStore('discussions', () => {
       },
       {
         id: 2,
-        title: "Dystopiskās literatūras ieteikumi",
-        content: "Pēc tam, kad izlasīju 1984 un Brave New World, meklēju līdzīgas grāmatas. Kādi ir jūsu ieteikumi? Interesē gan klasika, gan mūsdienu darbi.",
-        excerpt: "Pēc tam, kad izlasīju 1984 un Brave New World, meklēju līdzīgas grāmatas. Kādi ir jūsu ieteikumi?",
+        title: "1984 - Dystopijas aktualitāte mūsdienās",
+        content: "Pēc tam, kad izlasīju 1984, mani pārsteidza, cik aktuāla šī grāmata ir mūsdienās. Kādi ir jūsu viedokļi par Orwella vīziju un tās saistību ar mūsdienu pasauli?",
+        excerpt: "Pēc tam, kad izlasīju 1984, mani pārsteidza, cik aktuāla šī grāmata ir mūsdienās...",
         author: "ReadingFan",
         authorId: 3,
-        bookId: null,
-        book: null,
-        category: "recommendation",
-        tags: ["dystopija", "sci-fi", "ieteikumi"],
+        bookId: 2,
+        book: "1984",
+        category: "book-discussion",
         createdAt: "2025-10-28T15:45:00Z",
         updatedAt: "2025-10-30T09:20:00Z",
         commentsCount: 8,
@@ -68,51 +66,23 @@ export const useDiscussionsStore = defineStore('discussions', () => {
             isLiked: false
           }
         ]
-      },
-      {
-        id: 3,
-        title: "Latviešu literatūras perles",
-        content: "Gribētu apkopot labākās latviešu grāmatas, ko ieteikt ārzemniekiem. Jūsu TOP 5? Domāju par darbiem, kas labi tulkoti un atspoguļo latviešu kultūru.",
-        excerpt: "Gribētu apkopot labākās latviešu grāmatas, ko ieteikt ārzemniekiem. Jūsu TOP 5?",
-        author: "LV_Reader",
-        authorId: 5,
-        bookId: null,
-        book: null,
-        category: "general",
-        tags: ["latviešu-literatūra", "kultūra", "ieteikumi"],
-        createdAt: "2025-10-25T09:15:00Z",
-        updatedAt: "2025-10-26T16:45:00Z",
-        commentsCount: 15,
-        likesCount: 12,
-        isLiked: true,
-        isPinned: false,
-        status: "active",
-        comments: [
-          {
-            id: 3,
-            content: "Viestura 'Dienvidzemē' noteikti būtu jāiekļauj sarakstā. Arī Ezeras 'Atgriešanās'.",
-            author: "Kultūra_Fan",
-            authorId: 6,
-            createdAt: "2025-10-25T14:20:00Z",
-            likesCount: 7,
-            isLiked: false
-          }
-        ]
       }
     ];
   };
 
-  // Computed properties
-  const discussionsByCategory = computed(() => {
-    const categories = {};
+  // Computed properties - all discussions are now book-specific
+  const discussionsByBook = computed(() => {
+    const books = {};
     discussions.value.forEach(discussion => {
-      const category = discussion.category || 'general';
-      if (!categories[category]) {
-        categories[category] = [];
+      const bookId = discussion.bookId;
+      if (bookId && !books[bookId]) {
+        books[bookId] = [];
       }
-      categories[category].push(discussion);
+      if (bookId) {
+        books[bookId].push(discussion);
+      }
     });
-    return categories;
+    return books;
   });
 
   const pinnedDiscussions = computed(() => 
@@ -238,7 +208,7 @@ export const useDiscussionsStore = defineStore('discussions', () => {
     discussions,
     loading,
     error,
-    discussionsByCategory,
+    discussionsByBook,
     pinnedDiscussions,
     recentDiscussions,
     fetchDiscussions,

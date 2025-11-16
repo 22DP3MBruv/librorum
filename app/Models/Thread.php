@@ -53,7 +53,7 @@ class Thread extends Model
     }
 
     /**
-     * Get the book that this thread discusses (nullable).
+     * Get the book that this thread discusses.
      */
     public function book()
     {

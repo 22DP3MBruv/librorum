@@ -27,6 +27,7 @@ class Book extends Model
         'isbn',
         'cover_image_url',
         'page_count',
+        'tag',
     ];
 
     /**

@@ -23,12 +23,6 @@
               Grāmatas
             </router-link>
             <router-link 
-              to="/discussions" 
-              class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Diskusijas
-            </router-link>
-            <router-link 
               to="/profile" 
               class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >

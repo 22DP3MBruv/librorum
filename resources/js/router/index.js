@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 // Import page components
 import Home from '../pages/Home.vue';
 import Books from '../pages/Books.vue';
-import Discussions from '../pages/Discussions.vue';
 import Profile from '../pages/Profile.vue';
 import BookDiscussions from '../pages/BookDiscussions.vue';
 import DiscussionDetail from '../pages/DiscussionDetail.vue';
@@ -30,18 +29,6 @@ const routes = [
   {
     path: '/books/:isbn/discussion/:discussionId',
     name: 'DiscussionDetail',
-    component: DiscussionDetail,
-    meta: { title: 'Diskusija - Librorum' }
-  },
-  {
-    path: '/discussions', 
-    name: 'Discussions',
-    component: Discussions,
-    meta: { title: 'Visas diskusijas - Librorum' }
-  },
-  {
-    path: '/discussions/:discussionId',
-    name: 'GeneralDiscussion',
     component: DiscussionDetail,
     meta: { title: 'Diskusija - Librorum' }
   },
