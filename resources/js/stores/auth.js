@@ -33,6 +33,33 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const register = async (userData) => {
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        user.value = data.user;
+        token.value = data.token;
+        isAuthenticated.value = true;
+        localStorage.setItem('auth_token', data.token);
+        return { success: true };
+      } else {
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Registration failed' };
+      }
+    } catch (error) {
+      return { success: false, message: 'Network error' };
+    }
+  };
+
   const logout = () => {
     user.value = null;
     token.value = null;
@@ -68,6 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     token,
     login,
+    register,
     logout,
     checkAuth
   };

@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The primary key for the model.
@@ -30,6 +31,8 @@ class User extends Authenticatable
         'password_hash',
         'role',
         'join_date',
+        'name', // Add support for name field
+        'password', // Add support for password field
     ];
 
     /**
@@ -104,6 +107,38 @@ class User extends Authenticatable
     public function likes()
     {
         return $this->hasMany(Like::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the name attribute (maps to username for compatibility)
+     */
+    public function getNameAttribute()
+    {
+        return $this->username;
+    }
+
+    /**
+     * Set the name attribute (maps to username for compatibility)
+     */
+    public function setNameAttribute($value)
+    {
+        $this->attributes['username'] = $value;
+    }
+
+    /**
+     * Get the password attribute (maps to password_hash for compatibility)
+     */
+    public function getPasswordAttribute()
+    {
+        return $this->password_hash;
+    }
+
+    /**
+     * Set the password attribute (maps to password_hash for compatibility)
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password_hash'] = $value;
     }
 
     /**
