@@ -8,7 +8,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials) => {
     try {
-      // Mock API call - TODO: Replace with real API call
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -26,7 +25,16 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('auth_token', data.token);
         return { success: true };
       } else {
-        return { success: false, message: 'Invalid credentials' };
+        const errorData = await response.json();
+        let errorMessage = errorData.message || 'Invalid credentials';
+        
+        // Handle validation errors
+        if (errorData.errors) {
+          const errors = Object.values(errorData.errors).flat();
+          errorMessage = errors.join(', ');
+        }
+        
+        return { success: false, message: errorMessage };
       }
     } catch (error) {
       return { success: false, message: 'Network error' };
@@ -53,7 +61,15 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Registration failed' };
+        let errorMessage = errorData.message || 'Registration failed';
+        
+        // Handle validation errors
+        if (errorData.errors) {
+          const errors = Object.values(errorData.errors).flat();
+          errorMessage = errors.join(', ');
+        }
+        
+        return { success: false, message: errorMessage };
       }
     } catch (error) {
       return { success: false, message: 'Network error' };

@@ -308,35 +308,12 @@ const handleRegister = async () => {
     return;
   }
   
-  try {
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(registerForm.value)
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      // Auto login after successful registration
-      const loginResult = await authStore.login({
-        email: registerForm.value.email,
-        password: registerForm.value.password
-      });
-      
-      if (loginResult.success) {
-        closeModals();
-      } else {
-        registerError.value = 'Reģistrācija izdevās, bet pieslēgšanās neizdevās';
-      }
-    } else {
-      const errorData = await response.json();
-      registerError.value = errorData.message || 'Reģistrācija neizdevās';
-    }
-  } catch (error) {
-    registerError.value = 'Tīkla kļūda';
+  const result = await authStore.register(registerForm.value);
+  
+  if (result.success) {
+    closeModals();
+  } else {
+    registerError.value = result.message || 'Reģistrācija neizdevās';
   }
   
   registerLoading.value = false;

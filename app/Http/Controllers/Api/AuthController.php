@@ -18,13 +18,27 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        // Log the incoming request for debugging
+        \Log::info('Registration attempt', $request->all());
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|same:password',
+        ], [
+            'name.required' => 'Vārds ir obligāts',
+            'email.required' => 'E-pasts ir obligāts',
+            'email.email' => 'E-pasta formāts nav pareizs',
+            'email.unique' => 'Šis e-pasts jau ir reģistrēts',
+            'password.required' => 'Parole ir obligāta',
+            'password.min' => 'Parolei jābūt vismaz 8 simbolu garai',
+            'password_confirmation.required' => 'Paroles apstiprinājums ir obligāts',
+            'password_confirmation.same' => 'Paroles nesakrīt',
         ]);
 
         if ($validator->fails()) {
+            \Log::error('Registration validation failed', $validator->errors()->toArray());
             return response()->json([
                 'message' => 'Validācijas kļūda',
                 'errors' => $validator->errors()
