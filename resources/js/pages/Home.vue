@@ -3,41 +3,40 @@
     <!-- Hero Section -->
     <div class="text-center mb-12">
       <h1 class="text-4xl font-bold text-gray-900 mb-4">
-        Laipni lūdzam Librorum sistēmā!
+        {{ t('home.welcome') }}
       </h1>
       <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-        Grāmatu un diskusiju platforma, kas apvieno lasīšanas prieku ar kopienas sarunām.
-        Sekojiet savam progresam, atklājiet jaunas grāmatas un dalieties viedokļos.
+        {{ t('home.heroDescription') }}
       </p>
     </div>
 
     <!-- Features Grid -->
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
       <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 class="font-semibold text-gray-900 mb-2">Grāmatu pārvaldība</h3>
+        <h3 class="font-semibold text-gray-900 mb-2">{{ t('home.bookManagementTitle') }}</h3>
         <p class="text-gray-600 text-sm">
-          Meklējiet grāmatas pēc nosaukuma, autora vai ISBN. Pievienojiet savas iecienītākās.
+          {{ t('home.bookManagementDesc') }}
         </p>
       </div>
       
       <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 class="font-semibold text-gray-900 mb-2">Lasīšanas progress</h3>
+        <h3 class="font-semibold text-gray-900 mb-2">{{ t('home.readingProgressTitle') }}</h3>
         <p class="text-gray-600 text-sm">
-          Sekojiet, ko plānojat lasīt, ko pašlaik lasāt un ko esat pabeidzis.
+          {{ t('home.readingProgressDesc') }}
         </p>
       </div>
       
       <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 class="font-semibold text-gray-900 mb-2">Grāmatu diskusijas</h3>
+        <h3 class="font-semibold text-gray-900 mb-2">{{ t('home.discussionsTitle') }}</h3>
         <p class="text-gray-600 text-sm">
-          Piedalieties diskusijās par konkrētām grāmatām, dalieties viedokļos un komentējiet.
+          {{ t('home.discussionsDesc') }}
         </p>
       </div>
       
       <div class="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 class="font-semibold text-gray-900 mb-2">Sociālās funkcijas</h3>
+        <h3 class="font-semibold text-gray-900 mb-2">{{ t('home.socialTitle') }}</h3>
         <p class="text-gray-600 text-sm">
-          Sekojiet citiem lasītājiem un skatiet viņu aktivitātes.
+          {{ t('home.socialDesc') }}
         </p>
       </div>
     </div>
@@ -45,20 +44,20 @@
     <!-- Call to Action -->
     <div class="text-center bg-blue-50 p-8 rounded-lg">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">
-        Gatavi sākt savu lasīšanas ceļojumu?
+        {{ t('home.ctaTitle') }}
       </h2>
       <div class="space-x-4">
         <router-link 
           to="/books" 
           class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
         >
-          Pārlūkot grāmatas
+          {{ t('home.browseBooks') }}
         </router-link>
         <router-link 
           to="/profile" 
           class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors"
         >
-          Skatīt profilu
+          {{ t('home.viewProfile') }}
         </router-link>
       </div>
     </div>
@@ -66,5 +65,7 @@
 </template>
 
 <script setup>
-// Home page logic
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 </script>

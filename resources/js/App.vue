@@ -14,14 +14,40 @@
               to="/" 
               class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Sākums
+              {{ t('nav.home') }}
             </router-link>
             <router-link 
               to="/books" 
               class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Grāmatas
+              {{ t('nav.books') }}
             </router-link>
+            
+            <!-- Language Switcher -->
+            <div class="flex items-center space-x-1 border-l pl-4 ml-2">
+              <button
+                @click="setLocale('lv')"
+                :class="[
+                  'px-2 py-1 text-sm font-medium rounded transition-colors',
+                  locale === 'lv' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                ]"
+              >
+                LV
+              </button>
+              <button
+                @click="setLocale('en')"
+                :class="[
+                  'px-2 py-1 text-sm font-medium rounded transition-colors',
+                  locale === 'en' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                ]"
+              >
+                EN
+              </button>
+            </div>
             
             <!-- Authentication buttons -->
             <div v-if="!authStore.isAuthenticated" class="flex items-center space-x-2">
@@ -29,13 +55,13 @@
                 @click="openLoginModal"
                 class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
               >
-                Pieslēgties
+                {{ t('nav.login') }}
               </button>
               <button 
                 @click="openRegisterModal"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                Reģistrēties
+                {{ t('nav.register') }}
               </button>
             </div>
             
@@ -45,14 +71,14 @@
                 to="/profile" 
                 class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
               >
-                Profils
+                {{ t('nav.profile') }}
               </router-link>
-              <span class="text-sm text-gray-600">Sveiki, {{ authStore.user?.name || 'Lietotāj' }}!</span>
+              <span class="text-sm text-gray-600">{{ t('auth.welcome', { name: authStore.user?.name || 'User' }) }}</span>
               <button 
                 @click="handleLogout"
                 class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
               >
-                Iziet
+                {{ t('nav.logout') }}
               </button>
             </div>
           </div>
@@ -70,9 +96,9 @@
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Pieslēgšanās</h3>
+            <h3 class="text-lg font-medium text-gray-900">{{ t('auth.login') }}</h3>
             <button @click="closeModals" class="text-gray-400 hover:text-gray-600">
-              <span class="sr-only">Aizvērt</span>
+              <span class="sr-only">{{ t('common.close') }}</span>
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -85,7 +111,7 @@
             </div>
             
             <div>
-              <label for="login-email" class="block text-sm font-medium text-gray-700">E-pasts</label>
+              <label for="login-email" class="block text-sm font-medium text-gray-700">{{ t('auth.email') }}</label>
               <input 
                 id="login-email"
                 v-model="loginForm.email" 
@@ -96,7 +122,7 @@
             </div>
             
             <div>
-              <label for="login-password" class="block text-sm font-medium text-gray-700">Parole</label>
+              <label for="login-password" class="block text-sm font-medium text-gray-700">{{ t('auth.password') }}</label>
               <input 
                 id="login-password"
                 v-model="loginForm.password" 
@@ -112,22 +138,22 @@
                 @click="closeModals"
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
               >
-                Atcelt
+                {{ t('auth.cancel') }}
               </button>
               <button 
                 type="submit" 
                 :disabled="loginLoading"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
               >
-                {{ loginLoading ? 'Pieslēdzas...' : 'Pieslēgties' }}
+                {{ loginLoading ? t('auth.loggingIn') : t('nav.login') }}
               </button>
             </div>
           </form>
           
           <div class="mt-4 text-center">
-            <span class="text-sm text-gray-600">Nav konta? </span>
+            <span class="text-sm text-gray-600">{{ t('auth.noAccount') }} </span>
             <button @click="showRegisterModal = true; showLoginModal = false" class="text-sm text-blue-600 hover:text-blue-500">
-              Reģistrēties šeit
+              {{ t('auth.registerHere') }}
             </button>
           </div>
         </div>
@@ -139,9 +165,9 @@
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Reģistrācija</h3>
+            <h3 class="text-lg font-medium text-gray-900">{{ t('auth.register') }}</h3>
             <button @click="closeModals" class="text-gray-400 hover:text-gray-600">
-              <span class="sr-only">Aizvērt</span>
+              <span class="sr-only">{{ t('common.close') }}</span>
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -154,7 +180,7 @@
             </div>
             
             <div>
-              <label for="register-name" class="block text-sm font-medium text-gray-700">Vārds</label>
+              <label for="register-name" class="block text-sm font-medium text-gray-700">{{ t('auth.name') }}</label>
               <input 
                 id="register-name"
                 v-model="registerForm.name" 
@@ -165,7 +191,7 @@
             </div>
             
             <div>
-              <label for="register-email" class="block text-sm font-medium text-gray-700">E-pasts</label>
+              <label for="register-email" class="block text-sm font-medium text-gray-700">{{ t('auth.email') }}</label>
               <input 
                 id="register-email"
                 v-model="registerForm.email" 
@@ -176,7 +202,7 @@
             </div>
             
             <div>
-              <label for="register-password" class="block text-sm font-medium text-gray-700">Parole</label>
+              <label for="register-password" class="block text-sm font-medium text-gray-700">{{ t('auth.password') }}</label>
               <input 
                 id="register-password"
                 v-model="registerForm.password" 
@@ -187,7 +213,7 @@
             </div>
             
             <div>
-              <label for="register-password-confirm" class="block text-sm font-medium text-gray-700">Apstiprināt paroli</label>
+              <label for="register-password-confirm" class="block text-sm font-medium text-gray-700">{{ t('auth.confirmPassword') }}</label>
               <input 
                 id="register-password-confirm"
                 v-model="registerForm.password_confirmation" 
@@ -203,22 +229,22 @@
                 @click="closeModals"
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
               >
-                Atcelt
+                {{ t('auth.cancel') }}
               </button>
               <button 
                 type="submit" 
                 :disabled="registerLoading"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
               >
-                {{ registerLoading ? 'Reģistrējas...' : 'Reģistrēties' }}
+                {{ registerLoading ? t('auth.registering') : t('nav.register') }}
               </button>
             </div>
           </form>
           
           <div class="mt-4 text-center">
-            <span class="text-sm text-gray-600">Jau ir konts? </span>
+            <span class="text-sm text-gray-600">{{ t('auth.haveAccount') }} </span>
             <button @click="showLoginModal = true; showRegisterModal = false" class="text-sm text-blue-600 hover:text-blue-500">
-              Pieslēgties šeit
+              {{ t('auth.loginHere') }}
             </button>
           </div>
         </div>
@@ -238,9 +264,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from './stores/auth.js';
 
 const authStore = useAuthStore();
+const { t, locale } = useI18n();
+
+// Language switching
+const setLocale = (lang) => {
+  locale.value = lang;
+};
 
 // Modal states
 const showLoginModal = ref(false);
