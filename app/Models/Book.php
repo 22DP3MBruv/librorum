@@ -25,9 +25,34 @@ class Book extends Model
         'title',
         'author',
         'isbn',
+        'isbn10',
+        'isbn13',
         'cover_image_url',
         'page_count',
         'tag',
+        'description',
+        'language',
+        'publisher',
+        'subjects',
+        'authors',
+        'publish_date',
+        'publication_year',
+        'genre',
+        'external_ids',
+        'last_api_sync',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'subjects' => 'array',
+        'authors' => 'array',
+        'external_ids' => 'array',
+        'publish_date' => 'date',
+        'last_api_sync' => 'datetime',
+        'publication_year' => 'integer',
+        'page_count' => 'integer',
     ];
 
     /**
