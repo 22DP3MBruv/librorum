@@ -22,6 +22,13 @@
             >
               {{ t('nav.books') }}
             </router-link>
+            <router-link 
+              v-if="authStore.isAuthenticated"
+              to="/my-reading" 
+              class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              {{ t('nav.myReading') }}
+            </router-link>
             
             <!-- Language Switcher -->
             <div class="flex items-center space-x-1 border-l pl-4 ml-2">

@@ -12,30 +12,47 @@ class TestDataSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create or update admin user
+        $admin = \App\Models\User::updateOrCreate(
+            ['email' => 'admin@librorum.com'],
+            [
+                'username' => 'admin',
+                'password_hash' => bcrypt('admin123'),
+                'role' => 'admin',
+                'join_date' => now(),
+            ]
+        );
+
         // Create test users
-        $user1 = \App\Models\User::create([
-            'username' => 'marks_bruveris',
-            'email' => 'marks@example.com',
-            'password_hash' => bcrypt('password123'),
-            'role' => 'admin',
-            'join_date' => now(),
-        ]);
+        $user1 = \App\Models\User::firstOrCreate(
+            ['email' => 'marks@example.com'],
+            [
+                'username' => 'marks_bruveris',
+                'password_hash' => bcrypt('password123'),
+                'role' => 'admin',
+                'join_date' => now(),
+            ]
+        );
 
-        $user2 = \App\Models\User::create([
-            'username' => 'lasitajs_anna',
-            'email' => 'anna@example.com',
-            'password_hash' => bcrypt('password123'),
-            'role' => 'user',
-            'join_date' => now()->subDays(30),
-        ]);
+        $user2 = \App\Models\User::firstOrCreate(
+            ['email' => 'anna@example.com'],
+            [
+                'username' => 'lasitajs_anna',
+                'password_hash' => bcrypt('password123'),
+                'role' => 'user',
+                'join_date' => now()->subDays(30),
+            ]
+        );
 
-        $user3 = \App\Models\User::create([
-            'username' => 'admin_janis',
-            'email' => 'janis@example.com',
-            'password_hash' => bcrypt('password123'),
-            'role' => 'admin',
-            'join_date' => now()->subDays(60),
-        ]);
+        $user3 = \App\Models\User::firstOrCreate(
+            ['email' => 'janis@example.com'],
+            [
+                'username' => 'admin_janis',
+                'password_hash' => bcrypt('password123'),
+                'role' => 'admin',
+                'join_date' => now()->subDays(60),
+            ]
+        );
 
         // Create test books
         $book1 = \App\Models\Book::create([

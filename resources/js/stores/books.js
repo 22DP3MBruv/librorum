@@ -5,93 +5,56 @@ export const useBooksStore = defineStore('books', () => {
   const books = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  const searchResults = ref([]);
+  const searchLoading = ref(false);
 
-  // Mock initial data
-  const initializeBooks = () => {
-    books.value = [
-      {
-        id: 1,
-        title: "Harijs Poters un Filozofa akmens",
-        author: "J.K. Rowling",
-        status: "read",
-        isbn: "9780747532699",
-        cover: null,
-        rating: 5,
-        pages: 309,
-        tag: "fantastika",
-        dateAdded: "2025-01-15",
-        dateStarted: "2025-02-01",
-        dateFinished: "2025-02-15"
-      },
-      {
-        id: 2,
-        title: "1984",
-        author: "George Orwell",
-        status: "reading",
-        isbn: "9780451524935",
-        cover: null,
-        rating: null,
-        pages: 328,
-        tag: "dystopija",
-        dateAdded: "2025-02-10",
-        dateStarted: "2025-02-16",
-        dateFinished: null
-      },
-      {
-        id: 3,
-        title: "Dievkods",
-        author: "Dan Brown",
-        status: "want-to-read",
-        isbn: "9780385504201",
-        cover: null,
-        rating: null,
-        pages: 689,
-        tag: "mistērija",
-        dateAdded: "2025-02-20",
-        dateStarted: null,
-        dateFinished: null
-      }
-    ];
+  // Helper to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('auth_token');
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
   };
 
   // Computed properties
-  const booksByStatus = computed(() => {
-    return {
-      'want-to-read': books.value.filter(book => book.status === 'want-to-read'),
-      'reading': books.value.filter(book => book.status === 'reading'),
-      'read': books.value.filter(book => book.status === 'read')
-    };
+  const booksByTag = computed(() => {
+    const grouped = {};
+    books.value.forEach(book => {
+      const tag = book.tag || 'Uncategorized';
+      if (!grouped[tag]) {
+        grouped[tag] = [];
+      }
+      grouped[tag].push(book);
+    });
+    return grouped;
   });
 
   const booksCount = computed(() => ({
-    total: books.value.length,
-    booksWantToRead: booksByStatus.value['want-to-read'].length,
-    booksReading: booksByStatus.value.reading.length,
-    booksRead: booksByStatus.value.read.length
+    total: books.value.length
   }));
 
   // Actions
   const fetchBooks = async () => {
     loading.value = true;
+    error.value = null;
     try {
-      // Mock API call - TODO: Replace with real Laravel API endpoint
       const response = await fetch('/api/books', {
-        headers: {
-          'Accept': 'application/json',
-        }
+        headers: getAuthHeaders()
       });
 
       if (response.ok) {
         const data = await response.json();
-        books.value = data;
+        books.value = data.data || data;
       } else {
-        // Fallback to mock data
-        initializeBooks();
+        const errorData = await response.json();
+        error.value = errorData.message || 'Failed to fetch books';
+        books.value = [];
       }
     } catch (err) {
       error.value = err.message;
-      // Fallback to mock data
-      initializeBooks();
+      books.value = [];
     } finally {
       loading.value = false;
     }
@@ -99,55 +62,64 @@ export const useBooksStore = defineStore('books', () => {
 
   const addBook = async (bookData) => {
     try {
-      // Mock API call
       const response = await fetch('/api/books', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(bookData)
       });
 
       if (response.ok) {
-        const newBook = await response.json();
+        const data = await response.json();
+        const newBook = data.data || data;
         books.value.push(newBook);
         return { success: true, book: newBook };
       } else {
-        return { success: false, message: 'Failed to add book' };
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Failed to add book' };
       }
     } catch (err) {
       return { success: false, message: err.message };
     }
   };
 
-  const updateBookStatus = async (bookId, newStatus) => {
+  const updateBook = async (bookId, bookData) => {
     try {
-      const response = await fetch(`/api/books/${bookId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus })
+      const response = await fetch(`/api/books/${bookId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(bookData)
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const updatedBook = data.data || data;
         const bookIndex = books.value.findIndex(book => book.id === bookId);
         if (bookIndex !== -1) {
-          books.value[bookIndex].status = newStatus;
-          
-          // Update dates based on status
-          const now = new Date().toISOString().split('T')[0];
-          if (newStatus === 'reading' && !books.value[bookIndex].dateStarted) {
-            books.value[bookIndex].dateStarted = now;
-          } else if (newStatus === 'read') {
-            books.value[bookIndex].dateFinished = now;
-          }
+          books.value[bookIndex] = updatedBook;
         }
+        return { success: true, book: updatedBook };
+      } else {
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Failed to update book' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  const deleteBook = async (bookId) => {
+    try {
+      const response = await fetch(`/api/books/${bookId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+
+      if (response.ok) {
+        books.value = books.value.filter(book => book.id !== bookId);
         return { success: true };
       } else {
-        return { success: false, message: 'Failed to update book status' };
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Failed to delete book' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -155,38 +127,83 @@ export const useBooksStore = defineStore('books', () => {
   };
 
   const searchBooks = async (query) => {
+    searchLoading.value = true;
     try {
-      // Mock ISBNdb API integration
-      const response = await fetch(`/api/books/search?q=${encodeURIComponent(query)}`, {
-        headers: {
-          'Accept': 'application/json',
-        }
+      const response = await fetch(`/api/books/external-search?query=${encodeURIComponent(query)}`, {
+        headers: getAuthHeaders()
       });
 
       if (response.ok) {
-        return await response.json();
+        const data = await response.json();
+        searchResults.value = data.data || data;
+        return { success: true, results: searchResults.value };
       } else {
-        return { success: false, message: 'Search failed' };
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Search failed' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    } finally {
+      searchLoading.value = false;
+    }
+  };
+
+  const importByISBN = async (isbn) => {
+    loading.value = true;
+    try {
+      const response = await fetch(`/api/books/import-isbn`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ isbn })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newBook = data.data || data;
+        books.value.push(newBook);
+        return { success: true, book: newBook };
+      } else {
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Failed to import book' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const getBookByISBN = async (isbn) => {
+    try {
+      const response = await fetch(`/api/books?isbn=${isbn}`, {
+        headers: getAuthHeaders()
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, book: data.data || data };
+      } else {
+        return { success: false, message: 'Book not found' };
       }
     } catch (err) {
       return { success: false, message: err.message };
     }
   };
 
-  // Initialize with mock data if no API available
-  if (books.value.length === 0) {
-    initializeBooks();
-  }
-
   return {
     books,
     loading,
     error,
-    booksByStatus,
+    searchResults,
+    searchLoading,
+    booksByTag,
     booksCount,
     fetchBooks,
     addBook,
-    updateBookStatus,
-    searchBooks
+    updateBook,
+    deleteBook,
+    searchBooks,
+    importByISBN,
+    getBookByISBN
   };
 });

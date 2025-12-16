@@ -2,6 +2,7 @@ export default {
   nav: {
     home: 'Sākums',
     books: 'Grāmatas',
+    myReading: 'Mana lasīšana',
     profile: 'Profils',
     login: 'Pieslēgties',
     register: 'Reģistrēties',
@@ -35,9 +36,9 @@ export default {
     loginFailed: 'Pieslēgšanās neizdevās',
     registrationFailed: 'Reģistrācija neizdevās',
     passwordsDoNotMatch: 'Paroles nesakrīt',
-    noAccount: 'Nav konta?',
+    noAccount: 'Nav konta? ',
     registerHere: 'Reģistrēties šeit',
-    haveAccount: 'Jau ir konts?',
+    haveAccount: 'Jau ir konts? ',
     loginHere: 'Pieslēgties šeit',
     welcome: 'Sveiki, {name}!'
   },
@@ -59,6 +60,11 @@ export default {
     noBooksFound: 'Nav atrasta neviena grāmata',
     startSearching: 'Sāciet meklēt vai pievienojiet savu pirmo grāmatu.',
     addBook: 'Pievienot grāmatu',
+    allCategories: 'Visas kategorijas',
+    importByISBN: 'Importēt pēc ISBN',
+    importBook: 'Importēt',
+    importing: 'Importē...',
+    bookImported: 'Grāmata veiksmīgi importēta!',
     bookTitle: 'Nosaukums',
     author: 'Autors',
     isbn: 'ISBN',
@@ -69,8 +75,8 @@ export default {
     language: 'Valoda',
     genre: 'Žanrs',
     tag: 'Kategorija',
-    addBook: 'Pievienot grāmatu',
-    editBook: 'Rediģēt grāmatu',
+    addBook: 'Pievienot grāmatu',    addBookmarkFailed: 'Neizdevās pievienot grāzmei',
+    removeBookmarkFailed: 'Neizdevās noņemt grāzmei',    editBook: 'Rediģēt grāmatu',
     deleteBook: 'Dzēst grāmatu',
     searchBooks: 'Meklēt grāmatas',
     importByISBN: 'Importēt pēc ISBN',
@@ -78,11 +84,27 @@ export default {
   },
   discussions: {
     discussions: 'Diskusijas',
-    newDiscussion: 'Jauna diskusija',
+    bookDiscussions: 'Grāmatas Diskusijas',
+    newDiscussion: 'Jauna Diskusija',
+    startDiscussion: 'Sākt Diskusiju',
     reply: 'Atbildēt',
     replies: 'Atbildes',
-    noDiscussions: 'Nav diskusiju',
-    startDiscussion: 'Sākt diskusiju'
+    noDiscussions: 'Nav diskusiju par šo grāmatu',
+    beFirstToDiscuss: 'Esiet pirmais, kurš sāk sarunu par šo grāmatu.',
+    by: 'no',
+    title: 'Nosaukums',
+    content: 'Saturs',
+    create: 'Izveidot',
+    creating: 'Izveido...',
+    addToReadingList: 'Pievienot lasīšanas sarakstam',
+    inReadingList: 'Lasīšanas sarakstā',
+    addToList: 'Pievienot',
+    inList: 'Pievienots',
+    scope: 'Diskusijas apjoms',
+    scopeGeneral: 'Vispārīga diskusija (visa grāmata)',
+    scopePage: 'Konkrēta lappuse',
+    pageNumber: 'Lappuses numurs',
+    pageNumberPlaceholder: 'Ievadiet lappuses numuru'
   },
   profile: {
     title: 'Profils',
@@ -100,6 +122,22 @@ export default {
     recentActivity: 'Pēdējā aktivitāte',
     noRecentActivity: 'Nav pēdējas aktivitātes'
   },
+  reading: {
+    title: 'Mana lasīšana',
+    subtitle: 'Sekojiet līdzi savam lasīšanas progresam',
+    wantToRead: 'Plānoju lasīt',
+    currentlyReading: 'Lasu pašlaik',
+    completed: 'Izlasītas',
+    all: 'Visas',
+    page: 'Lappuse',
+    complete: 'pabeigts',
+    noBooksYet: 'Jūs vēl neesat pievienojis grāmatas',
+    startAdding: 'Sāciet pievienot grāmatas savai lasīšanas listēm',
+    browseBooks: 'Pārlūkot grāmatas',
+    updateFailed: 'Neizdevās atjaunināt progresu',
+    removeFailed: 'Neizdevās noņemt grāmatu',
+    confirmRemove: 'Vai tiešām vēlaties noņemt šo grāmatu no savas lasistēs?'
+  },
   common: {
     save: 'Saglabāt',
     cancel: 'Atcelt',
@@ -109,6 +147,9 @@ export default {
     search: 'Meklēt',
     loading: 'Ielādē...',
     error: 'Kļūda',
-    success: 'Veiksmīgi'
+    success: 'Veiksmīgi',
+    showMore: 'Rādīt vairāk',
+    showLess: 'Rādīt mazāk',
+    remove: 'Noņemt'
   }
 }

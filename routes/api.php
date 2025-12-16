@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\ReadingProgressController;
+use App\Http\Controllers\Api\ThreadController;
+use App\Http\Controllers\Api\CommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +35,29 @@ Route::get('/books/{identifier}', [BookController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // Reading Progress routes
+    Route::get('/reading-progress', [ReadingProgressController::class, 'index']);
+    Route::post('/reading-progress', [ReadingProgressController::class, 'store']);
+    Route::get('/reading-progress/{id}', [ReadingProgressController::class, 'show']);
+    Route::put('/reading-progress/{id}', [ReadingProgressController::class, 'update']);
+    Route::delete('/reading-progress/{id}', [ReadingProgressController::class, 'destroy']);
+    Route::get('/reading-progress/book/{bookId}', [ReadingProgressController::class, 'getByBook']);
+    
+    // Thread routes
+    Route::get('/threads', [ThreadController::class, 'index']);
+    Route::post('/threads', [ThreadController::class, 'store']);
+    Route::get('/threads/{id}', [ThreadController::class, 'show']);
+    Route::put('/threads/{id}', [ThreadController::class, 'update']);
+    Route::delete('/threads/{id}', [ThreadController::class, 'destroy']);
+    Route::get('/books/{bookId}/threads', [ThreadController::class, 'forBook']);
+    
+    // Comment routes
+    Route::get('/threads/{threadId}/comments', [CommentController::class, 'index']);
+    Route::post('/threads/{threadId}/comments', [CommentController::class, 'store']);
+    Route::get('/threads/{threadId}/comments/{id}', [CommentController::class, 'show']);
+    Route::put('/threads/{threadId}/comments/{id}', [CommentController::class, 'update']);
+    Route::delete('/threads/{threadId}/comments/{id}', [CommentController::class, 'destroy']);
     
     // Protected book routes (admin only)
     Route::post('/books', [BookController::class, 'store']);

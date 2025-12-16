@@ -2,6 +2,7 @@ export default {
   nav: {
     home: 'Home',
     books: 'Books',
+    myReading: 'My Reading',
     profile: 'Profile',
     login: 'Login',
     register: 'Register',
@@ -35,9 +36,9 @@ export default {
     loginFailed: 'Login failed',
     registrationFailed: 'Registration failed',
     passwordsDoNotMatch: 'Passwords do not match',
-    noAccount: 'No account?',
+    noAccount: 'No account? ',
     registerHere: 'Register here',
-    haveAccount: 'Already have an account?',
+    haveAccount: 'Already have an account? ',
     loginHere: 'Login here',
     welcome: 'Welcome, {name}!'
   },
@@ -59,6 +60,11 @@ export default {
     noBooksFound: 'No books found',
     startSearching: 'Start searching or add your first book.',
     addBook: 'Add Book',
+    allCategories: 'All Categories',
+    importByISBN: 'Import by ISBN',
+    importBook: 'Import',
+    importing: 'Importing...',
+    bookImported: 'Book imported successfully!',
     bookTitle: 'Title',
     author: 'Author',
     isbn: 'ISBN',
@@ -70,6 +76,8 @@ export default {
     genre: 'Genre',
     tag: 'Category',
     addBook: 'Add Book',
+    addBookmarkFailed: 'Failed to add bookmark',
+    removeBookmarkFailed: 'Failed to remove bookmark',
     editBook: 'Edit Book',
     deleteBook: 'Delete Book',
     searchBooks: 'Search Books',
@@ -78,12 +86,29 @@ export default {
   },
   discussions: {
     discussions: 'Discussions',
+    bookDiscussions: 'Book Discussions',
     newDiscussion: 'New Discussion',
+    startDiscussion: 'Start Discussion',
     reply: 'Reply',
     replies: 'Replies',
-    noDiscussions: 'No discussions',
-    startDiscussion: 'Start Discussion'
+    noDiscussions: 'No discussions about this book',
+    beFirstToDiscuss: 'Be the first to start a conversation about this book.',
+    by: 'by',
+    title: 'Title',
+    content: 'Content',
+    create: 'Create',
+    creating: 'Creating...',
+    addToReadingList: 'Add to Reading List',
+    inReadingList: 'In Reading List',
+    addToList: 'Add',
+    inList: 'Added',
+    scope: 'Discussion Scope',
+    scopeGeneral: 'General discussion (entire book)',
+    scopePage: 'Specific page',
+    pageNumber: 'Page Number',
+    pageNumberPlaceholder: 'Enter page number'
   },
+    
   profile: {
     title: 'Profile',
     subtitle: 'Manage your account and reading statistics',
@@ -100,6 +125,22 @@ export default {
     recentActivity: 'Recent Activity',
     noRecentActivity: 'No recent activity'
   },
+  reading: {
+    title: 'My Reading',
+    subtitle: 'Track your reading progress',
+    wantToRead: 'Want to Read',
+    currentlyReading: 'Currently Reading',
+    completed: 'Completed',
+    all: 'All',
+    page: 'Page',
+    complete: 'complete',
+    noBooksYet: 'You haven\'t added any books yet',
+    startAdding: 'Start adding books to your reading lists',
+    browseBooks: 'Browse Books',
+    updateFailed: 'Failed to update progress',
+    removeFailed: 'Failed to remove book',
+    confirmRemove: 'Are you sure you want to remove this book from your reading list?'
+  },
   common: {
     save: 'Save',
     cancel: 'Cancel',
@@ -109,6 +150,9 @@ export default {
     search: 'Search',
     loading: 'Loading...',
     error: 'Error',
-    success: 'Success'
+    success: 'Success',
+    showMore: 'Show more',
+    showLess: 'Show less',
+    remove: 'Remove'
   }
 }

@@ -18,25 +18,25 @@ Platforma paredzēta plašai mērķauditorijai — gan aktīviem lasītājiem, g
 
 ## Galvenās funkcijas
 
-* **Lietotāju konti** – reģistrācija, autorizācija, profila pārvaldība
-* **Grāmatu pārvaldība** – meklēšana pēc nosaukuma, autora vai ISBN
-* **Lasīšanas progress** – statusa atzīmēšana ("Plānoju lasīt", "Lasu", "Izlasīts")
+* **Lietotāju konti** – reģistrācija, autorizācija ar Laravel Sanctum, profila pārvaldība
+* **Grāmatu pārvaldība** – meklēšana pēc nosaukuma, autora vai ISBN, importēšana pēc ISBN
+* **Lasīšanas progress** – grāmatu katalogs ar kategoriju filtriem
 * **Diskusijas un komentāri** – diskusiju izveide par grāmatām, komentēšana
 * **Sociālās funkcijas** – citu lietotāju sekošana un aktivitāšu pārraudzība
-* **PDF atskaites** – personīgā grāmatu plaukta un lasīšanas statistikas ģenerēšana
-* **Ārējais datu avots** – ISBNdb API integrācija grāmatu datiem (autors, vāks, lappušu skaits)
+* **Daudzvalodu atbalsts** – pilnīga saskarnes tulkošana latviešu un angļu valodā (Vue I18n)
+* **Ārējais datu avots** – Google Books API integrācija grāmatu datiem (autors, vāks, lappušu skaits, apraksts, izdevējs)
 
 ---
 
 ## Tehnoloģijas
 
-| Slānis    | Tehnoloģija                                                        |
-| --------- | ------------------------------------------------------------------ |
-| Frontend  | Vue.js 3, Vite, Tailwind CSS, Pinia (State Management)            |
-| Backend   | PHP (Laravel Framework)                                            |
-| Datu bāze | MySQL                                                              |
-| API       | ISBNdb.com                                                         |
-| Papildus  | DomPDF (atskaišu ģenerēšanai), REST API, PWA (Progressive Web App) |
+| Slānis    | Tehnoloģija                                                                      |
+| --------- | -------------------------------------------------------------------------------- |
+| Frontend  | Vue.js 3, Vite, Tailwind CSS, Pinia (State Management), Vue Router, Vue I18n    |
+| Backend   | PHP (Laravel Framework 12.36.1), Laravel Sanctum (API Authentication)           |
+| Datu bāze | SQLite (development), MySQL (production)                                         |
+| API       | Google Books API                                                                 |
+| Papildus  | REST API, Axios (HTTP client), localStorage (token & locale persistence)        |
 
 ---
 
@@ -72,7 +72,7 @@ npm install
 # Instalē Vue 3 un saistītās paketes
 npm install vue@^3.3.0 @vitejs/plugin-vue
 npm install vue-router@^4.2.0 pinia@^2.1.0
-npm install axios@^1.5.0
+npm install vue-i18n@9  # Daudzvalodu atbalsts
 
 # Instalē development tools
 npm install --save-dev @vue/compiler-sfc vite
@@ -133,22 +133,29 @@ APP_KEY=base64:... # (php artisan key:generate to izveidos)
 APP_DEBUG=true
 APP_URL=http://localhost:8000
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=librorum
-DB_USERNAME=jūsu_lietotājvārds
-DB_PASSWORD=jūsu_parole
+# Development: SQLite
+DB_CONNECTION=sqlite
+# DB_DATABASE=/absolute/path/to/database.sqlite
 
-# ISBNdb API (nepieciešams grāmatu datiem) 
-ISBNDB_API_KEY=jūsu_api_atslēga
-(API tiks mainīta, jo ISBNdb pieejai ir jāmaksā)
+# Production: MySQL
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=librorum
+# DB_USERNAME=jūsu_lietotājvārds
+# DB_PASSWORD=jūsu_parole
+
+# Google Books API Key (optional - system works without it)
+GOOGLE_BOOKS_API_KEY=
 ```
 
 ### 5. Datubāzes uzstādīšana ar migrācijām
 
 ```bash
-# Izveido datubāzi MySQL
+# SQLite (development) - izveidot datubāzes failu
+touch database/database.sqlite
+
+# Vai MySQL (production)
 mysql -u root -p
 CREATE DATABASE librorum CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 EXIT;
@@ -156,11 +163,11 @@ EXIT;
 # Palaiž migrācijas
 php artisan migrate
 
-# Palaiž seeder (sākotnējie dati)
+# Palaiž seeder (sākotnējie test dati)
 php artisan db:seed
 
-# Vai abi uzreiz:
-php artisan migrate --seed
+# Vai abi uzreiz (fresh start):
+php artisan migrate:fresh --seed
 ```
 
 ### 6. Vue.js komponenšu struktūras izveide
@@ -171,24 +178,25 @@ Izveidojiet šādas direktorijas un failus:
 resources/
 ├── js/
 │   ├── app.js              # Galvenais Vue entry point
-│   ├── components/         # Vue komponentes
-│   │   ├── BookCard.vue
-│   │   ├── BookList.vue
-│   │   ├── UserProfile.vue
-│   │   └── DiscussionForum.vue
+│   ├── App.vue             # Root komponente ar navigāciju un auth modāliem
+│   ├── bootstrap.js        # Axios konfigurācija
+│   ├── i18n.js             # Vue I18n konfigurācija (lv/en)
+│   ├── components/         # Vue komponentes (future)
 │   ├── pages/              # Vue lapas
-│   │   ├── Home.vue
-│   │   ├── Books.vue
-│   │   ├── Profile.vue
-│   │   ├── Discussions.vue
+│   │   ├── Home.vue        # Sākumlapa ar features
+│   │   ├── Books.vue       # Grāmatu katalogs ar meklēšanu un import
+│   │   ├── Profile.vue     # Lietotāja profils
 │   │   ├── BookDiscussions.vue
 │   │   └── DiscussionDetail.vue
 │   ├── stores/             # Pinia state management
-│   │   ├── auth.js
-│   │   ├── books.js
-│   │   └── discussions.js
+│   │   ├── auth.js         # Autentifikācija (Sanctum token)
+│   │   ├── books.js        # Grāmatu CRUD ar Google Books API
+│   │   └── discussions.js  # Diskusiju pārvaldība
+│   ├── locales/            # I18n tulkojumi
+│   │   ├── en.js           # English translations
+│   │   └── lv.js           # Latvian translations
 │   └── router/             # Vue Router
-│       └── index.js
+│       └── index.js        # Route definīcijas
 └── views/
     └── app.blade.php       # Laravel layout ar Vue mount point
 ```
@@ -317,10 +325,39 @@ php artisan db:seed --class=TestBooksSeeder
 
 ### Vue.js + Laravel integrācija
 
-1. **API komunikācija:** Izmantojiet Axios Laravel API izsaukšanai
-2. **CSRF aizsardzība:** Konfigurējiet `resources/js/bootstrap.js` ar Laravel CSRF token
-3. **Autentifikācija:** Izmantojiet Laravel Sanctum SPA autentifikācijai
-4. **State management:** Pinia glabā lietotāja stāvokli un grāmatu datus
+1. **API komunikācija:** Axios izmanto Bearer token autentifikācijai
+2. **Autentifikācija:** Laravel Sanctum SPA autentifikācija ar localStorage token
+3. **State management:** Pinia glabā lietotāja stāvokli, grāmatu datus un diskusijas
+4. **Valodu pārslēgšana:** Vue I18n ar localStorage persistence (LV/EN)
+5. **Google Books API:** ExternalBookApiService apstrādā ISBN importu un grāmatu meklēšanu
+
+### Datubāzes struktūra
+
+**Galvenās tabulas:**
+- `users` - lietotāji ar role (admin/user)
+- `books` - grāmatas ar pilnīgu metadata (ISBN10/13, cover_image_url, page_count, description, language, publisher, subjects, authors, external_ids)
+- `reading_progress` - lietotāju lasīšanas progress
+- `threads` - diskusiju tēmas (saistītas ar grāmatām)
+- `comments` - komentāri diskusijās
+- `likes` - patīk atzīmes
+- `following` - sekotāju saites
+
+### API Endpoints
+
+**Auth:**
+- `POST /api/register` - reģistrācija
+- `POST /api/login` - pieslēgšanās
+- `GET /api/user` - autentificētais lietotājs
+- `POST /api/logout` - iziet
+
+**Books:**
+- `GET /api/books` - visu grāmatu saraksts
+- `GET /api/books/{id}` - viena grāmata
+- `POST /api/books` - jauna grāmata
+- `PUT /api/books/{id}` - atjaunot grāmatu
+- `DELETE /api/books/{id}` - dzēst grāmatu
+- `POST /api/books/import-isbn` - importēt no Google Books
+- `GET /api/books/external-search` - meklēt ārējos avotos
 
 ### Datubāzes migrācijas prakses
 

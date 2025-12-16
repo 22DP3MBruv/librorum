@@ -1,10 +1,15 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
   const isAuthenticated = ref(false);
   const token = ref(localStorage.getItem('auth_token') || null);
+
+  // Computed
+  const isAdmin = computed(() => {
+    return user.value && user.value.role === 'admin';
+  });
 
   const login = async (credentials) => {
     try {
@@ -109,6 +114,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     isAuthenticated,
+    isAdmin,
     token,
     login,
     register,
