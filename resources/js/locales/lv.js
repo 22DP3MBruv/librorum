@@ -56,6 +56,7 @@ export default {
     title: 'Grāmatas',
     subtitle: 'Atklājiet un pārvaldiet savas grāmatas',
     searchPlaceholder: 'Meklēt grāmatas pēc nosaukuma, autora vai ISBN...',
+    filterByGenre: 'Filtrēt pēc žanra...',
     infoMessage: 'Noklikšķiniet uz grāmatas, lai redzētu tās diskusijas un pievienotos sarunām par šo grāmatu.',
     noBooksFound: 'Nav atrasta neviena grāmata',
     startSearching: 'Sāciet meklēt vai pievienojiet savu pirmo grāmatu.',
@@ -80,7 +81,15 @@ export default {
     deleteBook: 'Dzēst grāmatu',
     searchBooks: 'Meklēt grāmatas',
     importByISBN: 'Importēt pēc ISBN',
-    noBooks: 'Grāmatas nav atrastas'
+    noBooks: 'Grāmatas nav atrastas',
+    bookNotFound: 'Grāmata nav atrasta',
+    adminInfo: 'Administratora informācija',
+    bookId: 'Grāmatas ID',
+    publishDate: 'Izdošanas datums',
+    lastSync: 'Pēdējā API sinhronizācija',
+    subjects: 'Tēmas',
+    syncWithApi: 'Sinhronizēt ar API',
+    more: 'vairāk'
   },
   discussions: {
     discussions: 'Diskusijas',

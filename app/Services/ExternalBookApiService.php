@@ -120,7 +120,7 @@ class ExternalBookApiService
             'publication_year' => isset($volumeInfo['publishedDate']) ? (int)substr($volumeInfo['publishedDate'], 0, 4) : null,
             'page_count' => $volumeInfo['pageCount'] ?? null,
             'description' => $volumeInfo['description'] ?? null,
-            'cover_image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'cover_image_url' => $this->getBestCoverImage($volumeInfo),
             'language' => $volumeInfo['language'] ?? 'en',
             'genre' => isset($volumeInfo['categories'][0]) ? $volumeInfo['categories'][0] : null,
             'subjects' => $volumeInfo['categories'] ?? [],
@@ -179,6 +179,35 @@ class ExternalBookApiService
         foreach ($volumeInfo['industryIdentifiers'] as $identifier) {
             if ($identifier['type'] === 'ISBN_13') {
                 return $identifier['identifier'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the best quality cover image available from Google Books
+     * Priority: extraLarge > large > medium > thumbnail > smallThumbnail
+     */
+    private function getBestCoverImage($volumeInfo)
+    {
+        if (!isset($volumeInfo['imageLinks'])) {
+            return null;
+        }
+
+        $imageLinks = $volumeInfo['imageLinks'];
+        
+        // Priority order for image quality
+        $priorityOrder = ['extraLarge', 'large', 'medium', 'thumbnail', 'smallThumbnail'];
+        
+        foreach ($priorityOrder as $size) {
+            if (isset($imageLinks[$size])) {
+                // Replace zoom parameter to get higher quality
+                $url = $imageLinks[$size];
+                // Google Books thumbnails have a zoom parameter, increase it for better quality
+                $url = str_replace('zoom=1', 'zoom=2', $url);
+                $url = str_replace('http://', 'https://', $url); // Ensure HTTPS
+                return $url;
             }
         }
 

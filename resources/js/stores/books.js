@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { getLocalizedErrorMessage } from '../utils/errorHandler.js';
 
 export const useBooksStore = defineStore('books', () => {
   const books = ref([]);
@@ -49,7 +50,7 @@ export const useBooksStore = defineStore('books', () => {
         books.value = data.data || data;
       } else {
         const errorData = await response.json();
-        error.value = errorData.message || 'Failed to fetch books';
+        error.value = getLocalizedErrorMessage(errorData) || 'Failed to fetch books';
         books.value = [];
       }
     } catch (err) {
@@ -75,7 +76,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, book: newBook };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to add book' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to add book' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -100,7 +101,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, book: updatedBook };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to update book' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to update book' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -119,7 +120,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to delete book' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to delete book' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -139,7 +140,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, results: searchResults.value };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Search failed' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Search failed' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -164,7 +165,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, book: newBook };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to import book' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to import book' };
       }
     } catch (err) {
       return { success: false, message: err.message };

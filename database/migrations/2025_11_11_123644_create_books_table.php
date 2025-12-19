@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('book_id');
             $table->string('title');
             $table->string('author');
-            $table->string('isbn')->unique();
+            $table->string('isbn')->unique(); // Used as a unique singular identifier at the point of creation
             $table->string('cover_image_url')->nullable();
             $table->integer('page_count')->nullable();
             $table->timestamps();

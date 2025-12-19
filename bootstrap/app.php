@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Auth\AuthenticationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,5 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // API routes use token-based authentication only
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Login is required to access this resource.',
+                    'message_lv' => 'Nepieciešama pieteikšanās, lai piekļūtu šim resursam.'
+                ], 401);
+            }
+        });
     })->create();

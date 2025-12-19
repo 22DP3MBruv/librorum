@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->string('tag')->nullable()->after('page_count');
-        });
+        // Migration disabled - using genre field instead
+        // Schema::table('books', function (Blueprint $table) {
+        //     $table->string('tag')->nullable()->after('page_count');
+        // });
     }
 
     /**

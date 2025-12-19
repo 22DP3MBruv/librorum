@@ -29,7 +29,6 @@ class Book extends Model
         'isbn13',
         'cover_image_url',
         'page_count',
-        'tag',
         'description',
         'language',
         'publisher',

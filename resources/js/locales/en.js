@@ -56,6 +56,7 @@ export default {
     title: 'Books',
     subtitle: 'Discover and manage your books',
     searchPlaceholder: 'Search books by title, author, or ISBN...',
+    filterByGenre: 'Filter by genre...',
     infoMessage: 'Click on a book to view its discussions and join conversations about it.',
     noBooksFound: 'No books found',
     startSearching: 'Start searching or add your first book.',
@@ -82,7 +83,15 @@ export default {
     deleteBook: 'Delete Book',
     searchBooks: 'Search Books',
     importByISBN: 'Import by ISBN',
-    noBooks: 'No books found'
+    noBooks: 'No books found',
+    bookNotFound: 'Book not found',
+    adminInfo: 'Admin Information',
+    bookId: 'Book ID',
+    publishDate: 'Publish Date',
+    lastSync: 'Last API Sync',
+    subjects: 'Subjects',
+    syncWithApi: 'Sync with API',
+    more: 'more'
   },
   discussions: {
     discussions: 'Discussions',

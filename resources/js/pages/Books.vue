@@ -32,13 +32,31 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
       </div>
-      <select 
-        v-model="selectedTag" 
-        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        <option value="">{{ t('books.allCategories') }}</option>
-        <option v-for="tag in availableTags" :key="tag" :value="tag">{{ tag }}</option>
-      </select>
+      <div class="relative">
+        <input
+          v-model="genreFilter"
+          type="text"
+          :placeholder="t('books.filterByGenre')"
+          @input="handleGenreInput"
+          @focus="showGenreSuggestions = true"
+          @blur="hideGenreSuggestions"
+          class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
+        >
+        <!-- Genre Suggestions Dropdown -->
+        <div 
+          v-if="showGenreSuggestions && filteredGenres.length > 0"
+          class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+        >
+          <button
+            v-for="genre in filteredGenres"
+            :key="genre"
+            @mousedown="selectGenre(genre)"
+            class="w-full px-4 py-2 text-left hover:bg-blue-50 transition-colors"
+          >
+            {{ genre }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -56,7 +74,7 @@
     <div v-else-if="filteredBooks.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div 
         v-for="book in filteredBooks" 
-        :key="book.id"
+        :key="book.book_id"
         class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group"
       >
         <!-- Bookmark Button -->
@@ -64,7 +82,7 @@
           v-if="authStore.isAuthenticated"
           @click.stop="toggleBookmark(book)"
           class="absolute top-2 right-2 z-10 bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-all"
-          :class="isBookmarked(book.id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
+          :class="isBookmarked(book.book_id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
         >
           <svg class="w-6 h-6" :fill="isBookmarked(book.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
@@ -89,7 +107,7 @@
             <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">{{ book.title }}</h3>
             <p class="text-sm text-gray-600 mb-2">{{ book.author }}</p>
             <div class="flex justify-between items-center text-xs text-gray-500">
-              <span v-if="book.tag" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ book.tag }}</span>
+              <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ book.genre }}</span>
               <span v-if="book.page_count">{{ book.page_count }} {{ t('books.pages') }}</span>
             </div>
           </div>
@@ -183,7 +201,8 @@ const progressStore = useReadingProgressStore();
 const authStore = useAuthStore();
 
 const searchQuery = ref('');
-const selectedTag = ref('');
+const genreFilter = ref('');
+const showGenreSuggestions = ref(false);
 const showImportModal = ref(false);
 const isbnInput = ref('');
 const importLoading = ref(false);
@@ -191,12 +210,22 @@ const importError = ref('');
 const importSuccess = ref(false);
 
 // Computed
-const availableTags = computed(() => {
-  const tags = new Set();
+const availableGenres = computed(() => {
+  const genres = new Set();
   booksStore.books.forEach(book => {
-    if (book.tag) tags.add(book.tag);
+    if (book.genre) genres.add(book.genre);
   });
-  return Array.from(tags).sort();
+  return Array.from(genres).sort();
+});
+
+const filteredGenres = computed(() => {
+  if (!genreFilter.value) {
+    return availableGenres.value;
+  }
+  const query = genreFilter.value.toLowerCase();
+  return availableGenres.value.filter(genre => 
+    genre.toLowerCase().includes(query)
+  );
 });
 
 const filteredBooks = computed(() => {
@@ -214,9 +243,12 @@ const filteredBooks = computed(() => {
     );
   }
   
-  // Filter by tag
-  if (selectedTag.value) {
-    filtered = filtered.filter(book => book.tag === selectedTag.value);
+  // Filter by genre
+  if (genreFilter.value) {
+    const query = genreFilter.value.toLowerCase();
+    filtered = filtered.filter(book => 
+      book.genre?.toLowerCase().includes(query)
+    );
   }
   
   return filtered;
@@ -225,6 +257,21 @@ const filteredBooks = computed(() => {
 // Methods
 const handleSearch = () => {
   // Real-time filtering handled by computed property
+};
+
+const handleGenreInput = () => {
+  showGenreSuggestions.value = true;
+};
+
+const selectGenre = (genre) => {
+  genreFilter.value = genre;
+  showGenreSuggestions.value = false;
+};
+
+const hideGenreSuggestions = () => {
+  setTimeout(() => {
+    showGenreSuggestions.value = false;
+  }, 200);
 };
 
 const goToBookDiscussion = (book) => {
@@ -266,7 +313,7 @@ const isBookmarked = (bookId) => {
 };
 
 const toggleBookmark = async (book) => {
-  const bookProgress = progressStore.getBookProgress(book.id);
+  const bookProgress = progressStore.getBookProgress(book.book_id);
   
   if (bookProgress) {
     // Remove from reading list
@@ -276,7 +323,7 @@ const toggleBookmark = async (book) => {
     }
   } else {
     // Add to reading list
-    const result = await progressStore.addToReadingList(book.id, 'want_to_read');
+    const result = await progressStore.addToReadingList(book.book_id, 'want_to_read');
     if (!result.success) {
       alert(result.message || t('books.addBookmarkFailed'));
     }

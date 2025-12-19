@@ -145,7 +145,7 @@
             <!-- Progress Info -->
             <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
               <span v-if="progress.book?.page_count">{{ progress.book.page_count }} {{ t('books.pages') }}</span>
-              <span v-if="progress.book?.tag" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ progress.book.tag }}</span>
+              <span v-if="progress.book?.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ progress.book.genre }}</span>
             </div>
 
             <!-- Status Selector and Page Progress -->

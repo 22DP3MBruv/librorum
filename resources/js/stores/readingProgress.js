@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { getLocalizedErrorMessage } from '../utils/errorHandler.js';
 
 export const useReadingProgressStore = defineStore('readingProgress', () => {
   const progressList = ref([]);
@@ -19,17 +20,18 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
   // Computed properties
   const progressByStatus = computed(() => {
     return {
-      'want-to-read': progressList.value.filter(p => p.status === 'want-to-read'),
+      'want_to_read': progressList.value.filter(p => p.status === 'want_to_read'),
       'reading': progressList.value.filter(p => p.status === 'reading'),
-      'read': progressList.value.filter(p => p.status === 'read')
+      'completed': progressList.value.filter(p => p.status === 'completed')
     };
   });
 
   const progressCount = computed(() => ({
     total: progressList.value.length,
-    wantToRead: progressByStatus.value['want-to-read'].length,
+    wantToRead: progressByStatus.value['want_to_read'].length,
     reading: progressByStatus.value.reading.length,
-    read: progressByStatus.value.read.length
+    read: progressByStatus.value.completed.length,
+    completed: progressByStatus.value.completed.length
   }));
 
   // Actions
@@ -46,7 +48,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         progressList.value = data.data || data;
       } else {
         const errorData = await response.json();
-        error.value = errorData.message || 'Failed to fetch reading progress';
+        error.value = getLocalizedErrorMessage(errorData) || 'Failed to fetch reading progress';
         progressList.value = [];
       }
     } catch (err) {
@@ -76,7 +78,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         return { success: true, progress: newProgress };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to add to reading list' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to add to reading list' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -101,7 +103,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         return { success: true, progress: updatedProgress };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to update progress' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to update progress' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -120,7 +122,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Failed to remove from reading list' };
+        return { success: false, message: getLocalizedErrorMessage(errorData) || 'Failed to remove from reading list' };
       }
     } catch (err) {
       return { success: false, message: err.message };

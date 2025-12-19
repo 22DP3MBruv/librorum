@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { getLocalizedErrorMessage } from '../utils/errorHandler.js';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
@@ -31,7 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        let errorMessage = errorData.message || 'Invalid credentials';
+        let errorMessage = getLocalizedErrorMessage(errorData) || 'Invalid credentials';
         
         // Handle validation errors
         if (errorData.errors) {
@@ -66,7 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        let errorMessage = errorData.message || 'Registration failed';
+        let errorMessage = getLocalizedErrorMessage(errorData) || 'Registration failed';
         
         // Handle validation errors
         if (errorData.errors) {

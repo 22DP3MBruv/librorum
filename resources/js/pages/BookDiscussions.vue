@@ -23,8 +23,9 @@
     <template v-else-if="book">
       <!-- Book Header -->
       <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
-        <div class="flex items-start space-x-4">
-          <div class="w-24 h-36 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
+        <div class="flex items-start gap-6">
+          <!-- Left side: Book Cover -->
+          <div class="w-60 h-90 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
             <img
               v-if="book.cover_image_url"
               :src="book.cover_image_url"
@@ -37,14 +38,16 @@
               </svg>
             </div>
           </div>
-          <div class="flex-1">
+
+          <!-- Center: Book Details -->
+          <div class="flex-1 min-w-0">
             <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ book.title }}</h1>
             <p class="text-gray-600 mb-2">{{ book.author }}</p>
-            <div class="flex flex-wrap gap-2 text-sm text-gray-500 mb-3">
+            <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-3">
               <span v-if="book.isbn">ISBN: {{ book.isbn }}</span>
               <span v-if="book.page_count">{{ book.page_count }} {{ t('books.pages') }}</span>
               <span v-if="book.publication_year">{{ book.publication_year }}</span>
-              <span v-if="book.tag" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ book.tag }}</span>
+              <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ book.genre }}</span>
             </div>
             <div v-if="book.description" class="text-sm text-gray-700">
               <p :class="descriptionExpanded ? '' : 'line-clamp-3'">{{ book.description }}</p>
@@ -55,21 +58,86 @@
                 {{ descriptionExpanded ? t('common.showLess') : t('common.showMore') }}
               </button>
             </div>
+            <div v-if="authStore.isAuthenticated" class="mt-4">
+              <button 
+                @click="toggleBookmark"
+                :class="[
+                  'px-4 py-2 rounded-lg transition-colors flex items-center whitespace-nowrap',
+                  isBookmarked ? 'bg-blue-600 text-white hover:bg-blue-700' : 'border border-blue-600 text-blue-600 hover:bg-blue-50'
+                ]"
+              >
+                <svg class="w-5 h-5 mr-2 flex-shrink-0" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                </svg>
+                <span class="hidden sm:inline">{{ isBookmarked ? t('discussions.inReadingList') : t('discussions.addToReadingList') }}</span>
+                <span class="sm:hidden">{{ isBookmarked ? t('discussions.inList') : t('discussions.addToList') }}</span>
+              </button>
+            </div>
           </div>
-          <div v-if="authStore.isAuthenticated" class="flex-shrink-0">
-            <button 
-              @click="toggleBookmark"
-              :class="[
-                'px-4 py-2 rounded-lg transition-colors flex items-center whitespace-nowrap',
-                isBookmarked ? 'bg-blue-600 text-white hover:bg-blue-700' : 'border border-blue-600 text-blue-600 hover:bg-blue-50'
-              ]"
-            >
-              <svg class="w-5 h-5 mr-2 flex-shrink-0" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+
+          <!-- Right side: Admin Panel -->
+          <div v-if="authStore.isAdmin" class="w-72 flex-shrink-0 bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
-              <span class="hidden sm:inline">{{ isBookmarked ? t('discussions.inReadingList') : t('discussions.addToReadingList') }}</span>
-              <span class="sm:hidden">{{ isBookmarked ? t('discussions.inList') : t('discussions.addToList') }}</span>
-            </button>
+              {{ t('books.adminInfo') }}
+            </h3>
+            
+            <div class="space-y-3 text-xs">
+              <div>
+                <span class="text-gray-500">{{ t('books.bookId') }}:</span>
+                <span class="ml-1 font-mono text-gray-700">{{ book.book_id }}</span>
+              </div>
+              
+              <div v-if="book.isbn10">
+                <span class="text-gray-500">ISBN-10:</span>
+                <span class="ml-1 font-mono text-gray-700">{{ book.isbn10 }}</span>
+              </div>
+              
+              <div v-if="book.isbn13">
+                <span class="text-gray-500">ISBN-13:</span>
+                <span class="ml-1 font-mono text-gray-700">{{ book.isbn13 }}</span>
+              </div>
+              
+              <div v-if="book.language">
+                <span class="text-gray-500">{{ t('books.language') }}:</span>
+                <span class="ml-1 text-gray-700">{{ book.language.toUpperCase() }}</span>
+              </div>
+              
+              <div v-if="book.publisher">
+                <span class="text-gray-500">{{ t('books.publisher') }}:</span>
+                <span class="ml-1 text-gray-700">{{ book.publisher }}</span>
+              </div>
+              
+              <div v-if="book.publish_date">
+                <span class="text-gray-500">{{ t('books.publishDate') }}:</span>
+                <span class="ml-1 text-gray-700">{{ formatDate(book.publish_date) }}</span>
+              </div>
+              
+              <div v-if="book.external_ids?.google_books">
+                <span class="text-gray-500">Google Books ID:</span>
+                <span class="ml-1 font-mono text-gray-700 text-[10px]">{{ book.external_ids.google_books }}</span>
+              </div>
+              
+              <div v-if="book.last_api_sync">
+                <span class="text-gray-500">{{ t('books.lastSync') }}:</span>
+                <span class="ml-1 text-gray-700">{{ formatDate(book.last_api_sync) }}</span>
+              </div>
+              
+              <div class="pt-3 border-t border-gray-300 space-y-2">
+                <button class="w-full px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                  {{ t('books.editBook') }}
+                </button>
+                <button class="w-full px-3 py-1.5 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                  {{ t('books.syncWithApi') }}
+                </button>
+                <button class="w-full px-3 py-1.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                  {{ t('books.deleteBook') }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -252,7 +320,7 @@ const discussionError = ref('');
 const descriptionExpanded = ref(false);
 
 const isBookmarked = computed(() => {
-  return book.value && progressStore.isBookInReadingList(book.value.id);
+  return book.value && progressStore.isBookInReadingList(book.value.book_id);
 });
 
 const fetchBook = async () => {
@@ -265,11 +333,22 @@ const fetchBook = async () => {
 
     if (response.ok) {
       const data = await response.json();
+      const isbn = route.params.isbn;
+      
       // Handle both single book and array response
       if (Array.isArray(data.data)) {
-        book.value = data.data[0] || null;
+        // Find the book that matches the ISBN
+        book.value = data.data.find(b => 
+          b.isbn === isbn || 
+          b.isbn10 === isbn || 
+          b.isbn13 === isbn
+        ) || null;
       } else {
         book.value = data.data || data;
+      }
+      
+      if (!book.value) {
+        error.value = t('books.bookNotFound');
       }
     } else {
       error.value = t('books.bookNotFound');
@@ -282,19 +361,19 @@ const fetchBook = async () => {
 const fetchDiscussions = async () => {
   if (!book.value) return;
   
-  await discussionsStore.fetchDiscussionsForBook(book.value.id);
-  discussions.value = discussionsStore.discussionsByBook[book.value.id] || [];
+  await discussionsStore.fetchDiscussionsForBook(book.value.book_id);
+  discussions.value = discussionsStore.discussionsByBook[book.value.book_id] || [];
 };
 
 const toggleBookmark = async () => {
   if (!book.value) return;
   
-  const bookProgress = progressStore.getBookProgress(book.value.id);
+  const bookProgress = progressStore.getBookProgress(book.value.book_id);
   
   if (bookProgress) {
     await progressStore.removeFromReadingList(bookProgress.id);
   } else {
-    await progressStore.addToReadingList(book.value.id, 'want_to_read');
+    await progressStore.addToReadingList(book.value.book_id, 'want_to_read');
   }
 };
 
@@ -309,7 +388,7 @@ const handleCreateDiscussion = async () => {
   discussionError.value = '';
   
   const discussionData = {
-    book_id: book.value.id,
+    book_id: book.value.book_id,
     title: newDiscussion.value.title,
     content: newDiscussion.value.content,
     scope: newDiscussion.value.scope,
