@@ -22,7 +22,8 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
     return {
       'want_to_read': progressList.value.filter(p => p.status === 'want_to_read'),
       'reading': progressList.value.filter(p => p.status === 'reading'),
-      'completed': progressList.value.filter(p => p.status === 'completed')
+      'completed': progressList.value.filter(p => p.status === 'completed'),
+      'dropped': progressList.value.filter(p => p.status === 'dropped')
     };
   });
 
@@ -31,7 +32,8 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
     wantToRead: progressByStatus.value['want_to_read'].length,
     reading: progressByStatus.value.reading.length,
     read: progressByStatus.value.completed.length,
-    completed: progressByStatus.value.completed.length
+    completed: progressByStatus.value.completed.length,
+    dropped: progressByStatus.value.dropped.length
   }));
 
   // Actions

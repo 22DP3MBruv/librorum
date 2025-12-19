@@ -140,6 +140,7 @@ export default {
     wantToRead: 'Want to Read',
     currentlyReading: 'Currently Reading',
     completed: 'Completed',
+    dropped: 'Dropped',
     all: 'All',
     page: 'Page',
     complete: 'complete',

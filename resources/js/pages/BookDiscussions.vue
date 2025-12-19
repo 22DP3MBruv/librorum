@@ -88,7 +88,7 @@
             <div class="space-y-3 text-xs">
               <div>
                 <span class="text-gray-500">{{ t('books.bookId') }}:</span>
-                <span class="ml-1 font-mono text-gray-700">{{ book.book_id }}</span>
+                <span class="ml-1 font-mono text-gray-700">{{ book.id }}</span>
               </div>
               
               <div v-if="book.isbn10">
@@ -320,7 +320,7 @@ const discussionError = ref('');
 const descriptionExpanded = ref(false);
 
 const isBookmarked = computed(() => {
-  return book.value && progressStore.isBookInReadingList(book.value.book_id);
+  return book.value && progressStore.isBookInReadingList(book.value.id);
 });
 
 const fetchBook = async () => {
@@ -361,19 +361,25 @@ const fetchBook = async () => {
 const fetchDiscussions = async () => {
   if (!book.value) return;
   
-  await discussionsStore.fetchDiscussionsForBook(book.value.book_id);
-  discussions.value = discussionsStore.discussionsByBook[book.value.book_id] || [];
+  await discussionsStore.fetchDiscussionsForBook(book.value.id);
+  discussions.value = discussionsStore.discussionsByBook[book.value.id] || [];
 };
 
 const toggleBookmark = async () => {
   if (!book.value) return;
   
-  const bookProgress = progressStore.getBookProgress(book.value.book_id);
+  if (!book.value.id) {
+    console.error('Book ID is missing:', book.value);
+    alert('Error: Book ID is missing');
+    return;
+  }
+  
+  const bookProgress = progressStore.getBookProgress(book.value.id);
   
   if (bookProgress) {
     await progressStore.removeFromReadingList(bookProgress.id);
   } else {
-    await progressStore.addToReadingList(book.value.book_id, 'want_to_read');
+    await progressStore.addToReadingList(book.value.id, 'want_to_read');
   }
 };
 
@@ -388,7 +394,7 @@ const handleCreateDiscussion = async () => {
   discussionError.value = '';
   
   const discussionData = {
-    book_id: book.value.book_id,
+    book_id: book.value.id,
     title: newDiscussion.value.title,
     content: newDiscussion.value.content,
     scope: newDiscussion.value.scope,

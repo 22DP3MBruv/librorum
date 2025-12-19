@@ -100,13 +100,23 @@ export const useAuthStore = defineStore('auth', () => {
         });
 
         if (response.ok) {
-          const userData = await response.json();
-          user.value = userData;
-          isAuthenticated.value = true;
+          const data = await response.json();
+          // Handle both direct user object and data-wrapped response
+          const userData = data.data || data;
+          
+          // Validate that we have proper user data
+          if (userData && userData.name) {
+            user.value = userData;
+            isAuthenticated.value = true;
+          } else {
+            console.error('Invalid user data received:', userData);
+            logout();
+          }
         } else {
           logout();
         }
       } catch (error) {
+        console.error('Auth check failed:', error);
         logout();
       }
     }

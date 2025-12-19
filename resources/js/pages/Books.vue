@@ -74,7 +74,7 @@
     <div v-else-if="filteredBooks.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div 
         v-for="book in filteredBooks" 
-        :key="book.book_id"
+        :key="book.id"
         class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group"
       >
         <!-- Bookmark Button -->
@@ -82,7 +82,7 @@
           v-if="authStore.isAuthenticated"
           @click.stop="toggleBookmark(book)"
           class="absolute top-2 right-2 z-10 bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-all"
-          :class="isBookmarked(book.book_id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
+          :class="isBookmarked(book.id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
         >
           <svg class="w-6 h-6" :fill="isBookmarked(book.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
@@ -106,9 +106,9 @@
           <div class="p-4">
             <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">{{ book.title }}</h3>
             <p class="text-sm text-gray-600 mb-2">{{ book.author }}</p>
-            <div class="flex justify-between items-center text-xs text-gray-500">
-              <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ book.genre }}</span>
-              <span v-if="book.page_count">{{ book.page_count }} {{ t('books.pages') }}</span>
+            <div class="flex justify-between items-center text-xs text-gray-500 gap-2">
+              <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap truncate max-w-[120px]" :title="book.genre">{{ book.genre }}</span>
+              <span v-if="book.page_count" class="whitespace-nowrap">{{ book.page_count }} {{ t('books.pages') }}</span>
             </div>
           </div>
         </div>
@@ -313,7 +313,13 @@ const isBookmarked = (bookId) => {
 };
 
 const toggleBookmark = async (book) => {
-  const bookProgress = progressStore.getBookProgress(book.book_id);
+  if (!book.id) {
+    console.error('Book ID is missing:', book);
+    alert('Error: Book ID is missing');
+    return;
+  }
+  
+  const bookProgress = progressStore.getBookProgress(book.id);
   
   if (bookProgress) {
     // Remove from reading list
@@ -323,7 +329,7 @@ const toggleBookmark = async (book) => {
     }
   } else {
     // Add to reading list
-    const result = await progressStore.addToReadingList(book.book_id, 'want_to_read');
+    const result = await progressStore.addToReadingList(book.id, 'want_to_read');
     if (!result.success) {
       alert(result.message || t('books.addBookmarkFailed'));
     }

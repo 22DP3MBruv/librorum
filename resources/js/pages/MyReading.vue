@@ -98,6 +98,17 @@
         >
           {{ t('reading.completed') }} ({{ progressStore.progressCount.completed }})
         </button>
+        <button
+          @click="selectedStatus = 'dropped'"
+          :class="[
+            selectedStatus === 'dropped'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
+          ]"
+        >
+          {{ t('reading.dropped') }} ({{ progressStore.progressCount.dropped }})
+        </button>
       </nav>
     </div>
 
@@ -158,6 +169,7 @@
                 <option value="want_to_read">{{ t('reading.wantToRead') }}</option>
                 <option value="reading">{{ t('reading.currentlyReading') }}</option>
                 <option value="completed">{{ t('reading.completed') }}</option>
+                <option value="dropped">{{ t('reading.dropped') }}</option>
               </select>
 
               <div v-if="progress.status === 'reading'" class="flex items-center gap-2">

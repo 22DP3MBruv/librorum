@@ -9,7 +9,22 @@
               Librorum
             </router-link>
           </div>
-          <div class="flex items-center space-x-4">
+          
+          <!-- Mobile menu button -->
+          <div class="flex items-center md:hidden">
+            <button
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Desktop navigation -->
+          <div class="hidden md:flex items-center space-x-4">
             <router-link 
               to="/" 
               class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
@@ -84,6 +99,97 @@
               <button 
                 @click="handleLogout"
                 class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                {{ t('nav.logout') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div v-if="mobileMenuOpen" class="md:hidden border-t border-gray-200 pb-3 pt-3">
+          <div class="space-y-1">
+            <!-- Language switcher mobile -->
+            <div class="flex items-center space-x-2 px-3 py-2">
+              <button
+                @click="setLocale('lv')"
+                :class="[
+                  'px-3 py-1 text-sm font-medium rounded transition-colors',
+                  locale === 'lv' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                ]"
+              >
+                LV
+              </button>
+              <button
+                @click="setLocale('en')"
+                :class="[
+                  'px-3 py-1 text-sm font-medium rounded transition-colors',
+                  locale === 'en' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                ]"
+              >
+                EN
+              </button>
+            </div>
+            
+            <router-link 
+              to="/" 
+              @click="mobileMenuOpen = false"
+              class="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+            >
+              {{ t('nav.home') }}
+            </router-link>
+
+            <router-link 
+              to="/books"
+              @click="mobileMenuOpen = false"
+              class="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+            >
+              {{ t('nav.books') }}
+            </router-link>
+            <router-link 
+              v-if="authStore.isAuthenticated"
+              to="/my-reading"
+              @click="mobileMenuOpen = false"
+              class="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+            >
+              {{ t('nav.myReading') }}
+            </router-link>
+            
+            <!-- Auth buttons mobile -->
+            <div v-if="!authStore.isAuthenticated" class="space-y-1 px-3 py-2">
+              <button 
+                @click="openLoginModal(); mobileMenuOpen = false"
+                class="w-full text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+              >
+                {{ t('nav.login') }}
+              </button>
+              <button 
+                @click="openRegisterModal(); mobileMenuOpen = false"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium"
+              >
+                {{ t('nav.register') }}
+              </button>
+            </div>
+            
+            <!-- User menu mobile -->
+            <div v-else class="space-y-1">
+              <router-link 
+                to="/profile"
+                @click="mobileMenuOpen = false"
+                class="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+              >
+                {{ t('nav.profile') }}
+              </router-link>
+              <div class="px-3 py-2 text-sm text-gray-600">
+                {{ t('auth.welcome', { name: authStore.user?.name || 'User' }) }}
+              </div>
+              <button 
+                @click="handleLogout(); mobileMenuOpen = false"
+                class="w-full text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
               >
                 {{ t('nav.logout') }}
               </button>
@@ -277,9 +383,13 @@ import { useAuthStore } from './stores/auth.js';
 const authStore = useAuthStore();
 const { t, locale } = useI18n();
 
+// Mobile menu state
+const mobileMenuOpen = ref(false);
+
 // Language switching
 const setLocale = (lang) => {
   locale.value = lang;
+  localStorage.setItem('locale', lang);
 };
 
 // Modal states

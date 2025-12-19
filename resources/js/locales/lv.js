@@ -137,6 +137,7 @@ export default {
     wantToRead: 'Plānoju lasīt',
     currentlyReading: 'Lasu pašlaik',
     completed: 'Izlasītas',
+    dropped: 'Pārtrauktas',
     all: 'Visas',
     page: 'Lappuse',
     complete: 'pabeigts',
