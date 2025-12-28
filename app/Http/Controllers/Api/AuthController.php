@@ -40,7 +40,8 @@ class AuthController extends Controller
         if ($validator->fails()) {
             \Log::error('Registration validation failed', $validator->errors()->toArray());
             return response()->json([
-                'message' => 'Validācijas kļūda',
+                'message' => 'Validation error',
+                'message_lv' => 'Validācijas kļūda',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -56,7 +57,8 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Reģistrācija veiksmīga',
+            'message' => 'Registration successful',
+            'message_lv' => 'Reģistrācija veiksmīga',
             'user' => new UserResource($user),
             'token' => $token,
             'token_type' => 'Bearer'
@@ -75,7 +77,8 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Validācijas kļūda',
+                'message' => 'Validation error',
+                'message_lv' => 'Validācijas kļūda',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -90,7 +93,8 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Pieslēgšanās veiksmīga',
+            'message' => 'Login successful',
+            'message_lv' => 'Pieslēgšanās veiksmīga',
             'user' => new UserResource($user),
             'token' => $token,
             'token_type' => 'Bearer'
@@ -113,7 +117,8 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Veiksmīgi izlogojies'
+            'message' => 'Successfully logged out',
+            'message_lv' => 'Veiksmīgi izlogojies'
         ]);
     }
 }

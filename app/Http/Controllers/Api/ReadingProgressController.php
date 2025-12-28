@@ -46,6 +46,7 @@ class ReadingProgressController extends Controller
         if ($existing) {
             return response()->json([
                 'message' => 'Reading progress already exists for this book',
+                'message_lv' => 'Lasīšanas progress šai grāmatai jau eksistē',
                 'data' => new ReadingProgressResource($existing)
             ], 409);
         }
@@ -119,7 +120,8 @@ class ReadingProgressController extends Controller
         $progress->delete();
 
         return response()->json([
-            'message' => 'Reading progress deleted successfully'
+            'message' => 'Reading progress deleted successfully',
+            'message_lv' => 'Lasīšanas progress veiksmīgi izdzēsts'
         ]);
     }
 
@@ -137,7 +139,8 @@ class ReadingProgressController extends Controller
 
         if (!$progress) {
             return response()->json([
-                'message' => 'No reading progress found for this book'
+                'message' => 'No reading progress found for this book',
+                'message_lv' => 'Šai grāmatai nav atrasts lasīšanas progress'
             ], 404);
         }
 

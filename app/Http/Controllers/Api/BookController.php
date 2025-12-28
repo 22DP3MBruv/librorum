@@ -64,7 +64,8 @@ class BookController extends Controller
 
         if (!$book) {
             return response()->json([
-                'message' => 'Grāmata nav atrasta'
+                'message' => 'Book not found',
+                'message_lv' => 'Grāmata nav atrasta'
             ], 404);
         }
 
@@ -79,7 +80,8 @@ class BookController extends Controller
         // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
-                'message' => 'Nav atļaujas pievienot grāmatas'
+                'message' => 'Unauthorized to add books',
+                'message_lv' => 'Nav atļaujas pievienot grāmatas'
             ], 403);
         }
 
@@ -106,7 +108,8 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Validācijas kļūda',
+                'message' => 'Validation error',
+                'message_lv' => 'Validācijas kļūda',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -124,7 +127,8 @@ class BookController extends Controller
         // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
-                'message' => 'Nav atļaujas rediģēt grāmatas'
+                'message' => 'Unauthorized to edit books',
+                'message_lv' => 'Nav atļaujas rediģēt grāmatas'
             ], 403);
         }
 
@@ -132,7 +136,8 @@ class BookController extends Controller
         
         if (!$book) {
             return response()->json([
-                'message' => 'Grāmata nav atrasta'
+                'message' => 'Book not found',
+                'message_lv' => 'Grāmata nav atrasta'
             ], 404);
         }
 
@@ -152,7 +157,8 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Validācijas kļūda',
+                'message' => 'Validation error',
+                'message_lv' => 'Validācijas kļūda',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -170,7 +176,8 @@ class BookController extends Controller
         // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
-                'message' => 'Nav atļaujas dzēst grāmatas'
+                'message' => 'Unauthorized to delete books',
+                'message_lv' => 'Nav atļaujas dzēst grāmatas'
             ], 403);
         }
 
@@ -178,14 +185,16 @@ class BookController extends Controller
         
         if (!$book) {
             return response()->json([
-                'message' => 'Grāmata nav atrasta'
+                'message' => 'Book not found',
+                'message_lv' => 'Grāmata nav atrasta'
             ], 404);
         }
 
         $book->delete();
 
         return response()->json([
-            'message' => 'Grāmata veiksmīgi izdzēsta'
+            'message' => 'Book deleted successfully',
+            'message_lv' => 'Grāmata veiksmīgi izdzēsta'
         ]);
     }
 
@@ -228,7 +237,8 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Meklēšanas parametri nav pareizi',
+                'message' => 'Search parameters are invalid',
+                'message_lv' => 'Meklēšanas parametri nav pareizi',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -280,7 +290,8 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'ISBN ir obligāts',
+                'message' => 'ISBN is required',
+                'message_lv' => 'ISBN ir obligāts',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -295,7 +306,8 @@ class BookController extends Controller
 
         if ($existingBook) {
             return response()->json([
-                'message' => 'Grāmata ar šo ISBN jau eksistē',
+                'message' => 'Book with this ISBN already exists',
+                'message_lv' => 'Grāmata ar šo ISBN jau eksistē',
                 'book' => new BookResource($existingBook)
             ], 409);
         }
@@ -306,7 +318,8 @@ class BookController extends Controller
 
         if (!$bookData) {
             return response()->json([
-                'message' => 'Grāmata ar šo ISBN nav atrasta ārējās datubāzēs'
+                'message' => 'Book with this ISBN was not found in external databases',
+                'message_lv' => 'Grāmata ar šo ISBN nav atrasta ārējās datubāzēs'
             ], 404);
         }
 
@@ -315,7 +328,8 @@ class BookController extends Controller
         $book = Book::create($bookData);
 
         return response()->json([
-            'message' => 'Grāmata veiksmīgi importēta',
+            'message' => 'Book imported successfully',
+            'message_lv' => 'Grāmata veiksmīgi importēta',
             'book' => new BookResource($book),
             'source' => $bookData['source'] ?? 'unknown'
         ], 201);
@@ -334,7 +348,8 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Meklēšanas parametri nav pareizi',
+                'message' => 'Search parameters are invalid',
+                'message_lv' => 'Meklēšanas parametri nav pareizi',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -360,7 +375,8 @@ class BookController extends Controller
         // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
-                'message' => 'Nav atļaujas sinhronizēt grāmatu datus'
+                'message' => 'Unauthorized to sync book data',
+                'message_lv' => 'Nav atļaujas sinhronizēt grāmatu datus'
             ], 403);
         }
 
@@ -368,13 +384,15 @@ class BookController extends Controller
         
         if (!$book) {
             return response()->json([
-                'message' => 'Grāmata nav atrasta'
+                'message' => 'Book not found',
+                'message_lv' => 'Grāmata nav atrasta'
             ], 404);
         }
 
         if (!$book->isbn && !$book->isbn10 && !$book->isbn13) {
             return response()->json([
-                'message' => 'Grāmatai nav ISBN, sinhronizācija nav iespējama'
+                'message' => 'Book has no ISBN, synchronization is not possible',
+                'message_lv' => 'Grāmatai nav ISBN, sinhronizācija nav iespējama'
             ], 422);
         }
 
@@ -384,7 +402,8 @@ class BookController extends Controller
 
         if (!$bookData) {
             return response()->json([
-                'message' => 'Grāmatas dati nav atrasti ārējās datubāzēs'
+                'message' => 'Book data not found in external databases',
+                'message_lv' => 'Grāmatas dati nav atrasti ārējās datubāzēs'
             ], 404);
         }
 
@@ -396,7 +415,8 @@ class BookController extends Controller
         $book->update($updateData);
 
         return response()->json([
-            'message' => 'Grāmatas dati veiksmīgi sinhronizēti',
+            'message' => 'Book data synced successfully',
+            'message_lv' => 'Grāmatas dati veiksmīgi sinhronizēti',
             'book' => new BookResource($book->fresh()),
             'source' => $bookData['source'] ?? 'unknown'
         ]);

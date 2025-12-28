@@ -68,7 +68,10 @@ class CommentController extends Controller
 
         // Check if user owns the comment
         if ($comment->user_id !== $request->user()->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json([
+                'message' => 'Unauthorized',
+                'message_lv' => 'Nav atļaujas'
+            ], 403);
         }
 
         $validated = $request->validate([
@@ -90,11 +93,17 @@ class CommentController extends Controller
 
         // Check if user owns the comment or is admin
         if ($comment->user_id !== $request->user()->user_id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json([
+                'message' => 'Unauthorized',
+                'message_lv' => 'Nav atļaujas'
+            ], 403);
         }
 
         $comment->delete();
 
-        return response()->json(['message' => 'Comment deleted successfully']);
+        return response()->json([
+            'message' => 'Comment deleted successfully',
+            'message_lv' => 'Komentārs veiksmīgi izdzēsts'
+        ]);
     }
 }

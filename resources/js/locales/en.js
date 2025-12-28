@@ -128,10 +128,17 @@ export default {
     currentlyReading: 'Currently Reading',
     planToRead: 'Plan to Read',
     activity: 'Activity',
+    social: 'Social',
     discussions: 'Discussions',
     comments: 'Comments',
     followers: 'Followers',
+    following: 'Following',
+    followersList: 'Followers',
+    followingList: 'Following',
+    followedOn: 'Followed on',
+    followingSince: 'Following since',
     recentActivity: 'Recent Activity',
+    recentReadingActivity: 'Recent Reading Activity',
     noRecentActivity: 'No recent activity'
   },
   reading: {

@@ -125,10 +125,17 @@ export default {
     currentlyReading: 'Lasu pašlaik',
     planToRead: 'Plānoju lasīt',
     activity: 'Aktivitāte',
+    social: 'Sociālie',
     discussions: 'Diskusijas',
     comments: 'Komentāri',
     followers: 'Sekotāji',
+    following: 'Sekoju',
+    followersList: 'Sekotāji',
+    followingList: 'Sekoju',
+    followedOn: 'Seko kopš',
+    followingSince: 'Sekoju kopš',
     recentActivity: 'Pēdējā aktivitāte',
+    recentReadingActivity: 'Pēdējā lasīšanas aktivitāte',
     noRecentActivity: 'Nav pēdējas aktivitātes'
   },
   reading: {

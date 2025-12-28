@@ -1,16 +1,16 @@
 import i18n from '../i18n.js';
 
 /**
- * Get the appropriate error message based on current locale
- * @param {Object} errorData - Error response from API
- * @returns {string} - Localized error message
+ * Get the appropriate message based on current locale
+ * @param {Object} responseData - Response data from API (error or success)
+ * @returns {string} - Localized message
  */
-export function getLocalizedErrorMessage(errorData) {
+export function getLocalizedMessage(responseData) {
   const currentLocale = i18n.global.locale.value;
   
-  if (currentLocale === 'lv' && errorData.message_lv) {
-    return errorData.message_lv;
+  if (currentLocale === 'lv' && responseData.message_lv) {
+    return responseData.message_lv;
   }
   
-  return errorData.message || 'An error occurred';
+  return responseData.message || 'An error occurred';
 }

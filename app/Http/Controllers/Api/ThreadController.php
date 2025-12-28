@@ -97,7 +97,10 @@ class ThreadController extends Controller
 
         // Check if user owns the thread
         if ($thread->user_id !== $request->user()->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json([
+                'message' => 'Unauthorized',
+                'message_lv' => 'Nav atļaujas'
+            ], 403);
         }
 
         $validated = $request->validate([
@@ -124,11 +127,17 @@ class ThreadController extends Controller
 
         // Check if user owns the thread or is admin
         if ($thread->user_id !== $request->user()->user_id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json([
+                'message' => 'Unauthorized',
+                'message_lv' => 'Nav atļaujas'
+            ], 403);
         }
 
         $thread->delete();
 
-        return response()->json(['message' => 'Thread deleted successfully']);
+        return response()->json([
+            'message' => 'Thread deleted successfully',
+            'message_lv' => 'Diskusija veiksmīgi izdzēsta'
+        ]);
     }
 }
