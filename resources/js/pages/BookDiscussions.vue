@@ -127,14 +127,25 @@
               </div>
               
               <div class="pt-3 border-t border-gray-300 space-y-2">
-                <button class="w-full px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                <button 
+                  @click="openEditBookModal"
+                  class="w-full px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
                   {{ t('books.editBook') }}
                 </button>
-                <button class="w-full px-3 py-1.5 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
-                  {{ t('books.syncWithApi') }}
+                <button 
+                  @click="syncBookWithApi"
+                  :disabled="syncLoading"
+                  class="w-full px-3 py-1.5 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ syncLoading ? t('common.loading') : t('books.syncWithApi') }}
                 </button>
-                <button class="w-full px-3 py-1.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-                  {{ t('books.deleteBook') }}
+                <button 
+                  @click="showDeleteConfirm = true"
+                  :disabled="deleteLoading"
+                  class="w-full px-3 py-1.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ deleteLoading ? t('common.loading') : t('books.deleteBook') }}
                 </button>
               </div>
             </div>
@@ -286,6 +297,192 @@
         </form>
       </div>
     </div>
+
+    <!-- Edit Book Modal -->
+    <div v-if="showEditBookModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">{{ t('books.editBook') }}</h3>
+          <button @click="closeEditBookModal" class="text-gray-400 hover:text-gray-600">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div v-if="editBookError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+          {{ editBookError }}
+        </div>
+        
+        <form @submit.prevent="handleEditBook" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.title') }}</label>
+              <input 
+                v-model="editBookData.title" 
+                type="text" 
+                required
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.author') }}</label>
+              <input 
+                v-model="editBookData.author" 
+                type="text" 
+                required
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">ISBN</label>
+              <input 
+                v-model="editBookData.isbn" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">ISBN-10</label>
+              <input 
+                v-model="editBookData.isbn10" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">ISBN-13</label>
+              <input 
+                v-model="editBookData.isbn13" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.genre') }}</label>
+              <input 
+                v-model="editBookData.genre" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.pageCount') }}</label>
+              <input 
+                v-model.number="editBookData.page_count" 
+                type="number"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.publicationYear') }}</label>
+              <input 
+                v-model.number="editBookData.publication_year" 
+                type="number"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.publisher') }}</label>
+              <input 
+                v-model="editBookData.publisher" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.language') }}</label>
+              <input 
+                v-model="editBookData.language" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{{ t('books.coverImageUrl') }}</label>
+            <input 
+              v-model="editBookData.cover_image_url" 
+              type="url"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">{{ t('books.description') }}</label>
+            <textarea 
+              v-model="editBookData.description" 
+              rows="4"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            ></textarea>
+          </div>
+          
+          <div class="flex justify-end space-x-3 pt-4">
+            <button 
+              type="button" 
+              @click="closeEditBookModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+            >
+              {{ t('common.cancel') }}
+            </button>
+            <button 
+              type="submit" 
+              :disabled="editBookLoading"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+            >
+              {{ editBookLoading ? t('common.saving') : t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">{{ t('books.confirmDelete') || 'Delete Book?' }}</h3>
+          </div>
+        </div>
+        
+        <p class="text-sm text-gray-500 mb-6">
+          {{ t('books.deleteWarning') || 'Are you sure you want to delete this book? This action cannot be undone and will also delete all associated discussions and comments.' }}
+        </p>
+        
+        <div class="flex justify-end space-x-3">
+          <button 
+            @click="showDeleteConfirm = false"
+            :disabled="deleteLoading"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
+          >
+            {{ t('common.cancel') }}
+          </button>
+          <button 
+            @click="handleDeleteBook"
+            :disabled="deleteLoading"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-50"
+          >
+            {{ deleteLoading ? t('common.deleting') : t('common.delete') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -318,6 +515,13 @@ const newDiscussion = ref({
 const discussionLoading = ref(false);
 const discussionError = ref('');
 const descriptionExpanded = ref(false);
+const showEditBookModal = ref(false);
+const editBookData = ref({});
+const editBookLoading = ref(false);
+const editBookError = ref('');
+const syncLoading = ref(false);
+const deleteLoading = ref(false);
+const showDeleteConfirm = ref(false);
 
 const isBookmarked = computed(() => {
   return book.value && progressStore.isBookInReadingList(book.value.id);
@@ -426,6 +630,129 @@ const closeDiscussionModal = () => {
     page_number: null
   };
   discussionError.value = '';
+};
+
+const openEditBookModal = () => {
+  if (!book.value) return;
+  
+  editBookData.value = {
+    title: book.value.title || '',
+    author: book.value.author || '',
+    isbn: book.value.isbn || '',
+    isbn10: book.value.isbn10 || '',
+    isbn13: book.value.isbn13 || '',
+    description: book.value.description || '',
+    genre: book.value.genre || '',
+    page_count: book.value.page_count || '',
+    publication_year: book.value.publication_year || '',
+    publisher: book.value.publisher || '',
+    language: book.value.language || '',
+    cover_image_url: book.value.cover_image_url || ''
+  };
+  
+  showEditBookModal.value = true;
+  editBookError.value = '';
+};
+
+const closeEditBookModal = () => {
+  showEditBookModal.value = false;
+  editBookData.value = {};
+  editBookError.value = '';
+};
+
+const handleEditBook = async () => {
+  if (!book.value) return;
+  
+  editBookLoading.value = true;
+  editBookError.value = '';
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/books/${book.value.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(editBookData.value)
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      book.value = data.data || data;
+      closeEditBookModal();
+      alert(t('books.bookUpdated') || 'Book updated successfully!');
+    } else {
+      editBookError.value = data.message || t('books.updateFailed') || 'Failed to update book';
+    }
+  } catch (err) {
+    editBookError.value = err.message || t('books.updateFailed') || 'Failed to update book';
+  } finally {
+    editBookLoading.value = false;
+  }
+};
+
+const syncBookWithApi = async () => {
+  if (!book.value) return;
+  
+  syncLoading.value = true;
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/books/${book.value.id}/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      book.value = data.data || data;
+      alert(t('books.syncSuccess') || 'Book synced successfully!');
+    } else {
+      alert(data.message || t('books.syncFailed') || 'Failed to sync book');
+    }
+  } catch (err) {
+    alert(err.message || t('books.syncFailed') || 'Failed to sync book');
+  } finally {
+    syncLoading.value = false;
+  }
+};
+
+const handleDeleteBook = async () => {
+  if (!book.value) return;
+  
+  deleteLoading.value = true;
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/books/${book.value.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (response.ok) {
+      alert(t('books.bookDeleted') || 'Book deleted successfully!');
+      router.push('/books');
+    } else {
+      const data = await response.json();
+      alert(data.message || t('books.deleteFailed') || 'Failed to delete book');
+    }
+  } catch (err) {
+    alert(err.message || t('books.deleteFailed') || 'Failed to delete book');
+  } finally {
+    deleteLoading.value = false;
+    showDeleteConfirm.value = false;
+  }
 };
 
 const formatDate = (date) => {

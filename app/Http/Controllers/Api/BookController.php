@@ -199,18 +199,6 @@ class BookController extends Controller
     }
 
     /**
-     * Get books by tag/category
-     */
-    public function byTag($tag)
-    {
-        $books = Book::where('tag', $tag)
-                    ->orderBy('title')
-                    ->paginate(15);
-
-        return BookResource::collection($books);
-    }
-
-    /**
      * Get popular books (most discussed)
      */
     public function popular()

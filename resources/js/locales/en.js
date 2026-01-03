@@ -1,5 +1,5 @@
 export default {
-  nav: {
+  nav: { // Navigation bar
     home: 'Home',
     books: 'Books',
     myReading: 'My Reading',
@@ -23,7 +23,7 @@ export default {
     browseBooks: 'Browse Books',
     viewProfile: 'View Profile'
   },
-  auth: {
+  auth: { // Authentication pages
     login: 'Login',
     register: 'Register',
     email: 'Email',
@@ -42,7 +42,7 @@ export default {
     loginHere: 'Login here',
     welcome: 'Welcome, {name}!'
   },
-  validation: {
+  validation: { // Validation messages
     nameRequired: 'Name is required',
     emailRequired: 'Email is required',
     emailInvalid: 'Invalid email format',

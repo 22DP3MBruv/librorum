@@ -20,18 +20,6 @@ export const useBooksStore = defineStore('books', () => {
   };
 
   // Computed properties
-  const booksByTag = computed(() => {
-    const grouped = {};
-    books.value.forEach(book => {
-      const tag = book.tag || 'Uncategorized';
-      if (!grouped[tag]) {
-        grouped[tag] = [];
-      }
-      grouped[tag].push(book);
-    });
-    return grouped;
-  });
-
   const booksCount = computed(() => ({
     total: books.value.length
   }));

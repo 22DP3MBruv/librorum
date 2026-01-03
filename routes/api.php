@@ -29,7 +29,6 @@ Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/search', [BookController::class, 'search']);
 Route::get('/books/external-search', [BookController::class, 'externalSearch']);
 Route::get('/books/popular', [BookController::class, 'popular']);
-Route::get('/books/tag/{tag}', [BookController::class, 'byTag']);
 Route::get('/books/{identifier}', [BookController::class, 'show']);
 
 // Protected authentication routes
