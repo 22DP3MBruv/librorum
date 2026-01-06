@@ -28,7 +28,6 @@ class Thread extends Model
         'content',
         'scope',
         'page_number',
-        'chapter_name',
     ];
 
     /**

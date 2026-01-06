@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\ReadingProgressController;
 use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +65,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/threads/{threadId}/comments/{id}', [CommentController::class, 'show']);
     Route::put('/threads/{threadId}/comments/{id}', [CommentController::class, 'update']);
     Route::delete('/threads/{threadId}/comments/{id}', [CommentController::class, 'destroy']);
+    
+    // Like routes
+    Route::post('/likes/toggle', [LikeController::class, 'toggle']);
+    Route::get('/likes/status', [LikeController::class, 'status']);
     
     // Protected book routes (admin only)
     Route::post('/books', [BookController::class, 'store']);

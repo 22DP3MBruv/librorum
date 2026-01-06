@@ -114,7 +114,7 @@ class BookController extends Controller
             ], 422);
         }
 
-        $book = Book::create($request->validated());
+        $book = Book::create($validator->validated());
 
         return new BookResource($book);
     }
@@ -163,7 +163,7 @@ class BookController extends Controller
             ], 422);
         }
 
-        $book->update($request->validated());
+        $book->update($validator->validated());
 
         return new BookResource($book);
     }

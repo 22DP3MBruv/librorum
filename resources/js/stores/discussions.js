@@ -23,7 +23,7 @@ export const useDiscussionsStore = defineStore('discussions', {
         const response = await fetch(`/api/books/${bookId}/threads`, {
           headers: {
             'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           }
         });
 
@@ -50,7 +50,7 @@ export const useDiscussionsStore = defineStore('discussions', {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           },
           body: JSON.stringify(discussionData)
         });
@@ -77,7 +77,7 @@ export const useDiscussionsStore = defineStore('discussions', {
         const response = await fetch(`/api/threads/${threadId}`, {
           headers: {
             'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           }
         });
 
@@ -106,7 +106,7 @@ export const useDiscussionsStore = defineStore('discussions', {
           method: 'DELETE',
           headers: {
             'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           }
         });
 

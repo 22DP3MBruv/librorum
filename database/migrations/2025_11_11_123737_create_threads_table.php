@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('book_id')->constrained('books', 'book_id')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
-            $table->enum('scope', ['book', 'page'])->default('book'); # Specify if thread is about the whole book or a specific page
+            $table->enum('scope', ['general', 'page'])->default('general'); # Specify if thread is about the whole book or a specific page
             $table->integer('page_number')->nullable();
             $table->datetime('created_at');
             $table->datetime('updated_at')->nullable();

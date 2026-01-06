@@ -38,7 +38,7 @@ class ThreadController extends Controller
     public function forBook($bookId)
     {
         $threads = Thread::with(['user', 'book'])
-            ->withCount('comments')
+            ->withCount(['comments', 'likes'])
             ->where('book_id', $bookId)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -55,9 +55,8 @@ class ThreadController extends Controller
             'book_id' => 'required|exists:books,book_id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'scope' => 'nullable|string|in:general,spoiler,question',
+            'scope' => 'nullable|string|in:general,page',
             'page_number' => 'nullable|integer|min:1',
-            'chapter_name' => 'nullable|string|max:255',
         ]);
 
         $thread = Thread::create([
@@ -67,11 +66,10 @@ class ThreadController extends Controller
             'content' => $validated['content'],
             'scope' => $validated['scope'] ?? 'general',
             'page_number' => $validated['page_number'] ?? null,
-            'chapter_name' => $validated['chapter_name'] ?? null,
         ]);
 
         $thread->load(['user', 'book']);
-        $thread->loadCount('comments');
+        $thread->loadCount(['comments', 'likes']);
 
         return new ThreadResource($thread);
     }
@@ -82,7 +80,7 @@ class ThreadController extends Controller
     public function show($id)
     {
         $thread = Thread::with(['user', 'book', 'comments.user'])
-            ->withCount('comments')
+            ->withCount(['comments', 'likes'])
             ->findOrFail($id);
 
         return new ThreadResource($thread);
@@ -106,14 +104,13 @@ class ThreadController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'content' => 'sometimes|required|string',
-            'scope' => 'nullable|string|in:general,spoiler,question',
+            'scope' => 'nullable|string|in:general,page',
             'page_number' => 'nullable|integer|min:1',
-            'chapter_name' => 'nullable|string|max:255',
         ]);
 
         $thread->update($validated);
         $thread->load(['user', 'book']);
-        $thread->loadCount('comments');
+        $thread->loadCount(['comments', 'likes']);
 
         return new ThreadResource($thread);
     }

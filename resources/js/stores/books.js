@@ -185,7 +185,6 @@ export const useBooksStore = defineStore('books', () => {
     error,
     searchResults,
     searchLoading,
-    booksByTag,
     booksCount,
     fetchBooks,
     addBook,

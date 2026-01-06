@@ -22,8 +22,8 @@ class ThreadResource extends JsonResource
             'content' => $this->content,
             'scope' => $this->scope,
             'page_number' => $this->page_number,
-            'chapter_name' => $this->chapter_name,
             'comments_count' => $this->when(isset($this->comments_count), $this->comments_count),
+            'likes_count' => $this->when(isset($this->likes_count), $this->likes_count),
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
             'author' => $this->when($this->relationLoaded('user'), function () {

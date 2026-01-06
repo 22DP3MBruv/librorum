@@ -54,6 +54,7 @@ export default {
   },
   books: {
     title: 'Books',
+    coverImageUrl: 'Cover Image URL',
     subtitle: 'Discover and manage your books',
     searchPlaceholder: 'Search books by title, author, or ISBN...',
     filterByGenre: 'Filter by genre...',
@@ -91,7 +92,15 @@ export default {
     lastSync: 'Last API Sync',
     subjects: 'Subjects',
     syncWithApi: 'Sync with API',
-    more: 'more'
+    more: 'more',
+    bookUpdated: 'Book updated successfully!',
+    updateFailed: 'Failed to update book',
+    syncSuccess: 'Book synced successfully!',
+    syncFailed: 'Failed to sync book',
+    bookDeleted: 'Book deleted successfully!',
+    deleteFailed: 'Failed to delete book',
+    confirmDelete: 'Delete Book?',
+    deleteWarning: 'Are you sure you want to delete this book? This action cannot be undone and will also delete all associated discussions and comments.'
   },
   discussions: {
     discussions: 'Discussions',
@@ -160,6 +169,7 @@ export default {
   },
   common: {
     save: 'Save',
+    saving: 'Saving...',
     cancel: 'Cancel',
     delete: 'Delete',
     edit: 'Edit',

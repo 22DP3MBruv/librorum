@@ -54,6 +54,7 @@ export default {
   },
   books: {
     title: 'Grāmatas',
+    coverImageUrl: 'Vāka attēla URL',
     subtitle: 'Atklājiet un pārvaldiet savas grāmatas',
     searchPlaceholder: 'Meklēt grāmatas pēc nosaukuma, autora vai ISBN...',
     filterByGenre: 'Filtrēt pēc žanra...',
@@ -89,7 +90,15 @@ export default {
     lastSync: 'Pēdējā API sinhronizācija',
     subjects: 'Tēmas',
     syncWithApi: 'Sinhronizēt ar API',
-    more: 'vairāk'
+    more: 'vairāk',
+    bookUpdated: 'Grāmata veiksmīgi atjaunināta!',
+    updateFailed: 'Neizdevās atjaunināt grāmatu',
+    syncSuccess: 'Grāmata veiksmīgi sinhronizēta!',
+    syncFailed: 'Neizdevās sinhronizēt grāmatu',
+    bookDeleted: 'Grāmata veiksmīgi izdzēsta!',
+    deleteFailed: 'Neizdevās izdzēst grāmatu',
+    confirmDelete: 'Dzēst grāmatu?',
+    deleteWarning: 'Vai tiešām vēlaties dzēst šo grāmatu? Šo darbību nevar atsaukt un tā izdzēsīs arī visas saistītās diskusijas un komentārus.'
   },
   discussions: {
     discussions: 'Diskusijas',
@@ -157,6 +166,7 @@ export default {
   },
   common: {
     save: 'Saglabāt',
+    saving: 'Saglabā...',
     cancel: 'Atcelt',
     delete: 'Dzēst',
     edit: 'Rediģēt',

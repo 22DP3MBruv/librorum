@@ -112,7 +112,7 @@
               </div>
               
               <div v-if="book.publish_date">
-                <span class="text-gray-500">{{ t('books.publishDate') }}:</span>
+                <span class="text-gray-500">{{ t('books.publishYear') }}:</span>
                 <span class="ml-1 text-gray-700">{{ formatDate(book.publish_date) }}</span>
               </div>
               
@@ -171,14 +171,32 @@
           <div
             v-for="discussion in discussions"
             :key="discussion.id"
-            @click="goToDiscussion(discussion.id)"
-            class="p-6 hover:bg-gray-50 cursor-pointer transition-colors"
+            class="p-6 hover:bg-gray-50 transition-colors flex items-start gap-4"
           >
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.title }}</h3>
-                <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ discussion.content }}</p>
-                <div class="flex items-center gap-4 text-xs text-gray-500">
+            <!-- Upvote Section -->
+            <div class="flex flex-col items-center gap-1 flex-shrink-0">
+              <button
+                v-if="authStore.isAuthenticated"
+                @click.stop="toggleLike(discussion.id)"
+                class="p-1 rounded hover:bg-gray-200 transition-colors"
+                :class="discussion.user_liked ? 'text-orange-500' : 'text-gray-400'"
+              >
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 4l3.09 6.26L22 11.27l-5 4.87 1.18 6.88L12 19.77l-6.18 3.25L7 16.14 2 11.27l6.91-1.01L12 4z"></path>
+                </svg>
+              </button>
+              <span class="text-sm font-medium" :class="discussion.user_liked ? 'text-orange-500' : 'text-gray-700'">
+                {{ discussion.likes_count || 0 }}
+              </span>
+            </div>
+
+            <!-- Discussion Content -->
+            <div @click="goToDiscussion(discussion.id)" class="cursor-pointer flex-1">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.title }}</h3>
+                  <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ discussion.content }}</p>
+                  <div class="flex items-center gap-4 text-xs text-gray-500">
                   <span>{{ t('discussions.by') }} {{ discussion.author?.name || 'Unknown' }}</span>
                   <span>{{ formatDate(discussion.created_at) }}</span>
                   <span class="flex items-center">
@@ -189,6 +207,7 @@
                   </span>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -215,7 +234,7 @@
     </template>
 
     <!-- New Discussion Modal -->
-    <div v-if="showNewDiscussionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showNewDiscussionModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium text-gray-900">{{ t('discussions.newDiscussion') }}</h3>
@@ -299,7 +318,7 @@
     </div>
 
     <!-- Edit Book Modal -->
-    <div v-if="showEditBookModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showEditBookModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium text-gray-900">{{ t('books.editBook') }}</h3>
@@ -373,7 +392,7 @@
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700">{{ t('books.pageCount') }}</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.pages') }}</label>
               <input 
                 v-model.number="editBookData.page_count" 
                 type="number"
@@ -382,7 +401,7 @@
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700">{{ t('books.publicationYear') }}</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('books.publishYear') }}</label>
               <input 
                 v-model.number="editBookData.publication_year" 
                 type="number"
@@ -448,7 +467,7 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="flex items-center mb-4">
           <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -479,6 +498,35 @@
             class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-50"
           >
             {{ deleteLoading ? t('common.deleting') : t('common.delete') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">{{ t('common.success') }}</h3>
+          </div>
+        </div>
+        
+        <p class="text-sm text-gray-700 mb-6">
+          {{ successMessage }}
+        </p>
+        
+        <div class="flex justify-end">
+          <button 
+            @click="closeSuccessModal"
+            class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md"
+          >
+            {{ t('common.close') }}
           </button>
         </div>
       </div>
@@ -522,6 +570,8 @@ const editBookError = ref('');
 const syncLoading = ref(false);
 const deleteLoading = ref(false);
 const showDeleteConfirm = ref(false);
+const showSuccessModal = ref(false);
+const successMessage = ref('');
 
 const isBookmarked = computed(() => {
   return book.value && progressStore.isBookInReadingList(book.value.id);
@@ -567,6 +617,63 @@ const fetchDiscussions = async () => {
   
   await discussionsStore.fetchDiscussionsForBook(book.value.id);
   discussions.value = discussionsStore.discussionsByBook[book.value.id] || [];
+  
+  // Fetch like status for each discussion if authenticated
+  if (authStore.isAuthenticated) {
+    await fetchLikeStatuses();
+  }
+};
+
+const fetchLikeStatuses = async () => {
+  const token = localStorage.getItem('auth_token');
+  for (const discussion of discussions.value) {
+    try {
+      const response = await fetch(`/api/likes/status?target_type=thread&target_id=${discussion.id}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        discussion.user_liked = data.user_liked;
+        discussion.likes_count = data.like_count;
+      }
+    } catch (err) {
+      console.error('Failed to fetch like status', err);
+    }
+  }
+};
+
+const toggleLike = async (discussionId) => {
+  if (!authStore.isAuthenticated) return;
+  
+  const token = localStorage.getItem('auth_token');
+  try {
+    const response = await fetch('/api/likes/toggle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        target_type: 'thread',
+        target_id: discussionId
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      const discussion = discussions.value.find(d => d.id === discussionId);
+      if (discussion) {
+        discussion.user_liked = data.liked;
+        discussion.likes_count = (discussion.likes_count || 0) + (data.liked ? 1 : -1);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to toggle like', err);
+  }
 };
 
 const toggleBookmark = async () => {
@@ -667,7 +774,7 @@ const handleEditBook = async () => {
   editBookError.value = '';
   
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(`/api/books/${book.value.id}`, {
       method: 'PUT',
       headers: {
@@ -683,7 +790,8 @@ const handleEditBook = async () => {
     if (response.ok) {
       book.value = data.data || data;
       closeEditBookModal();
-      alert(t('books.bookUpdated') || 'Book updated successfully!');
+      successMessage.value = t('books.bookUpdated');
+      showSuccessModal.value = true;
     } else {
       editBookError.value = data.message || t('books.updateFailed') || 'Failed to update book';
     }
@@ -700,7 +808,7 @@ const syncBookWithApi = async () => {
   syncLoading.value = true;
   
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(`/api/books/${book.value.id}/sync`, {
       method: 'POST',
       headers: {
@@ -714,9 +822,10 @@ const syncBookWithApi = async () => {
     
     if (response.ok) {
       book.value = data.data || data;
-      alert(t('books.syncSuccess') || 'Book synced successfully!');
+      successMessage.value = t('books.syncSuccess');
+      showSuccessModal.value = true;
     } else {
-      alert(data.message || t('books.syncFailed') || 'Failed to sync book');
+      alert(data.message || t('books.syncFailed'));
     }
   } catch (err) {
     alert(err.message || t('books.syncFailed') || 'Failed to sync book');
@@ -731,7 +840,7 @@ const handleDeleteBook = async () => {
   deleteLoading.value = true;
   
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(`/api/books/${book.value.id}`, {
       method: 'DELETE',
       headers: {
@@ -741,8 +850,11 @@ const handleDeleteBook = async () => {
     });
     
     if (response.ok) {
-      alert(t('books.bookDeleted') || 'Book deleted successfully!');
-      router.push('/books');
+      successMessage.value = t('books.bookDeleted');
+      showSuccessModal.value = true;
+      setTimeout(() => {
+        router.push('/books');
+      }, 1500);
     } else {
       const data = await response.json();
       alert(data.message || t('books.deleteFailed') || 'Failed to delete book');
@@ -753,6 +865,11 @@ const handleDeleteBook = async () => {
     deleteLoading.value = false;
     showDeleteConfirm.value = false;
   }
+};
+
+const closeSuccessModal = () => {
+  showSuccessModal.value = false;
+  successMessage.value = '';
 };
 
 const formatDate = (date) => {
