@@ -8,11 +8,50 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Get the authenticated user's followers
+     * Get a user's profile by ID
      */
-    public function followers(Request $request)
+    public function show(Request $request, $userId)
     {
-        $user = $request->user();
+        $user = \App\Models\User::find($userId);
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+                'message_lv' => 'Lietotājs nav atrasts'
+            ], 404);
+        }
+
+        $isFollowing = false;
+        if ($request->user()) {
+            $isFollowing = $request->user()->following()->where('followee_id', $userId)->exists();
+        }
+
+        return response()->json([
+            'data' => [
+                'user_id' => $user->user_id,
+                'name' => $user->username,
+                'username' => $user->username,
+                'email' => $user->email,
+                'created_at' => $user->created_at,
+                'is_following' => $isFollowing
+            ]
+        ]);
+    }
+
+    /**
+     * Get a user's followers (defaults to authenticated user if no userId provided)
+     */
+    public function followers(Request $request, $userId = null)
+    {
+        // If userId is provided, fetch that user's followers, otherwise use authenticated user
+        if ($userId) {
+            $user = \App\Models\User::find($userId);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+        } else {
+            $user = $request->user();
+        }
         
         $followers = $user->followers()
             ->select(['user_id', 'username', 'email', 'created_at'])
@@ -37,11 +76,19 @@ class UserController extends Controller
     }
 
     /**
-     * Get the users that the authenticated user is following
+     * Get the users that a user is following (defaults to authenticated user if no userId provided)
      */
-    public function following(Request $request)
+    public function following(Request $request, $userId = null)
     {
-        $user = $request->user();
+        // If userId is provided, fetch that user's following, otherwise use authenticated user
+        if ($userId) {
+            $user = \App\Models\User::find($userId);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+        } else {
+            $user = $request->user();
+        }
         
         $following = $user->following()
             ->select(['user_id', 'username', 'email', 'created_at'])

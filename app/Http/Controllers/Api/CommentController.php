@@ -18,6 +18,7 @@ class CommentController extends Controller
         $thread = Thread::findOrFail($threadId);
         
         $comments = Comment::with('user')
+            ->withCount('likes')
             ->where('thread_id', $threadId)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -43,6 +44,7 @@ class CommentController extends Controller
         ]);
 
         $comment->load('user');
+        $comment->loadCount('likes');
 
         return new CommentResource($comment);
     }

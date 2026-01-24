@@ -124,7 +124,16 @@ export default {
     scopeGeneral: 'General discussion (entire book)',
     scopePage: 'Specific page',
     pageNumber: 'Page Number',
-    pageNumberPlaceholder: 'Enter page number'
+    pageNumberPlaceholder: 'Enter page number',
+    notFound: 'Discussion not found',
+    noComments: 'No comments yet',
+    beFirstToComment: 'Be the first to comment!',
+    addComment: 'Add a comment...',
+    spoilerWarning: 'Potential Spoiler',
+    spoilerPage: 'Page {page}',
+    spoilerGeneral: 'General discussion',
+    clickToReveal: 'Click to reveal',
+    revealed: 'Spoiler revealed'
   },
     
   profile: {
@@ -148,7 +157,11 @@ export default {
     followingSince: 'Following since',
     recentActivity: 'Recent Activity',
     recentReadingActivity: 'Recent Reading Activity',
-    noRecentActivity: 'No recent activity'
+    noRecentActivity: 'No recent activity',
+    follow: 'Follow',
+    unfollow: 'Unfollow',
+    userNotFound: 'User not found',
+    viewingProfile: 'User Profile'
   },
   reading: {
     title: 'My Reading',

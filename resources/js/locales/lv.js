@@ -122,7 +122,16 @@ export default {
     scopeGeneral: 'Vispārīga diskusija (visa grāmata)',
     scopePage: 'Konkrēta lappuse',
     pageNumber: 'Lappuses numurs',
-    pageNumberPlaceholder: 'Ievadiet lappuses numuru'
+    pageNumberPlaceholder: 'Ievadiet lappuses numuru',
+    notFound: 'Diskusija nav atrasta',
+    noComments: 'Vēl nav komentāru',
+    beFirstToComment: 'Esiet pirmais, kurš komentē!',
+    addComment: 'Pievienot komentāru...',
+    spoilerWarning: 'Iespējams spoilers',
+    spoilerPage: 'Lappuse {page}',
+    spoilerGeneral: 'Vispārīga diskusija',
+    clickToReveal: 'Noklikšķiniet, lai atklātu',
+    revealed: 'Spoilers atklāts'
   },
   profile: {
     title: 'Profils',
@@ -145,7 +154,11 @@ export default {
     followingSince: 'Sekoju kopš',
     recentActivity: 'Pēdējā aktivitāte',
     recentReadingActivity: 'Pēdējā lasīšanas aktivitāte',
-    noRecentActivity: 'Nav pēdējas aktivitātes'
+    noRecentActivity: 'Nav pēdējas aktivitātes',
+    follow: 'Sekot',
+    unfollow: 'Pārstāt sekot',
+    userNotFound: 'Lietotājs nav atrasts',
+    viewingProfile: 'Lietotāja profils'
   },
   reading: {
     title: 'Mana lasīšana',

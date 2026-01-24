@@ -191,13 +191,40 @@
             </div>
 
             <!-- Discussion Content -->
-            <div @click="goToDiscussion(discussion.id)" class="cursor-pointer flex-1">
-              <div class="flex items-start justify-between">
+            <div class="cursor-pointer flex-1 relative">
+              <!-- Spoiler Overlay -->
+              <div 
+                v-if="shouldShowSpoiler(discussion)"
+                @click.stop="revealSpoiler(discussion.id)"
+                class="absolute inset-0 bg-gray-400 bg-opacity-95 backdrop-blur-sm rounded-lg flex items-center justify-center z-10 transition-opacity hover:bg-opacity-100 cursor-pointer overflow-hidden"
+              >
+                <div class="flex items-center gap-3 px-6">
+                  <p class="text-gray-900 font-semibold text-base">{{ t('discussions.spoilerWarning') }}:</p>
+                  <p class="text-gray-700 text-sm">
+                    {{ discussion.scope === 'page' && discussion.page_number 
+                      ? t('discussions.spoilerPage', { page: discussion.page_number })
+                      : t('discussions.spoilerGeneral') 
+                    }}
+                  </p>
+                  <p class="text-blue-600 text-sm font-medium">{{ t('discussions.clickToReveal') }}</p>
+                </div>
+              </div>
+
+              <!-- Actual Discussion Content -->
+              <div @click="goToDiscussion(discussion.id)" class="flex items-start justify-between">
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.title }}</h3>
                   <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ discussion.content }}</p>
                   <div class="flex items-center gap-4 text-xs text-gray-500">
-                  <span>{{ t('discussions.by') }} {{ discussion.author?.name || 'Unknown' }}</span>
+                    <span>
+                      {{ t('discussions.by') }} 
+                      <button
+                        @click.stop="goToUserProfile(discussion.author?.user_id)"
+                        class="font-medium hover:text-blue-600 hover:underline transition-colors"
+                      >
+                        {{ discussion.author?.name || 'Unknown' }}
+                      </button>
+                    </span>
                   <span>{{ formatDate(discussion.created_at) }}</span>
                   <span class="flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,6 +599,7 @@ const deleteLoading = ref(false);
 const showDeleteConfirm = ref(false);
 const showSuccessModal = ref(false);
 const successMessage = ref('');
+const revealedSpoilers = ref(new Set());
 
 const isBookmarked = computed(() => {
   return book.value && progressStore.isBookInReadingList(book.value.id);
@@ -696,6 +724,55 @@ const toggleBookmark = async () => {
 
 const goToDiscussion = (discussionId) => {
   router.push(`/books/${route.params.isbn}/${discussionId}`);
+};
+
+const goToUserProfile = (userId) => {
+  if (!userId) return;
+  if (parseInt(userId) === authStore.user?.id) { // Checks if the profile is the current user
+    router.push('/profile');
+  } else {
+    router.push(`/profile/${userId}`);
+  }
+};
+
+const shouldShowSpoiler = (discussion) => {
+  // Don't show spoiler if already manually revealed
+  if (revealedSpoilers.value.has(discussion.id)) {
+    return false;
+  }
+
+  // Don't show spoiler for general discussions
+  if (discussion.scope === 'general') {
+    return false;
+  }
+
+  // Check if user has the book in their reading list
+  if (!book.value || !authStore.isAuthenticated) {
+    // Show spoiler if not authenticated or book not loaded
+    return discussion.scope === 'page';
+  }
+
+  const bookProgress = progressStore.getBookProgress(book.value.id);
+  
+  // If book is not in reading list, show spoiler for page-specific discussions
+  if (!bookProgress) {
+    return discussion.scope === 'page';
+  }
+
+  // If book is in reading list and it's a page-specific discussion
+  if (discussion.scope === 'page' && discussion.page_number) {
+    // Auto-reveal if user's progress is beyond the discussion's page
+    if (bookProgress.current_page && bookProgress.current_page >= discussion.page_number) {
+      return false; // Don't show spoiler - user has read past this point
+    }
+    return true; // Show spoiler - user hasn't reached this page yet
+  }
+
+  return false;
+};
+
+const revealSpoiler = (discussionId) => {
+  revealedSpoilers.value.add(discussionId);
 };
 
 const handleCreateDiscussion = async () => {

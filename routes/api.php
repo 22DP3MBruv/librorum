@@ -38,8 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     
     // User social routes
+    Route::get('/user/profile/{userId}', [UserController::class, 'show']);
     Route::get('/user/followers', [UserController::class, 'followers']);
     Route::get('/user/following', [UserController::class, 'following']);
+    Route::get('/user/{userId}/followers', [UserController::class, 'followers']);
+    Route::get('/user/{userId}/following', [UserController::class, 'following']);
     Route::post('/user/follow/{userId}', [UserController::class, 'follow']);
     Route::delete('/user/unfollow/{userId}', [UserController::class, 'unfollow']);
     

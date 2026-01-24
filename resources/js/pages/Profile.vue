@@ -6,11 +6,21 @@
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
+    <!-- User Not Found -->
+    <div v-else-if="userNotFound" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+      </svg>
+      <p class="text-gray-500 text-lg">{{ t('profile.userNotFound') }}</p>
+    </div>
+
     <template v-else>
       <!-- Page Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ t('profile.title') }}</h1>
-        <p class="text-gray-600">{{ t('profile.subtitle') }}</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          {{ isOwnProfile ? t('profile.title') : (profileUser?.name || profileUser?.username) }}
+        </h1>
+        <p class="text-gray-600">{{ isOwnProfile ? t('profile.subtitle') : t('profile.viewingProfile') }}</p>
       </div>
 
       <!-- Profile Cards Grid -->
@@ -21,8 +31,25 @@
             <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
               <span class="text-2xl font-bold text-white">{{ userInitial }}</span>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ authStore.user?.name || 'User' }}</h3>
-            <p class="text-gray-500 text-sm">{{ t('profile.joined') }}: {{ formatDate(authStore.user?.created_at) }}</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">
+              {{ profileUser?.name || profileUser?.username || 'User' }}
+            </h3>
+            <p class="text-gray-500 text-sm">{{ t('profile.joined') }}: {{ formatDate(profileUser?.created_at) }}</p>
+            
+            <!-- Follow/Unfollow Button for other users -->
+            <div v-if="!isOwnProfile" class="mt-4">
+              <button
+                @click="toggleFollow"
+                :disabled="followLoading"
+                class="w-full px-4 py-2 rounded-lg font-medium transition-all"
+                :class="isFollowing 
+                  ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700'"
+              >
+                <span v-if="followLoading">...</span>
+                <span v-else>{{ isFollowing ? t('profile.unfollow') : t('profile.follow') }}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -98,7 +125,8 @@
           <div
             v-for="follower in followers"
             :key="follower.user_id"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors"
+            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            @click="goToUserProfile(follower.user_id)"
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -124,7 +152,8 @@
           <div
             v-for="user in following"
             :key="user.user_id"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors"
+            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            @click="goToUserProfile(user.user_id)"
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -141,8 +170,8 @@
         </div>
       </div>
 
-      <!-- Recent Reading Activity -->
-      <div class="bg-white rounded-lg shadow-sm border">
+      <!-- Recent Reading Activity (only for own profile) -->
+      <div v-if="isOwnProfile" class="bg-white rounded-lg shadow-sm border">
         <div class="px-6 py-4 border-b">
           <h2 class="text-lg font-semibold text-gray-900">{{ t('profile.recentReadingActivity') }}</h2>
         </div>
@@ -211,14 +240,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useReadingProgressStore } from '../stores/readingProgress.js';
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const progressStore = useReadingProgressStore();
 
@@ -227,10 +257,20 @@ const followers = ref([]);
 const following = ref([]);
 const showFollowers = ref(false);
 const showFollowing = ref(false);
+const profileUser = ref(null);
+const userNotFound = ref(false);
+const isFollowing = ref(false);
+const followLoading = ref(false);
 
 // Computed
+const isOwnProfile = computed(() => {
+  if (!route.params.userId) return true;
+  return parseInt(route.params.userId) === authStore.user?.id;
+});
+
 const userInitial = computed(() => {
-  return authStore.user?.name?.charAt(0).toUpperCase() || '?';
+  const name = profileUser.value?.name || profileUser.value?.username || authStore.user?.name;
+  return name?.charAt(0).toUpperCase() || '?';
 });
 
 const recentProgress = computed(() => {
@@ -265,10 +305,44 @@ const goToBook = (book) => {
   }
 };
 
-const fetchFollowers = async () => {
+const goToUserProfile = (userId) => {
+  if (!userId) return;
+  if (parseInt(userId) === authStore.user?.id) {
+    router.push('/profile');
+  } else {
+    router.push(`/profile/${userId}`);
+  }
+};
+
+const fetchUserProfile = async (userId) => {
   try {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch('/api/user/followers', {
+    const response = await fetch(`/api/user/profile/${userId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      profileUser.value = data.data;
+      isFollowing.value = data.data.is_following;
+      userNotFound.value = false;
+    } else {
+      userNotFound.value = true;
+    }
+  } catch (err) {
+    console.error('Failed to fetch user profile:', err);
+    userNotFound.value = true;
+  }
+};
+
+const fetchFollowers = async (userId = null) => {
+  try {
+    const token = localStorage.getItem('auth_token');
+    const url = userId ? `/api/user/${userId}/followers` : '/api/user/followers';
+    const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
         'Authorization': token ? `Bearer ${token}` : ''
@@ -285,10 +359,11 @@ const fetchFollowers = async () => {
   }
 };
 
-const fetchFollowing = async () => {
+const fetchFollowing = async (userId = null) => {
   try {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch('/api/user/following', {
+    const url = userId ? `/api/user/${userId}/following` : '/api/user/following';
+    const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
         'Authorization': token ? `Bearer ${token}` : ''
@@ -305,14 +380,72 @@ const fetchFollowing = async () => {
   }
 };
 
-// Lifecycle
-onMounted(async () => {
+const toggleFollow = async () => {
+  if (followLoading.value || !route.params.userId) return;
+  
+  followLoading.value = true;
+  try {
+    const token = localStorage.getItem('auth_token');
+    const url = isFollowing.value 
+      ? `/api/user/unfollow/${route.params.userId}`
+      : `/api/user/follow/${route.params.userId}`;
+    
+    const method = isFollowing.value ? 'DELETE' : 'POST';
+    
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
+
+    if (response.ok) {
+      isFollowing.value = !isFollowing.value;
+      // Refresh followers/following counts
+      await Promise.all([fetchFollowers(), fetchFollowing()]);
+    }
+  } catch (err) {
+    console.error('Failed to toggle follow:', err);
+  } finally {
+    followLoading.value = false;
+  }
+};
+
+const loadProfile = async () => {
   loading.value = true;
-  await Promise.all([
-    progressStore.fetchProgress(),
-    fetchFollowers(),
-    fetchFollowing()
-  ]);
+  userNotFound.value = false;
+  
+  if (isOwnProfile.value) {
+    // Own profile - use auth store data
+    profileUser.value = authStore.user;
+    await Promise.all([
+      progressStore.fetchProgress(),
+      fetchFollowers(),
+      fetchFollowing()
+    ]);
+  } else {
+    // Other user's profile - fetch their data
+    const userId = route.params.userId;
+    await Promise.all([
+      fetchUserProfile(userId),
+      fetchFollowers(userId),
+      fetchFollowing(userId)
+    ]);
+  }
+  
   loading.value = false;
+};
+
+// Watch for route changes
+watch(() => route.params.userId, () => {
+  if (route.name === 'Profile' || route.name === 'UserProfile') {
+    loadProfile();
+  }
+});
+
+// Lifecycle
+onMounted(() => {
+  loadProfile();
 });
 </script>

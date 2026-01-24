@@ -44,6 +44,12 @@ const routes = [
     name: 'Profile', 
     component: Profile,
     meta: { title: 'Profils - Librorum' }
+  },
+  {
+    path: '/profile/:userId',
+    name: 'UserProfile', 
+    component: Profile,
+    meta: { title: 'Profils - Librorum' }
   }
 ];
 

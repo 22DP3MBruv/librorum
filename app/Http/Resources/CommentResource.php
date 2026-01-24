@@ -19,6 +19,7 @@ class CommentResource extends JsonResource
             'thread_id' => $this->thread_id,
             'user_id' => $this->user_id,
             'content' => $this->content,
+            'likes_count' => $this->when(isset($this->likes_count), $this->likes_count),
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
             'author' => $this->when($this->relationLoaded('user'), function () {
