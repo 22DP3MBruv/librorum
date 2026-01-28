@@ -1,13 +1,13 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
+  <div class="container mx-auto px-4 sm:px-6 py-6">
     <!-- Page Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ t('reading.title') }}</h1>
-      <p class="text-gray-600">{{ t('reading.subtitle') }}</p>
+    <div class="mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ t('reading.title') }}</h1>
+      <p class="text-sm sm:text-base text-gray-600">{{ t('reading.subtitle') }}</p>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <div class="bg-white p-6 rounded-lg shadow-sm border">
         <div class="flex items-center justify-between">
           <div>
@@ -52,15 +52,15 @@
     </div>
 
     <!-- Filter Tabs -->
-    <div class="mb-6 border-b border-gray-200">
-      <nav class="-mb-px flex space-x-8">
+    <div class="mb-6 border-b border-gray-200 overflow-x-auto">
+      <nav class="-mb-px flex space-x-4 sm:space-x-8 min-w-max px-1">
         <button
           @click="selectedStatus = 'all'"
           :class="[
             selectedStatus === 'all'
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
+            'whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm'
           ]"
         >
           {{ t('reading.all') }} ({{ progressStore.progressCount.total }})
@@ -128,11 +128,11 @@
       <div
         v-for="progress in filteredProgress"
         :key="progress.id"
-        class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow"
+        class="bg-white rounded-lg shadow-sm border p-3 sm:p-4 hover:shadow-md transition-shadow"
       >
-        <div class="flex gap-4">
+        <div class="flex gap-3 sm:gap-4">
           <!-- Book Cover -->
-          <div class="flex-shrink-0 w-24 h-36 bg-gray-200 rounded overflow-hidden cursor-pointer" @click="goToBook(progress.book)">
+          <div class="flex-shrink-0 w-16 sm:w-24 h-24 sm:h-36 bg-gray-200 rounded overflow-hidden cursor-pointer" @click="goToBook(progress.book)">
             <img
               v-if="progress.book?.cover_image_url"
               :src="progress.book.cover_image_url"
@@ -147,24 +147,24 @@
           </div>
 
           <!-- Book Details -->
-          <div class="flex-1">
-            <h3 class="font-semibold text-lg text-gray-900 mb-1 cursor-pointer hover:text-blue-600" @click="goToBook(progress.book)">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-base sm:text-lg text-gray-900 mb-1 cursor-pointer hover:text-blue-600 truncate" @click="goToBook(progress.book)">
               {{ progress.book?.title }}
             </h3>
-            <p class="text-sm text-gray-600 mb-2">{{ progress.book?.author }}</p>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 truncate">{{ progress.book?.author }}</p>
             
             <!-- Progress Info -->
-            <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
+            <div class="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 flex-wrap">
               <span v-if="progress.book?.page_count">{{ progress.book.page_count }} {{ t('books.pages') }}</span>
-              <span v-if="progress.book?.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ progress.book.genre }}</span>
+              <span v-if="progress.book?.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ progress.book.genre }}</span>
             </div>
 
             <!-- Status Selector and Page Progress -->
-            <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-wrap">
               <select
                 v-model="progress.status"
                 @change="updateStatus(progress)"
-                class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full sm:w-auto px-2 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="want_to_read">{{ t('reading.wantToRead') }}</option>
                 <option value="reading">{{ t('reading.currentlyReading') }}</option>
@@ -172,22 +172,22 @@
                 <option value="dropped">{{ t('reading.dropped') }}</option>
               </select>
 
-              <div v-if="progress.status === 'reading'" class="flex items-center gap-2">
-                <label class="text-sm text-gray-600">{{ t('reading.page') }}:</label>
+              <div v-if="progress.status === 'reading'" class="flex items-center gap-2 flex-1">
+                <label class="text-xs sm:text-sm text-gray-600">{{ t('reading.page') }}:</label>
                 <input
                   v-model.number="progress.current_page"
                   @blur="updatePage(progress)"
                   type="number"
                   min="0"
                   :max="progress.book?.page_count"
-                  class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-16 sm:w-20 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                <span class="text-sm text-gray-500">/ {{ progress.book?.page_count || '?' }}</span>
+                <span class="text-xs sm:text-sm text-gray-500">/ {{ progress.book?.page_count || '?' }}</span>
               </div>
 
               <button
                 @click="removeBook(progress)"
-                class="ml-auto text-red-600 hover:text-red-700 text-sm"
+                class="text-red-600 hover:text-red-700 text-xs sm:text-sm whitespace-nowrap"
               >
                 {{ t('common.remove') }}
               </button>

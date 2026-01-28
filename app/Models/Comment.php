@@ -64,4 +64,31 @@ class Comment extends Model
         return $this->morphMany(Like::class, 'target', 'target_type', 'target_id', 'comment_id')
                     ->where('target_type', 'comment');
     }
+
+    /**
+     * Scope to filter out comments from flagged users and respect privacy settings
+     */
+    public function scopeVisible($query, $viewer = null)
+    {
+        return $query->whereHas('user', function($q) use ($viewer) {
+            $q->where('is_flagged', false);
+            
+            // If no viewer, only show public comments
+            if (!$viewer) {
+                $q->where('activity_visibility', 'public');
+            } else {
+                // Show comments based on activity visibility
+                $q->where(function($query) use ($viewer) {
+                    $query->where('activity_visibility', 'public')
+                        ->orWhere('user_id', $viewer->user_id)
+                        ->orWhere(function($q) use ($viewer) {
+                            $q->where('activity_visibility', 'followers')
+                                ->whereHas('followers', function($fq) use ($viewer) {
+                                    $fq->where('follower_id', $viewer->user_id);
+                                });
+                        });
+                });
+            }
+        });
+    }
 }

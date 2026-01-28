@@ -6,7 +6,8 @@ export default {
     profile: 'Profile',
     login: 'Login',
     register: 'Register',
-    logout: 'Logout'
+    logout: 'Logout',
+    admin: 'Admin'
   },
   home: {
     welcome: 'Welcome to Librorum!',
@@ -39,8 +40,7 @@ export default {
     noAccount: 'No account? ',
     registerHere: 'Register here',
     haveAccount: 'Already have an account? ',
-    loginHere: 'Login here',
-    welcome: 'Welcome, {name}!'
+    loginHere: 'Login here'
   },
   validation: { // Validation messages
     nameRequired: 'Name is required',
@@ -133,7 +133,17 @@ export default {
     spoilerPage: 'Page {page}',
     spoilerGeneral: 'General discussion',
     clickToReveal: 'Click to reveal',
-    revealed: 'Spoiler revealed'
+    revealed: 'Spoiler revealed',
+    allScopes: 'All Discussions',
+    generalOnly: 'General Only',
+    pageSpecificOnly: 'Page-Specific Only',
+    sortNewest: 'Newest First',
+    sortOldest: 'Oldest First',
+    sortMostLiked: 'Most Liked',
+    sortMostReplies: 'Most Replies',
+    noResults: 'No discussions found',
+    noResultsDescription: 'Try adjusting your filters to see more results.',
+    clearFilters: 'Clear Filters'
   },
     
   profile: {
@@ -161,7 +171,16 @@ export default {
     follow: 'Follow',
     unfollow: 'Unfollow',
     userNotFound: 'User not found',
-    viewingProfile: 'User Profile'
+    viewingProfile: 'User Profile',
+    privacySettings: 'Privacy Settings',
+    notAcceptingFollowers: 'Not accepting followers',
+    readingProgressPrivate: 'This user\'s reading progress is private',
+    flagUser: 'Flag User',
+    flagUserTitle: 'Flag User',
+    flagUserDescription: 'Flagging this user will hide all their posts (threads and comments) from other users. Provide a reason below:',
+    flagReasonPlaceholder: 'Enter reason for flagging this user...',
+    flagSuccess: 'User has been flagged successfully',
+    flagError: 'Failed to flag user'
   },
   reading: {
     title: 'My Reading',
@@ -193,6 +212,59 @@ export default {
     success: 'Success',
     showMore: 'Show more',
     showLess: 'Show less',
-    remove: 'Remove'
+    remove: 'Remove',
+    networkError: 'Network error',
+    refresh: 'Refresh'
+  },
+  pagination: {
+    showing: 'Showing',
+    of: 'of',
+    previous: 'Previous',
+    next: 'Next'
+  },
+  privacySettings: {
+    title: 'Privacy Settings',
+    profileVisibility: 'Profile Visibility',
+    profileVisibilityHelp: 'Control who can see your profile',
+    readingProgressVisibility: 'Reading Progress Visibility',
+    readingProgressVisibilityHelp: 'Control who can see your reading progress',
+    activityVisibility: 'Activity Visibility',
+    activityVisibilityHelp: 'Control who can see your discussions and comments',
+    allowFollows: 'Allow new followers',
+    allowFollowsHelp: 'Allow other users to follow you',
+    requireFollowApproval: 'Require follow approval',
+    requireFollowApprovalHelp: 'Manually approve new followers (coming soon)',
+    public: 'Public',
+    followersOnly: 'Followers Only',
+    private: 'Private',
+    fetchError: 'Failed to load privacy settings',
+    saveError: 'Failed to save settings',
+    saveSuccess: 'Privacy settings updated successfully'
+  },
+  admin: {
+    dashboard: 'Admin Dashboard',
+    totalUsers: 'Total Users',
+    totalBooks: 'Total Books',
+    totalThreads: 'Total Threads',
+    totalComments: 'Total Comments',
+    activeUsers30d: 'Active Users (30 days)',
+    flaggedUsers: 'Flagged Users',
+    thisWeek: 'this week',
+    completed: 'completed',
+    popularBooks: 'Popular Books',
+    threads: 'Threads',
+    comments: 'Comments',
+    title: 'Title',
+    author: 'Author',
+    noFlaggedUsers: 'No flagged users',
+    flagged: 'Flagged',
+    reason: 'Reason',
+    flaggedBy: 'Flagged by',
+    flaggedAt: 'Flagged at',
+    unflag: 'Unflag',
+    confirmUnflag: 'Are you sure you want to unflag this user?',
+    unflagError: 'Failed to unflag user',
+    unauthorized: 'Unauthorized. Admin/Moderator access required.',
+    fetchError: 'Failed to load statistics'
   }
 }

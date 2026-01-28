@@ -21,9 +21,19 @@ class UserController extends Controller
             ], 404);
         }
 
+        $viewer = $request->user();
+
+        // Check profile visibility privacy
+        if (!$user->canViewProfile($viewer)) {
+            return response()->json([
+                'message' => 'This profile is private',
+                'message_lv' => 'Šis profils ir privāts'
+            ], 403);
+        }
+
         $isFollowing = false;
-        if ($request->user()) {
-            $isFollowing = $request->user()->following()->where('followee_id', $userId)->exists();
+        if ($viewer) {
+            $isFollowing = $viewer->following()->where('followee_id', $userId)->exists();
         }
 
         return response()->json([
@@ -33,7 +43,10 @@ class UserController extends Controller
                 'username' => $user->username,
                 'email' => $user->email,
                 'created_at' => $user->created_at,
-                'is_following' => $isFollowing
+                'is_following' => $isFollowing,
+                'can_view_reading_progress' => $user->canViewReadingProgress($viewer),
+                'can_view_activity' => $user->canViewActivity($viewer),
+                'can_be_followed' => $user->canBeFollowed()
             ]
         ]);
     }
@@ -43,19 +56,28 @@ class UserController extends Controller
      */
     public function followers(Request $request, $userId = null)
     {
+        $viewer = $request->user();
+
         // If userId is provided, fetch that user's followers, otherwise use authenticated user
         if ($userId) {
             $user = \App\Models\User::find($userId);
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
+
+            // Check if viewer can see this user's profile
+            if (!$user->canViewProfile($viewer)) {
+                return response()->json([
+                    'message' => 'This profile is private',
+                    'message_lv' => 'Šis profils ir privāts'
+                ], 403);
+            }
         } else {
-            $user = $request->user();
+            $user = $viewer;
         }
         
         $followers = $user->followers()
-            ->select(['user_id', 'username', 'email', 'created_at'])
-            ->withPivot('created_at')
+            ->select(['users.user_id', 'users.username', 'users.email', 'users.created_at', 'following.created_at as followed_at'])
             ->get()
             ->map(function ($follower) {
                 return [
@@ -65,7 +87,7 @@ class UserController extends Controller
                     'email' => $follower->email,
                     'created_at' => $follower->created_at,
                     'pivot' => [
-                        'created_at' => $follower->pivot->created_at
+                        'created_at' => $follower->followed_at
                     ]
                 ];
             });
@@ -80,19 +102,28 @@ class UserController extends Controller
      */
     public function following(Request $request, $userId = null)
     {
+        $viewer = $request->user();
+
         // If userId is provided, fetch that user's following, otherwise use authenticated user
         if ($userId) {
             $user = \App\Models\User::find($userId);
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
+
+            // Check if viewer can see this user's profile
+            if (!$user->canViewProfile($viewer)) {
+                return response()->json([
+                    'message' => 'This profile is private',
+                    'message_lv' => 'Šis profils ir privāts'
+                ], 403);
+            }
         } else {
-            $user = $request->user();
+            $user = $viewer;
         }
         
         $following = $user->following()
-            ->select(['user_id', 'username', 'email', 'created_at'])
-            ->withPivot('created_at')
+            ->select(['users.user_id', 'users.username', 'users.email', 'users.created_at', 'following.created_at as followed_at'])
             ->get()
             ->map(function ($followedUser) {
                 return [
@@ -102,7 +133,7 @@ class UserController extends Controller
                     'email' => $followedUser->email,
                     'created_at' => $followedUser->created_at,
                     'pivot' => [
-                        'created_at' => $followedUser->pivot->created_at
+                        'created_at' => $followedUser->followed_at
                     ]
                 ];
             });
@@ -133,6 +164,14 @@ class UserController extends Controller
                 'message' => 'User not found',
                 'message_lv' => 'Lietotājs nav atrasts'
             ], 404);
+        }
+
+        // Check if the user allows follows
+        if (!$userToFollow->canBeFollowed()) {
+            return response()->json([
+                'message' => 'This user does not allow new followers',
+                'message_lv' => 'Šis lietotājs neatļauj jaunus sekotājus'
+            ], 403);
         }
 
         // Check if already following

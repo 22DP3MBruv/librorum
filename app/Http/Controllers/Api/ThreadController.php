@@ -15,6 +15,7 @@ class ThreadController extends Controller
     public function index(Request $request)
     {
         $query = Thread::with(['user', 'book'])
+            ->visible($request->user())
             ->withCount('comments');
 
         // Filter by book_id if provided
@@ -35,9 +36,10 @@ class ThreadController extends Controller
     /**
      * Get threads for a specific book.
      */
-    public function forBook($bookId)
+    public function forBook(Request $request, $bookId)
     {
         $threads = Thread::with(['user', 'book'])
+            ->visible($request->user())
             ->withCount(['comments', 'likes'])
             ->where('book_id', $bookId)
             ->orderBy('created_at', 'desc')

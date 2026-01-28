@@ -12,15 +12,26 @@ class ReadingProgressController extends Controller
 {
     /**
      * Display a listing of the authenticated user's reading progress.
+     * Optionally supports user_id query parameter to fetch other users' progress.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
+        $userId = $request->query('user_id');
         
-        $progress = ReadingProgress::where('user_id', $user->user_id)
-            ->with('book')
-            ->orderBy('last_updated', 'desc')
-            ->get();
+        if ($userId) {
+            // Fetch another user's reading progress
+            $progress = ReadingProgress::where('user_id', $userId)
+                ->with('book')
+                ->orderBy('last_updated', 'desc')
+                ->get();
+        } else {
+            // Fetch authenticated user's reading progress
+            $user = Auth::user();
+            $progress = ReadingProgress::where('user_id', $user->user_id)
+                ->with('book')
+                ->orderBy('last_updated', 'desc')
+                ->get();
+        }
         
         return ReadingProgressResource::collection($progress);
     }

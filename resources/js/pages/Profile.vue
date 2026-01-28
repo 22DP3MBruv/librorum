@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
+  <div class="container mx-auto px-4 sm:px-6 py-6">
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -15,33 +15,66 @@
     </div>
 
     <template v-else>
-      <!-- Page Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-          {{ isOwnProfile ? t('profile.title') : (profileUser?.name || profileUser?.username) }}
-        </h1>
-        <p class="text-gray-600">{{ isOwnProfile ? t('profile.subtitle') : t('profile.viewingProfile') }}</p>
-      </div>
-
-      <!-- Profile Cards Grid -->
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <!-- User Info Card -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border">
-          <div class="text-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <span class="text-2xl font-bold text-white">{{ userInitial }}</span>
+      <!-- First Section -->
+      <div class="bg-white rounded-lg shadow-sm border mb-6">
+        <div class="p-4 sm:p-6 lg:p-8">
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+            <!-- User Avatar & Name -->
+            <div class="flex-shrink-0">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span class="text-2xl sm:text-3xl font-bold text-white">{{ userInitial }}</span>
+              </div>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-1">
-              {{ profileUser?.name || profileUser?.username || 'User' }}
-            </h3>
-            <p class="text-gray-500 text-sm">{{ t('profile.joined') }}: {{ formatDate(profileUser?.created_at) }}</p>
-            
+
+            <!-- User Info & Stats -->
+            <div class="flex-1 text-center sm:text-left">
+              <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                {{ profileUser?.name || profileUser?.username || 'User' }}
+              </h1>
+              <p class="text-sm sm:text-base text-gray-600 mb-4">
+                <span>{{ t('profile.joined') }}: {{ formatDate(profileUser?.created_at) }}</span>
+              </p>
+
+              <!-- Social Stats Row -->
+              <div class="flex flex-wrap gap-3 sm:gap-4 lg:gap-6 items-center justify-center sm:justify-start text-sm sm:text-base">
+                <button
+                  @click="showFollowers = !showFollowers"
+                  class="flex items-center gap-1.5 sm:gap-2 hover:text-blue-600 transition-colors"
+                >
+                  <span class="text-xl sm:text-2xl font-bold text-gray-900">{{ followers.length }}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.followers') }}</span>
+                </button>
+                <button
+                  @click="showFollowing = !showFollowing"
+                  class="flex items-center gap-1.5 sm:gap-2 hover:text-blue-600 transition-colors"
+                >
+                  <span class="text-xl sm:text-2xl font-bold text-gray-900">{{ following.length }}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.following') }}</span>
+                </button>
+                
+                <!-- Reading Stats -->
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                  <span class="text-xl sm:text-2xl font-bold text-purple-600">{{ displayProgressCount.read }}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.booksRead') }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                  <span class="text-xl sm:text-2xl font-bold text-green-600">{{ displayProgressCount.reading }}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.currentlyReading') }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                  <span class="text-xl sm:text-2xl font-bold text-blue-600">{{ displayProgressCount.wantToRead }}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.planToRead') }}</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Follow/Unfollow Button for other users -->
-            <div v-if="!isOwnProfile" class="mt-4">
+            <div v-if="!isOwnProfile" class="flex-shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <button
+                v-if="profileUser?.can_be_followed"
                 @click="toggleFollow"
                 :disabled="followLoading"
-                class="w-full px-4 py-2 rounded-lg font-medium transition-all"
+                class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
                 :class="isFollowing 
                   ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
                   : 'bg-blue-600 text-white hover:bg-blue-700'"
@@ -49,141 +82,48 @@
                 <span v-if="followLoading">...</span>
                 <span v-else>{{ isFollowing ? t('profile.unfollow') : t('profile.follow') }}</span>
               </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reading Stats Card -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('profile.readingStats') }}</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <span class="text-gray-600">{{ t('profile.booksRead') }}:</span>
-              <span class="font-medium text-purple-600">{{ progressStore.progressCount.read }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">{{ t('profile.currentlyReading') }}:</span>
-              <span class="font-medium text-green-600">{{ progressStore.progressCount.reading }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">{{ t('profile.planToRead') }}:</span>
-              <span class="font-medium text-blue-600">{{ progressStore.progressCount.wantToRead }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Social Stats Card -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('profile.social') }}</h3>
-          <div class="space-y-3">
-            <button
-              @click="showFollowers = !showFollowers"
-              class="w-full flex justify-between items-center hover:bg-gray-50 p-2 rounded transition-colors"
-            >
-              <span class="text-gray-600">{{ t('profile.followers') }}:</span>
-              <div class="flex items-center gap-2">
-                <span class="font-medium">{{ followers.length }}</span>
-                <svg 
-                  class="w-4 h-4 text-gray-400 transition-transform" 
-                  :class="{ 'rotate-180': showFollowers }"
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
+              <div v-else class="text-xs sm:text-sm text-gray-500 text-center">
+                {{ t('profile.notAcceptingFollowers') }}
               </div>
-            </button>
-            <button
-              @click="showFollowing = !showFollowing"
-              class="w-full flex justify-between items-center hover:bg-gray-50 p-2 rounded transition-colors"
-            >
-              <span class="text-gray-600">{{ t('profile.following') }}:</span>
-              <div class="flex items-center gap-2">
-                <span class="font-medium">{{ following.length }}</span>
-                <svg 
-                  class="w-4 h-4 text-gray-400 transition-transform" 
-                  :class="{ 'rotate-180': showFollowing }"
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Followers List -->
-      <div v-if="showFollowers && followers.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
-        <div class="px-6 py-4 border-b">
-          <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followersList') }}</h3>
-        </div>
-        <div class="divide-y">
-          <div
-            v-for="follower in followers"
-            :key="follower.user_id"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            @click="goToUserProfile(follower.user_id)"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span class="text-sm font-bold text-white">{{ follower.name?.charAt(0).toUpperCase() }}</span>
-                </div>
-                <div>
-                  <p class="font-medium text-gray-900">{{ follower.name || follower.username }}</p>
-                  <p class="text-sm text-gray-500">{{ t('profile.followedOn') }} {{ formatDate(follower.pivot?.created_at) }}</p>
-                </div>
-              </div>
+              
+              <!-- Flag User Button (Moderators only) -->
+              <button
+                v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'moderator') && !profileUser?.is_flagged"
+                @click="showFlagModal = true"
+                class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap bg-red-600 text-white hover:bg-red-700 text-sm sm:text-base w-full sm:w-auto"
+              >
+                {{ t('profile.flagUser') }}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Following List -->
-      <div v-if="showFollowing && following.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
+      <!-- Second Section -->
+      <div class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
-          <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followingList') }}</h3>
+          <h2 class="text-xl font-semibold text-gray-900">{{ t('profile.recentReadingActivity') }}</h2>
         </div>
-        <div class="divide-y">
-          <div
-            v-for="user in following"
-            :key="user.user_id"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            @click="goToUserProfile(user.user_id)"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
-                  <span class="text-sm font-bold text-white">{{ user.name?.charAt(0).toUpperCase() }}</span>
-                </div>
-                <div>
-                  <p class="font-medium text-gray-900">{{ user.name || user.username }}</p>
-                  <p class="text-sm text-gray-500">{{ t('profile.followingSince') }} {{ formatDate(user.pivot?.created_at) }}</p>
-                </div>
-              </div>
-            </div>
+        
+        <!-- Privacy restricted message -->
+        <div v-if="!isOwnProfile && profileUser && !profileUser.can_view_reading_progress" class="p-6">
+          <div class="text-center py-8">
+            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            <p class="mt-2 text-gray-500">{{ t('profile.readingProgressPrivate') }}</p>
           </div>
         </div>
-      </div>
-
-      <!-- Recent Reading Activity (only for own profile) -->
-      <div v-if="isOwnProfile" class="bg-white rounded-lg shadow-sm border">
-        <div class="px-6 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-900">{{ t('profile.recentReadingActivity') }}</h2>
-        </div>
-        <div v-if="recentProgress.length > 0" class="divide-y">
+        
+        <div v-else-if="recentProgress.length > 0" class="divide-y">
           <div
             v-for="progress in recentProgress"
             :key="progress.id"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            class="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors cursor-pointer"
             @click="goToBook(progress.book)"
           >
-            <div class="flex items-start gap-4">
-              <div class="flex-shrink-0 w-12 h-16 bg-gray-200 rounded overflow-hidden">
+            <div class="flex items-start gap-3 sm:gap-4">
+              <div class="flex-shrink-0 w-10 h-14 sm:w-12 sm:h-16 bg-gray-200 rounded overflow-hidden">
                 <img
                   v-if="progress.book?.cover_image_url"
                   :src="progress.book.cover_image_url"
@@ -227,6 +167,7 @@
             </svg>
             <p class="mt-2 text-gray-500">{{ t('profile.noRecentActivity') }}</p>
             <router-link
+              v-if="isOwnProfile"
               to="/books"
               class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
@@ -235,7 +176,90 @@
           </div>
         </div>
       </div>
+
+      <!-- Expandable Followers List -->
+      <div v-if="showFollowers && followers.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followersList') }}</h3>
+        </div>
+        <div class="divide-y">
+          <div
+            v-for="follower in followers"
+            :key="follower.user_id"
+            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            @click="goToUserProfile(follower.user_id)"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-bold text-white">{{ follower.name?.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">{{ follower.name || follower.username }}</p>
+                  <p class="text-sm text-gray-500">{{ t('profile.followedOn') }} {{ formatDate(follower.pivot?.created_at) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expandable Following List -->
+      <div v-if="showFollowing && following.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followingList') }}</h3>
+        </div>
+        <div class="divide-y">
+          <div
+            v-for="user in following"
+            :key="user.user_id"
+            class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            @click="goToUserProfile(user.user_id)"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-bold text-white">{{ user.name?.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">{{ user.name || user.username }}</p>
+                  <p class="text-sm text-gray-500">{{ t('profile.followingSince') }} {{ formatDate(user.pivot?.created_at) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
+    
+    <!-- Flag User Modal -->
+    <div v-if="showFlagModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ t('profile.flagUserTitle') }}</h3>
+        <p class="text-gray-600 mb-4">{{ t('profile.flagUserDescription') }}</p>
+        <textarea
+          v-model="flagReason"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          rows="4"
+          :placeholder="t('profile.flagReasonPlaceholder')"
+        ></textarea>
+        <div class="flex gap-3 mt-4">
+          <button
+            @click="flagUser"
+            :disabled="!flagReason.trim() || flaggingUser"
+            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+          >
+            {{ flaggingUser ? t('common.saving') : t('profile.flagUser') }}
+          </button>
+          <button
+            @click="showFlagModal = false; flagReason = ''"
+            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+          >
+            {{ t('common.cancel') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -261,6 +285,11 @@ const profileUser = ref(null);
 const userNotFound = ref(false);
 const isFollowing = ref(false);
 const followLoading = ref(false);
+const profileProgress = ref([]);
+const profileProgressCount = ref({ read: 0, reading: 0, wantToRead: 0 });
+const showFlagModal = ref(false);
+const flagReason = ref('');
+const flaggingUser = ref(false);
 
 // Computed
 const isOwnProfile = computed(() => {
@@ -274,9 +303,14 @@ const userInitial = computed(() => {
 });
 
 const recentProgress = computed(() => {
-  return [...progressStore.progressList]
+  const progressList = isOwnProfile.value ? progressStore.progressList : profileProgress.value;
+  return [...progressList]
     .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
     .slice(0, 5);
+});
+
+const displayProgressCount = computed(() => {
+  return isOwnProfile.value ? progressStore.progressCount : profileProgressCount.value;
 });
 
 // Methods
@@ -352,6 +386,7 @@ const fetchFollowers = async (userId = null) => {
     if (response.ok) {
       const data = await response.json();
       followers.value = data.data || data || [];
+      console.log('Fetched followers:', followers.value);
     }
   } catch (err) {
     console.error('Failed to fetch followers:', err);
@@ -373,10 +408,40 @@ const fetchFollowing = async (userId = null) => {
     if (response.ok) {
       const data = await response.json();
       following.value = data.data || data || [];
+      console.log('Fetched following:', following.value);
     }
   } catch (err) {
     console.error('Failed to fetch following:', err);
     following.value = [];
+  }
+};
+
+const fetchUserProgress = async (userId) => {
+  try {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`/api/reading-progress?user_id=${userId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      profileProgress.value = data.data || data || [];
+      
+      // Calculate progress counts
+      profileProgressCount.value = {
+        read: profileProgress.value.filter(p => p.status === 'completed').length,
+        reading: profileProgress.value.filter(p => p.status === 'reading').length,
+        wantToRead: profileProgress.value.filter(p => p.status === 'want_to_read').length
+      };
+      console.log('Fetched user progress:', profileProgress.value, profileProgressCount.value);
+    }
+  } catch (err) {
+    console.error('Failed to fetch user progress:', err);
+    profileProgress.value = [];
+    profileProgressCount.value = { read: 0, reading: 0, wantToRead: 0 };
   }
 };
 
@@ -402,13 +467,50 @@ const toggleFollow = async () => {
 
     if (response.ok) {
       isFollowing.value = !isFollowing.value;
-      // Refresh followers/following counts
-      await Promise.all([fetchFollowers(), fetchFollowing()]);
+      // Refresh followers/following counts - pass userId when viewing another user's profile
+      const targetUserId = !isOwnProfile.value ? route.params.userId : null;
+      await Promise.all([
+        fetchFollowers(targetUserId), 
+        fetchFollowing(targetUserId)
+      ]);
     }
   } catch (err) {
     console.error('Failed to toggle follow:', err);
   } finally {
     followLoading.value = false;
+  }
+};
+
+const flagUser = async () => {
+  if (!flagReason.value.trim() || !route.params.userId) return;
+  
+  flaggingUser.value = true;
+  try {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`/api/moderation/flag-user/${route.params.userId}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason: flagReason.value })
+    });
+
+    if (response.ok) {
+      showFlagModal.value = false;
+      flagReason.value = '';
+      alert(t('profile.flagSuccess'));
+      await loadProfile();
+    } else {
+      const data = await response.json();
+      alert(data.message || t('profile.flagError'));
+    }
+  } catch (err) {
+    console.error('Failed to flag user:', err);
+    alert(t('common.networkError'));
+  } finally {
+    flaggingUser.value = false;
   }
 };
 
@@ -430,7 +532,8 @@ const loadProfile = async () => {
     await Promise.all([
       fetchUserProfile(userId),
       fetchFollowers(userId),
-      fetchFollowing(userId)
+      fetchFollowing(userId),
+      fetchUserProgress(userId)
     ]);
   }
   

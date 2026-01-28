@@ -1,38 +1,38 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
+  <div class="container mx-auto px-4 sm:px-6 py-6">
     <!-- Page Header -->
-    <div class="mb-8 flex justify-between items-center">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ t('books.title') }}</h1>
-        <p class="text-gray-600">{{ t('books.subtitle') }}</p>
+    <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex-1">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ t('books.title') }}</h1>
+        <p class="text-sm sm:text-base text-gray-600">{{ t('books.subtitle') }}</p>
       </div>
       <button 
         v-if="authStore.isAdmin"
         @click="showImportModal = true" 
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+        class="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
       >
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
-        {{ t('books.addBook') }}
+        <span class="whitespace-nowrap">{{ t('books.addBook') }}</span>
       </button>
     </div>
 
     <!-- Search and Filter Bar -->
-    <div class="mb-6 flex gap-4">
+    <div class="mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
       <div class="relative flex-1">
         <input
           v-model="searchQuery"
           type="text"
           :placeholder="t('books.searchPlaceholder')"
           @input="handleSearch"
-          class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="w-full px-4 py-2.5 sm:py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
         >
-        <svg class="absolute left-3 top-3 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="absolute left-3 top-2.5 sm:top-3 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
       </div>
-      <div class="relative">
+      <div class="relative w-full sm:w-48">
         <input
           v-model="genreFilter"
           type="text"
@@ -40,7 +40,7 @@
           @input="handleGenreInput"
           @focus="showGenreSuggestions = true"
           @blur="hideGenreSuggestions"
-          class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
+          class="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
         >
         <!-- Genre Suggestions Dropdown -->
         <div 
@@ -71,12 +71,13 @@
     </div>
 
     <!-- Books Grid -->
-    <div v-else-if="filteredBooks.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div 
-        v-for="book in filteredBooks" 
-        :key="book.id"
-        class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group"
-      >
+    <div v-else-if="filteredBooks.length > 0">
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+        <div 
+          v-for="book in paginatedBooks" 
+          :key="book.id"
+          class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group"
+        >
         <!-- Bookmark Button -->
         <button
           v-if="authStore.isAuthenticated"
@@ -111,6 +112,45 @@
               <span v-if="book.page_count" class="whitespace-nowrap">{{ book.page_count }} {{ t('books.pages') }}</span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+      
+    <!-- Pagination Controls -->
+    <div v-if="filteredBooks.length > 0 && totalPages > 1" class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm border p-4">
+        <div class="text-sm text-gray-600">
+          {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredBooks.length) }} {{ t('pagination.of') }} {{ filteredBooks.length }}
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            @click="prevPage"
+            :disabled="currentPage === 1"
+            class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span class="hidden sm:inline">{{ t('pagination.previous') }}</span>
+            <span class="sm:hidden">‹</span>
+          </button>
+          <button
+            v-for="page in paginationRange"
+            :key="page"
+            @click="goToPage(page)"
+            :class="[
+              'px-3 py-2 text-sm rounded-lg transition-colors',
+              page === currentPage
+                ? 'bg-blue-600 text-white'
+                : 'border hover:bg-gray-50'
+            ]"
+          >
+            {{ page }}
+          </button>
+          <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+            class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span class="hidden sm:inline">{{ t('pagination.next') }}</span>
+            <span class="sm:hidden">›</span>
+          </button>
         </div>
       </div>
     </div>
@@ -209,6 +249,10 @@ const importLoading = ref(false);
 const importError = ref('');
 const importSuccess = ref(false);
 
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(20);
+
 // Computed
 const availableGenres = computed(() => {
   const genres = new Set();
@@ -254,9 +298,36 @@ const filteredBooks = computed(() => {
   return filtered;
 });
 
+const totalPages = computed(() => {
+  return Math.ceil(filteredBooks.value.length / itemsPerPage.value);
+});
+
+const paginatedBooks = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredBooks.value.slice(start, end);
+});
+
+const paginationRange = computed(() => {
+  const range = [];
+  const showPages = 5;
+  let start = Math.max(1, currentPage.value - Math.floor(showPages / 2));
+  let end = Math.min(totalPages.value, start + showPages - 1);
+  
+  if (end - start + 1 < showPages) {
+    start = Math.max(1, end - showPages + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  return range;
+});
+
 // Methods
 const handleSearch = () => {
   // Real-time filtering handled by computed property
+  currentPage.value = 1; // Reset to first page on search
 };
 
 const handleGenreInput = () => {
@@ -266,6 +337,26 @@ const handleGenreInput = () => {
 const selectGenre = (genre) => {
   genreFilter.value = genre;
   showGenreSuggestions.value = false;
+  currentPage.value = 1; // Reset to first page on filter change
+};
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    goToPage(currentPage.value - 1);
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    goToPage(currentPage.value + 1);
+  }
 };
 
 const hideGenreSuggestions = () => {

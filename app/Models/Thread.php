@@ -75,4 +75,31 @@ class Thread extends Model
         return $this->morphMany(Like::class, 'target', 'target_type', 'target_id', 'thread_id')
                     ->where('target_type', 'thread');
     }
+
+    /**
+     * Scope to filter out threads from flagged users and respect privacy settings
+     */
+    public function scopeVisible($query, $viewer = null)
+    {
+        return $query->whereHas('user', function($q) use ($viewer) {
+            $q->where('is_flagged', false);
+            
+            // If no viewer, only show public threads
+            if (!$viewer) {
+                $q->where('activity_visibility', 'public');
+            } else {
+                // Show threads based on activity visibility
+                $q->where(function($query) use ($viewer) {
+                    $query->where('activity_visibility', 'public')
+                        ->orWhere('user_id', $viewer->user_id)
+                        ->orWhere(function($q) use ($viewer) {
+                            $q->where('activity_visibility', 'followers')
+                                ->whereHas('followers', function($fq) use ($viewer) {
+                                    $fq->where('follower_id', $viewer->user_id);
+                                });
+                        });
+                });
+            }
+        });
+    }
 }

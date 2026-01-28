@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
+  <div class="container mx-auto px-4 sm:px-6 py-6">
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -13,7 +13,7 @@
 
     <template v-else-if="discussion">
       <!-- Breadcrumb Navigation -->
-      <nav class="flex mb-6 text-sm text-gray-600">
+      <nav class="flex mb-4 sm:mb-6 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap pb-2">
         <router-link to="/" class="hover:text-blue-600">{{ t('nav.home') }}</router-link>
         <span class="mx-2">›</span>
         <router-link to="/books" class="hover:text-blue-600">{{ t('nav.books') }}</router-link>
@@ -26,7 +26,7 @@
       </nav>
 
       <!-- Discussion Header -->
-      <div class="bg-white rounded-lg shadow-sm border p-6 mb-6 flex items-start gap-4">
+      <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6 flex items-start gap-3 sm:gap-4">
         <!-- Upvote Section -->
         <div class="flex flex-col items-center gap-1 flex-shrink-0">
           <button
@@ -45,11 +45,11 @@
         </div>
 
         <!-- Discussion Content -->
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between mb-4">
-            <div class="flex-1">
-              <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ discussion.title }}</h1>
-              <div class="flex items-center text-sm text-gray-600 space-x-4">
+            <div class="flex-1 min-w-0">
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ discussion.title }}</h1>
+              <div class="flex flex-wrap items-center text-xs sm:text-sm text-gray-600 gap-2 sm:gap-4">
                 <button 
                   @click="goToUserProfile(discussion.author?.id)" 
                   class="flex items-center hover:text-blue-600 transition-colors"
@@ -84,26 +84,26 @@
 
       <!-- Comments Section -->
       <div class="bg-white rounded-lg shadow-sm border">
-        <div class="px-6 py-4 border-b">
-          <h2 class="text-lg font-semibold text-gray-900">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900">
             {{ t('discussions.replies') }} ({{ comments.length }})
           </h2>
         </div>
 
         <!-- Add Comment Form -->
-        <div v-if="authStore.isAuthenticated" class="px-6 py-4 border-b bg-gray-50">
+        <div v-if="authStore.isAuthenticated" class="px-4 sm:px-6 py-3 sm:py-4 border-b bg-gray-50">
           <form @submit.prevent="handleAddComment" class="space-y-3">
             <textarea
               v-model="newComment"
               :placeholder="t('discussions.addComment')"
               rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
             ></textarea>
             <div class="flex justify-end">
               <button
                 type="submit"
                 :disabled="commentLoading || !newComment.trim()"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 {{ commentLoading ? t('common.loading') : t('discussions.reply') }}
               </button>
@@ -114,9 +114,9 @@
         <!-- Comments List -->
         <div v-if="comments.length > 0" class="divide-y">
           <div
-            v-for="comment in comments"
+            v-for="comment in paginatedComments"
             :key="comment.id"
-            class="p-6 hover:bg-gray-50 transition-colors flex items-start gap-4"
+            class="p-4 sm:p-6 hover:bg-gray-50 transition-colors flex items-start gap-3 sm:gap-4"
           >
             <!-- Upvote Section for Comment -->
             <div class="flex flex-col items-center gap-1 flex-shrink-0">
@@ -147,6 +147,44 @@
                 <span class="text-xs text-gray-500">{{ formatDate(comment.created_at) }}</span>
               </div>
               <p class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+          </div>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div v-if="comments.length > 0 && totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-sm text-gray-600">
+              {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, comments.length) }} {{ t('pagination.of') }} {{ comments.length }}
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span class="hidden sm:inline">{{ t('pagination.previous') }}</span>
+                <span class="sm:hidden">‹</span>
+              </button>
+              <button
+                v-for="page in paginationRange"
+                :key="page"
+                @click="goToPage(page)"
+                :class="[
+                  'px-3 py-2 text-sm rounded-lg transition-colors',
+                  page === currentPage
+                    ? 'bg-blue-600 text-white'
+                    : 'border hover:bg-gray-50'
+                ]"
+              >
+                {{ page }}
+              </button>
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span class="hidden sm:inline">{{ t('pagination.next') }}</span>
+                <span class="sm:hidden">›</span>
+              </button>
             </div>
           </div>
         </div>
@@ -167,7 +205,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth.js';
@@ -186,6 +224,55 @@ const newComment = ref('');
 const loading = ref(true);
 const error = ref(null);
 const commentLoading = ref(false);
+
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(15);
+
+const totalPages = computed(() => {
+  return Math.ceil(comments.value.length / itemsPerPage.value);
+});
+
+const paginatedComments = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return comments.value.slice(start, end);
+});
+
+const paginationRange = computed(() => {
+  const range = [];
+  const showPages = 5;
+  let start = Math.max(1, currentPage.value - Math.floor(showPages / 2));
+  let end = Math.min(totalPages.value, start + showPages - 1);
+  
+  if (end - start + 1 < showPages) {
+    start = Math.max(1, end - showPages + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  return range;
+});
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    goToPage(currentPage.value - 1);
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    goToPage(currentPage.value + 1);
+  }
+};
 
 const fetchDiscussion = async () => {
   loading.value = true;

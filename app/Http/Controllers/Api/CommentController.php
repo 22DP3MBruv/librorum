@@ -13,11 +13,12 @@ class CommentController extends Controller
     /**
      * Display a listing of comments for a thread.
      */
-    public function index($threadId)
+    public function index(Request $request, $threadId)
     {
         $thread = Thread::findOrFail($threadId);
         
         $comments = Comment::with('user')
+            ->visible($request->user())
             ->withCount('likes')
             ->where('thread_id', $threadId)
             ->orderBy('created_at', 'asc')

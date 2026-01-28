@@ -7,6 +7,8 @@ import MyReading from '../pages/MyReading.vue';
 import Profile from '../pages/Profile.vue';
 import BookDiscussions from '../pages/BookDiscussions.vue';
 import DiscussionDetail from '../pages/DiscussionDetail.vue';
+import PrivacySettings from '../components/PrivacySettings.vue';
+import AdminDashboard from '../pages/AdminDashboard.vue';
 
 const routes = [
   {
@@ -50,6 +52,18 @@ const routes = [
     name: 'UserProfile', 
     component: Profile,
     meta: { title: 'Profils - Librorum' }
+  },
+  {
+    path: '/privacy-settings',
+    name: 'PrivacySettings',
+    component: PrivacySettings,
+    meta: { title: 'Privacy Settings - Librorum' }
+  },
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { title: 'Admin Dashboard - Librorum' }
   }
 ];
 

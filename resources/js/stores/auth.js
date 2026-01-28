@@ -122,6 +122,55 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const fetchPrivacySettings = async () => {
+    if (!token.value) return null;
+    
+    try {
+      const response = await fetch('/api/user/privacy', {
+        headers: {
+          'Authorization': `Bearer ${token.value}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to fetch privacy settings:', error);
+      return null;
+    }
+  };
+
+  const updatePrivacySettings = async (settings) => {
+    if (!token.value) return { success: false, message: 'Not authenticated' };
+    
+    try {
+      const response = await fetch('/api/user/privacy', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token.value}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data: data.data };
+      } else {
+        const errorData = await response.json();
+        return { success: false, message: errorData.message || 'Update failed' };
+      }
+    } catch (error) {
+      console.error('Failed to update privacy settings:', error);
+      return { success: false, message: 'Network error' };
+    }
+  };
+
   return {
     user,
     isAuthenticated,
@@ -130,6 +179,8 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
-    checkAuth
+    checkAuth,
+    fetchPrivacySettings,
+    updatePrivacySettings
   };
 });

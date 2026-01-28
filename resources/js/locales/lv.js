@@ -6,7 +6,8 @@ export default {
     profile: 'Profils',
     login: 'Pieslēgties',
     register: 'Reģistrēties',
-    logout: 'Iziet'
+    logout: 'Iziet',
+    admin: 'Administrators'
   },
   home: {
     welcome: 'Laipni lūdzam Librorum sistēmā!',
@@ -39,8 +40,7 @@ export default {
     noAccount: 'Nav konta? ',
     registerHere: 'Reģistrēties šeit',
     haveAccount: 'Jau ir konts? ',
-    loginHere: 'Pieslēgties šeit',
-    welcome: 'Sveiki, {name}!'
+    loginHere: 'Pieslēgties šeit'
   },
   validation: { // Validation messages
     nameRequired: 'Vārds ir obligāts',
@@ -131,7 +131,17 @@ export default {
     spoilerPage: 'Lappuse {page}',
     spoilerGeneral: 'Vispārīga diskusija',
     clickToReveal: 'Noklikšķiniet, lai atklātu',
-    revealed: 'Spoilers atklāts'
+    revealed: 'Spoileris atklāts',
+    allScopes: 'Visas diskusijas',
+    generalOnly: 'Tikai vispārīgas',
+    pageSpecificOnly: 'Tikai par konkrētām lappusēm',
+    sortNewest: 'Jaunākās vispirms',
+    sortOldest: 'Vecākās vispirms',
+    sortMostLiked: 'Visvairāk patīk',
+    sortMostReplies: 'Visvairāk atbilžu',
+    noResults: 'Diskusijas nav atrastas',
+    noResultsDescription: 'Mēģiniet pielāgot filtrus, lai redzētu vairāk rezultātu.',
+    clearFilters: 'Notīrīt filtrus'
   },
   profile: {
     title: 'Profils',
@@ -158,7 +168,16 @@ export default {
     follow: 'Sekot',
     unfollow: 'Pārstāt sekot',
     userNotFound: 'Lietotājs nav atrasts',
-    viewingProfile: 'Lietotāja profils'
+    viewingProfile: 'Lietotāja profils',
+    privacySettings: 'Privātuma iestatījumi',
+    notAcceptingFollowers: 'Nepieņem sekotājus',
+    readingProgressPrivate: 'Šī lietotāja lasīšanas progress ir privāts',
+    flagUser: 'Atzīmēt lietotāju',
+    flagUserTitle: 'Atzīmēt lietotāju',
+    flagUserDescription: 'Šī lietotāja atzīmēšana paziňos visus viņa ierakstus (diskusijas un komentārus) no citiem lietotājiem. Ievadiet iemeslu zemāk:',
+    flagReasonPlaceholder: 'Ievadiet iemeslu šī lietotāja atzīmēšanai...',
+    flagSuccess: 'Lietotājs veiksmīgi atzīmēts',
+    flagError: 'Neizdevās atzīmēt lietotāju'
   },
   reading: {
     title: 'Mana lasīšana',
@@ -190,6 +209,59 @@ export default {
     success: 'Veiksmīgi',
     showMore: 'Rādīt vairāk',
     showLess: 'Rādīt mazāk',
-    remove: 'Noņemt'
+    remove: 'Noņemt',
+    networkError: 'Tīkla kļūda',
+    refresh: 'Atjaunināt'
+  },
+  pagination: {
+    showing: 'Rāda',
+    of: 'no',
+    previous: 'Iepriekšējā',
+    next: 'Nākamā'
+  },
+  privacySettings: {
+    title: 'Privātuma iestatījumi',
+    profileVisibility: 'Profila redzamība',
+    profileVisibilityHelp: 'Kontrolējiet, kas var redzēt jūsu profilu',
+    readingProgressVisibility: 'Lasīšanas progresa redzamība',
+    readingProgressVisibilityHelp: 'Kontrolējiet, kas var redzēt jūsu lasīšanas progresu',
+    activityVisibility: 'Aktivitātes redzamība',
+    activityVisibilityHelp: 'Kontrolējiet, kas var redzēt jūsu diskusijas un komentārus',
+    allowFollows: 'Atļaut jaunus sekotājus',
+    allowFollowsHelp: 'Atļaut citiem lietotājiem jums sekot',
+    requireFollowApproval: 'Pieprasīt sekotāju apstiprinājumu',
+    requireFollowApprovalHelp: 'Manuāli apstiprināt jaunus sekotājus (drīzumā)',
+    public: 'Publisks',
+    followersOnly: 'Tikai sekotājiem',
+    private: 'Privāts',
+    fetchError: 'Neizdevās ielādēt privātuma iestatījumus',
+    saveError: 'Neizdevās saglabāt iestatījumus',
+    saveSuccess: 'Privātuma iestatījumi veiksmīgi atjaunināti'
+  },
+  admin: {
+    dashboard: 'Administratora panelis',
+    totalUsers: 'Kopā lietotāju',
+    totalBooks: 'Kopā grāmatu',
+    totalThreads: 'Kopā diskusiju',
+    totalComments: 'Kopā komentāru',
+    activeUsers30d: 'Aktīvi lietotāji (30 dienas)',
+    flaggedUsers: 'Atzīmēti lietotāji',
+    thisWeek: 'šajā nedēļā',
+    completed: 'pabeigti',
+    popularBooks: 'Populārākās grāmatas',
+    threads: 'Diskusijas',
+    comments: 'Komentāri',
+    title: 'Nosaukums',
+    author: 'Autors',
+    noFlaggedUsers: 'Nav atzīmētu lietotāju',
+    flagged: 'Atzīmēts',
+    reason: 'Iemesls',
+    flaggedBy: 'Atzīmēja',
+    flaggedAt: 'Atzīmēts',
+    unflag: 'Noņemt atzīmi',
+    confirmUnflag: 'Vai tiešām vēlaties noņemt šī lietotāja atzīmi?',
+    unflagError: 'Neizdevās noņemt atzīmi',
+    unauthorized: 'Nav atļauts. Nepieciesama administratora/moderatora piekļuve.',
+    fetchError: 'Neizdevās ielādēt statistiku'
   }
 }

@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PrivacySettingsController;
+use App\Http\Controllers\Api\ModerationController;
+use App\Http\Controllers\Api\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +39,10 @@ Route::get('/books/{identifier}', [BookController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // Privacy settings routes
+    Route::get('/user/privacy', [PrivacySettingsController::class, 'show']);
+    Route::put('/user/privacy', [PrivacySettingsController::class, 'update']);
     
     // User social routes
     Route::get('/user/profile/{userId}', [UserController::class, 'show']);
@@ -72,6 +79,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Like routes
     Route::post('/likes/toggle', [LikeController::class, 'toggle']);
     Route::get('/likes/status', [LikeController::class, 'status']);
+    
+    // Admin and Moderation routes (admin only)
+    Route::get('/admin/statistics', [AdminController::class, 'getStatistics']);
+    Route::post('/moderation/flag-user/{userId}', [ModerationController::class, 'flagUser']);
+    Route::post('/moderation/unflag-user/{userId}', [ModerationController::class, 'unflagUser']);
+    Route::get('/moderation/flagged-users', [ModerationController::class, 'getFlaggedUsers']);
     
     // Protected book routes (admin only)
     Route::post('/books', [BookController::class, 'store']);

@@ -71,6 +71,14 @@ class Book extends Model
     }
 
     /**
+     * Get the comments on threads for this book.
+     */
+    public function comments()
+    {
+        return $this->hasManyThrough(Comment::class, Thread::class, 'book_id', 'thread_id', 'book_id', 'thread_id');
+    }
+
+    /**
      * Get users who are reading this book.
      */
     public function readers()

@@ -26,12 +26,6 @@
           <!-- Desktop navigation -->
           <div class="hidden md:flex items-center space-x-4">
             <router-link 
-              to="/" 
-              class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              {{ t('nav.home') }}
-            </router-link>
-            <router-link 
               to="/books" 
               class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
@@ -45,31 +39,6 @@
               {{ t('nav.myReading') }}
             </router-link>
             
-            <!-- Language Switcher -->
-            <div class="flex items-center space-x-1 border-l pl-4 ml-2">
-              <button
-                @click="setLocale('lv')"
-                :class="[
-                  'px-2 py-1 text-sm font-medium rounded transition-colors',
-                  locale === 'lv' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-gray-600 hover:bg-gray-100'
-                ]"
-              >
-                LV
-              </button>
-              <button
-                @click="setLocale('en')"
-                :class="[
-                  'px-2 py-1 text-sm font-medium rounded transition-colors',
-                  locale === 'en' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-gray-600 hover:bg-gray-100'
-                ]"
-              >
-                EN
-              </button>
-            </div>
             
             <!-- Authentication buttons -->
             <div v-if="!authStore.isAuthenticated" class="flex items-center space-x-2">
@@ -95,7 +64,13 @@
               >
                 {{ t('nav.profile') }}
               </router-link>
-              <span class="text-sm text-gray-600">{{ t('auth.welcome', { name: authStore.user?.name || 'User' }) }}</span>
+              <router-link 
+                v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'moderator')"
+                to="/admin" 
+                class="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                {{ t('nav.admin') }}
+              </router-link>
               <button 
                 @click="handleLogout"
                 class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
@@ -103,18 +78,12 @@
                 {{ t('nav.logout') }}
               </button>
             </div>
-          </div>
-        </div>
-        
-        <!-- Mobile menu -->
-        <div v-if="mobileMenuOpen" class="md:hidden border-t border-gray-200 pb-3 pt-3">
-          <div class="space-y-1">
-            <!-- Language switcher mobile -->
-            <div class="flex items-center space-x-2 px-3 py-2">
+            <!-- Language Switcher -->
+            <div class="flex items-center space-x-1 border-l pl-4 ml-2">
               <button
                 @click="setLocale('lv')"
                 :class="[
-                  'px-3 py-1 text-sm font-medium rounded transition-colors',
+                  'px-2 py-1 text-sm font-medium rounded transition-colors',
                   locale === 'lv' 
                     ? 'bg-blue-600 text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
@@ -125,7 +94,7 @@
               <button
                 @click="setLocale('en')"
                 :class="[
-                  'px-3 py-1 text-sm font-medium rounded transition-colors',
+                  'px-2 py-1 text-sm font-medium rounded transition-colors',
                   locale === 'en' 
                     ? 'bg-blue-600 text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
@@ -134,7 +103,12 @@
                 EN
               </button>
             </div>
-            
+          </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div v-if="mobileMenuOpen" class="md:hidden border-t border-gray-200 pb-3 pt-3">
+          <div class="space-y-1">
             <router-link 
               to="/" 
               @click="mobileMenuOpen = false"
@@ -184,15 +158,51 @@
               >
                 {{ t('nav.profile') }}
               </router-link>
-              <div class="px-3 py-2 text-sm text-gray-600">
-                {{ t('auth.welcome', { name: authStore.user?.name || 'User' }) }}
-              </div>
+              <router-link 
+                v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'moderator')"
+                to="/admin"
+                @click="mobileMenuOpen = false"
+                class="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+              >
+                {{ t('nav.admin') }}
+              </router-link>
               <button 
                 @click="handleLogout(); mobileMenuOpen = false"
                 class="w-full text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
               >
                 {{ t('nav.logout') }}
               </button>
+            </div>
+            
+            <!-- Language switcher mobile -->
+            <div class="border-t border-gray-200 pt-3 mt-3">
+              <div class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Language / Valoda
+              </div>
+              <div class="flex items-center space-x-2 px-3 py-2">
+                <button
+                  @click="setLocale('lv')"
+                  :class="[
+                    'flex-1 px-3 py-2 text-sm font-medium rounded transition-colors',
+                    locale === 'lv' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-600 hover:bg-gray-100 border border-gray-300'
+                  ]"
+                >
+                  Latviešu
+                </button>
+                <button
+                  @click="setLocale('en')"
+                  :class="[
+                    'flex-1 px-3 py-2 text-sm font-medium rounded transition-colors',
+                    locale === 'en' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-600 hover:bg-gray-100 border border-gray-300'
+                  ]"
+                >
+                  English
+                </button>
+              </div>
             </div>
           </div>
         </div>

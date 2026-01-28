@@ -1,7 +1,7 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
+  <div class="container mx-auto px-4 sm:px-6 py-6">
     <!-- Breadcrumb Navigation -->
-    <nav class="flex mb-6 text-sm text-gray-600">
+    <nav class="flex mb-4 sm:mb-6 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap pb-2">
       <router-link to="/" class="hover:text-blue-600">{{ t('nav.home') }}</router-link>
       <span class="mx-2">›</span>
       <router-link to="/books" class="hover:text-blue-600">{{ t('nav.books') }}</router-link>
@@ -22,10 +22,10 @@
 
     <template v-else-if="book">
       <!-- Book Header -->
-      <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
-        <div class="flex items-start gap-6">
+      <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6">
+        <div class="flex flex-col lg:flex-row items-start gap-4 sm:gap-6">
           <!-- Left side: Book Cover -->
-          <div class="w-60 h-90 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
+          <div class="w-full sm:w-48 lg:w-60 h-64 sm:h-72 lg:h-90 bg-gray-200 rounded flex-shrink-0 overflow-hidden mx-auto lg:mx-0">
             <img
               v-if="book.cover_image_url"
               :src="book.cover_image_url"
@@ -41,19 +41,19 @@
 
           <!-- Center: Book Details -->
           <div class="flex-1 min-w-0">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ book.title }}</h1>
-            <p class="text-gray-600 mb-2">{{ book.author }}</p>
-            <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-3">
-              <span v-if="book.isbn">ISBN: {{ book.isbn }}</span>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ book.title }}</h1>
+            <p class="text-sm sm:text-base text-gray-600 mb-2">{{ book.author }}</p>
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 mb-3">
+              <span v-if="book.isbn" class="truncate">ISBN: {{ book.isbn }}</span>
               <span v-if="book.page_count">{{ book.page_count }} {{ t('books.pages') }}</span>
               <span v-if="book.publication_year">{{ book.publication_year }}</span>
               <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ book.genre }}</span>
             </div>
-            <div v-if="book.description" class="text-sm text-gray-700">
+            <div v-if="book.description" class="text-xs sm:text-sm text-gray-700">
               <p :class="descriptionExpanded ? '' : 'line-clamp-3'">{{ book.description }}</p>
               <button 
                 @click="descriptionExpanded = !descriptionExpanded"
-                class="text-blue-600 hover:text-blue-700 mt-2 text-sm font-medium"
+                class="text-blue-600 hover:text-blue-700 mt-2 text-xs sm:text-sm font-medium"
               >
                 {{ descriptionExpanded ? t('common.showLess') : t('common.showMore') }}
               </button>
@@ -62,11 +62,11 @@
               <button 
                 @click="toggleBookmark"
                 :class="[
-                  'px-4 py-2 rounded-lg transition-colors flex items-center whitespace-nowrap',
+                  'px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center whitespace-nowrap text-sm',
                   isBookmarked ? 'bg-blue-600 text-white hover:bg-blue-700' : 'border border-blue-600 text-blue-600 hover:bg-blue-50'
                 ]"
               >
-                <svg class="w-5 h-5 mr-2 flex-shrink-0" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 sm:w-5 h-4 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                 </svg>
                 <span class="hidden sm:inline">{{ isBookmarked ? t('discussions.inReadingList') : t('discussions.addToReadingList') }}</span>
@@ -76,7 +76,7 @@
           </div>
 
           <!-- Right side: Admin Panel -->
-          <div v-if="authStore.isAdmin" class="w-72 flex-shrink-0 bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div v-if="authStore.isAdmin" class="w-full lg:w-72 flex-shrink-0 bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
             <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -155,24 +155,53 @@
 
       <!-- Discussions Section -->
       <div class="bg-white rounded-lg shadow-sm border">
-        <div class="px-6 py-4 border-b flex justify-between items-center">
-          <h2 class="text-lg font-semibold text-gray-900">{{ t('discussions.discussions') }}</h2>
-          <button 
-            v-if="authStore.isAuthenticated"
-            @click="showNewDiscussionModal = true"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            {{ t('discussions.newDiscussion') }}
-          </button>
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900">{{ t('discussions.discussions') }}</h2>
+            <button 
+              v-if="authStore.isAuthenticated"
+              @click="showNewDiscussionModal = true"
+              class="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              {{ t('discussions.newDiscussion') }}
+            </button>
+          </div>
+          
+          <!-- Filters and Sort -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <!-- Scope Filter -->
+            <select
+              v-model="scopeFilter"
+              @change="currentPage = 1"
+              class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">{{ t('discussions.allScopes') }}</option>
+              <option value="general">{{ t('discussions.generalOnly') }}</option>
+              <option value="page">{{ t('discussions.pageSpecificOnly') }}</option>
+            </select>
+            
+            <!-- Sort Options -->
+            <select
+              v-model="sortBy"
+              @change="currentPage = 1"
+              class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="newest">{{ t('discussions.sortNewest') }}</option>
+              <option value="oldest">{{ t('discussions.sortOldest') }}</option>
+              <option value="mostLiked">{{ t('discussions.sortMostLiked') }}</option>
+              <option value="mostReplies">{{ t('discussions.sortMostReplies') }}</option>
+            </select>
+          </div>
         </div>
 
         <!-- Discussions List -->
-        <div v-if="discussions.length > 0" class="divide-y">
-          <div
-            v-for="discussion in discussions"
-            :key="discussion.id"
-            class="p-6 hover:bg-gray-50 transition-colors flex items-start gap-4"
-          >
+        <div v-if="filteredAndSortedDiscussions.length > 0">
+          <div class="divide-y">
+            <div
+              v-for="discussion in paginatedDiscussions"
+              :key="discussion.id"
+              class="p-4 sm:p-6 hover:bg-gray-50 transition-colors flex items-start gap-3 sm:gap-4"
+            >
             <!-- Upvote Section -->
             <div class="flex flex-col items-center gap-1 flex-shrink-0">
               <button
@@ -212,10 +241,10 @@
 
               <!-- Actual Discussion Content -->
               <div @click="goToDiscussion(discussion.id)" class="flex items-start justify-between">
-                <div class="flex-1">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.title }}</h3>
-                  <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ discussion.content }}</p>
-                  <div class="flex items-center gap-4 text-xs text-gray-500">
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2">{{ discussion.title }}</h3>
+                  <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 line-clamp-2">{{ discussion.content }}</p>
+                  <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
                     <span>
                       {{ t('discussions.by') }} 
                       <button
@@ -237,10 +266,49 @@
             </div>
             </div>
           </div>
+          </div>
+          
+          <!-- Pagination Controls -->
+          <div v-if="totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-sm text-gray-600">
+              {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredAndSortedDiscussions.length) }} {{ t('pagination.of') }} {{ filteredAndSortedDiscussions.length }}
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span class="hidden sm:inline">{{ t('pagination.previous') }}</span>
+                <span class="sm:hidden">‹</span>
+              </button>
+              <button
+                v-for="page in paginationRange"
+                :key="page"
+                @click="goToPage(page)"
+                :class="[
+                  'px-3 py-2 text-sm rounded-lg transition-colors',
+                  page === currentPage
+                    ? 'bg-blue-600 text-white'
+                    : 'border hover:bg-gray-50'
+                ]"
+              >
+                {{ page }}
+              </button>
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span class="hidden sm:inline">{{ t('pagination.next') }}</span>
+                <span class="sm:hidden">›</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Empty State -->
-        <div v-else class="p-6">
+        <div v-else-if="discussions.length === 0" class="p-6">
           <div class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
@@ -255,6 +323,23 @@
                 {{ t('discussions.startDiscussion') }}
               </button>
             </div>
+          </div>
+        </div>
+        
+        <!-- No Results State (when filter returns no results) -->
+        <div v-else class="p-6">
+          <div class="text-center py-8">
+            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">{{ t('discussions.noResults') }}</h3>
+            <p class="mt-2 text-gray-500">{{ t('discussions.noResultsDescription') }}</p>
+            <button 
+              @click="resetFilters"
+              class="mt-6 text-blue-600 hover:text-blue-700 font-medium"
+            >
+              {{ t('discussions.clearFilters') }}
+            </button>
           </div>
         </div>
       </div>
@@ -600,9 +685,68 @@ const showDeleteConfirm = ref(false);
 const showSuccessModal = ref(false);
 const successMessage = ref('');
 const revealedSpoilers = ref(new Set());
+const scopeFilter = ref('all');
+const sortBy = ref('newest');
+
+// Pagination
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 
 const isBookmarked = computed(() => {
   return book.value && progressStore.isBookInReadingList(book.value.id);
+});
+
+const filteredAndSortedDiscussions = computed(() => {
+  let filtered = [...discussions.value];
+  
+  // Apply scope filter
+  if (scopeFilter.value !== 'all') {
+    filtered = filtered.filter(d => d.scope === scopeFilter.value);
+  }
+  
+  // Apply sorting
+  switch (sortBy.value) {
+    case 'newest':
+      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      break;
+    case 'oldest':
+      filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      break;
+    case 'mostLiked':
+      filtered.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+      break;
+    case 'mostReplies':
+      filtered.sort((a, b) => (b.comments_count || 0) - (a.comments_count || 0));
+      break;
+  }
+  
+  return filtered;
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredAndSortedDiscussions.value.length / itemsPerPage.value);
+});
+
+const paginatedDiscussions = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredAndSortedDiscussions.value.slice(start, end);
+});
+
+const paginationRange = computed(() => {
+  const range = [];
+  const showPages = 5;
+  let start = Math.max(1, currentPage.value - Math.floor(showPages / 2));
+  let end = Math.min(totalPages.value, start + showPages - 1);
+  
+  if (end - start + 1 < showPages) {
+    start = Math.max(1, end - showPages + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  return range;
 });
 
 const fetchBook = async () => {
@@ -947,6 +1091,31 @@ const handleDeleteBook = async () => {
 const closeSuccessModal = () => {
   showSuccessModal.value = false;
   successMessage.value = '';
+};
+
+const resetFilters = () => {
+  scopeFilter.value = 'all';
+  sortBy.value = 'newest';
+  currentPage.value = 1;
+};
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    goToPage(currentPage.value - 1);
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    goToPage(currentPage.value + 1);
+  }
 };
 
 const formatDate = (date) => {
