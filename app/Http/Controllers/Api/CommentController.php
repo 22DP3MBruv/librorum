@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Thread;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -18,7 +19,7 @@ class CommentController extends Controller
         $thread = Thread::findOrFail($threadId);
         
         $comments = Comment::with('user')
-            ->visible($request->user())
+            ->visible($request->user()) // Pass null if not authenticated
             ->withCount('likes')
             ->where('thread_id', $threadId)
             ->orderBy('created_at', 'asc')
@@ -46,6 +47,9 @@ class CommentController extends Controller
 
         $comment->load('user');
         $comment->loadCount('likes');
+
+        // Create notification for thread owner
+        Notification::createThreadReply($comment, $thread, $request->user());
 
         return new CommentResource($comment);
     }

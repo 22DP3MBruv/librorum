@@ -1,8 +1,9 @@
 <template>
-  <div class="container mx-auto px-4 sm:px-6 py-6">
+  <div class="w-full min-w-0 overflow-x-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
     <!-- Page Header -->
-    <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div class="flex-1">
+    <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
+      <div class="flex-1 min-w-0">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ t('books.title') }}</h1>
         <p class="text-sm sm:text-base text-gray-600">{{ t('books.subtitle') }}</p>
       </div>
@@ -19,8 +20,8 @@
     </div>
 
     <!-- Search and Filter Bar -->
-    <div class="mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
-      <div class="relative flex-1">
+    <div class="mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
+      <div class="relative flex-1 min-w-0">
         <input
           v-model="searchQuery"
           type="text"
@@ -71,21 +72,21 @@
     </div>
 
     <!-- Books Grid -->
-    <div v-else-if="filteredBooks.length > 0">
+    <div v-else-if="filteredBooks.length > 0" class="min-w-0 w-full">
       <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
         <div 
           v-for="book in paginatedBooks" 
           :key="book.id"
-          class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group"
+          class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group min-w-0 w-full max-w-full"
         >
         <!-- Bookmark Button -->
         <button
           v-if="authStore.isAuthenticated"
           @click.stop="toggleBookmark(book)"
-          class="absolute top-2 right-2 z-10 bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-all"
+          class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-10 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:shadow-lg transition-all"
           :class="isBookmarked(book.id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
         >
-          <svg class="w-6 h-6" :fill="isBookmarked(book.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" :fill="isBookmarked(book.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
           </svg>
         </button>
@@ -104,12 +105,12 @@
               </svg>
             </div>
           </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">{{ book.title }}</h3>
-            <p class="text-sm text-gray-600 mb-2">{{ book.author }}</p>
-            <div class="flex justify-between items-center text-xs text-gray-500 gap-2">
-              <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap truncate max-w-[120px]" :title="book.genre">{{ book.genre }}</span>
-              <span v-if="book.page_count" class="whitespace-nowrap">{{ book.page_count }} {{ t('books.pages') }}</span>
+          <div class="p-2 sm:p-4">
+            <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2 text-xs sm:text-base break-words overflow-hidden">{{ book.title }}</h3>
+            <p class="text-[10px] sm:text-sm text-gray-600 mb-2 line-clamp-1 break-words overflow-hidden">{{ book.author }}</p>
+            <div class="flex justify-between items-center text-xs text-gray-500 gap-1 sm:gap-2 min-w-0">
+              <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded truncate max-w-[60px] sm:max-w-[120px] text-[9px] sm:text-xs" :title="book.genre">{{ book.genre }}</span>
+              <span v-if="book.page_count" class="whitespace-nowrap text-[9px] sm:text-xs">{{ book.page_count }} {{ t('books.pages') }}</span>
             </div>
           </div>
         </div>
@@ -118,14 +119,14 @@
       
     <!-- Pagination Controls -->
     <div v-if="filteredBooks.length > 0 && totalPages > 1" class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm border p-4">
-        <div class="text-sm text-gray-600">
+        <div class="text-sm text-gray-600 text-center sm:text-left w-full sm:w-auto">
           {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredBooks.length) }} {{ t('pagination.of') }} {{ filteredBooks.length }}
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="flex-shrink-0 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <span class="hidden sm:inline">{{ t('pagination.previous') }}</span>
             <span class="sm:hidden">‹</span>
@@ -135,7 +136,7 @@
             :key="page"
             @click="goToPage(page)"
             :class="[
-              'px-3 py-2 text-sm rounded-lg transition-colors',
+              'flex-shrink-0 px-3 py-2 text-sm rounded-lg transition-colors',
               page === currentPage
                 ? 'bg-blue-600 text-white'
                 : 'border hover:bg-gray-50'
@@ -146,7 +147,7 @@
           <button
             @click="nextPage"
             :disabled="currentPage === totalPages"
-            class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="flex-shrink-0 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <span class="hidden sm:inline">{{ t('pagination.next') }}</span>
             <span class="sm:hidden">›</span>
@@ -223,6 +224,7 @@
         </form>
       </div>
     </div>
+  </div>
   </div>
 </template>
 

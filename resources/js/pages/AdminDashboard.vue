@@ -3,6 +3,48 @@
     <div class="container mx-auto px-4 sm:px-6 py-6">
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">{{ $t('admin.dashboard') }}</h1>
 
+      <!-- Tabs Navigation -->
+      <div class="mb-6 border-b border-gray-200">
+        <nav class="flex space-x-4 overflow-x-auto">
+          <button
+            @click="activeTab = 'overview'"
+            :class="[
+              'px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+              activeTab === 'overview'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+            ]"
+          >
+            {{ $t('admin.overview') }}
+          </button>
+          <button
+            @click="activeTab = 'users'"
+            :class="[
+              'px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+              activeTab === 'users'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+            ]"
+          >
+            {{ $t('admin.userManagement') }}
+          </button>
+          <button
+            @click="activeTab = 'flagged'"
+            :class="[
+              'px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+              activeTab === 'flagged'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+            ]"
+          >
+            {{ $t('admin.flaggedUsers') }}
+            <span v-if="flaggedUsers.length > 0" class="ml-2 bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
+              {{ flaggedUsers.length }}
+            </span>
+          </button>
+        </nav>
+      </div>
+
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -14,10 +56,12 @@
         <p class="text-red-800">{{ error }}</p>
       </div>
 
-      <!-- Statistics Dashboard -->
+      <!-- Tab Content -->
       <div v-else>
-        <!-- Overview Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <!-- Overview Tab -->
+        <div v-show="activeTab === 'overview'">
+          <!-- Overview Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <!-- Users Card -->
           <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
             <div class="flex items-center justify-between">
@@ -132,10 +176,125 @@
             </table>
           </div>
         </div>
+        </div>
+
+        <!-- User Management Tab -->
+        <div v-show="activeTab === 'users'">
+          <div class="bg-white rounded-lg shadow-sm border">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
+              <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">{{ $t('admin.userManagement') }}</h2>
+              
+              <!-- Search and Filter -->
+              <div class="flex flex-col sm:flex-row gap-3">
+                <input
+                  v-model="userSearch"
+                  @input="searchUsers"
+                  type="text"
+                  :placeholder="$t('admin.searchUsers')"
+                  class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <select
+                  v-model="userRoleFilter"
+                  @change="filterUsers"
+                  class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">{{ $t('admin.allRoles') }}</option>
+                  <option value="user">{{ $t('admin.regularUsers') }}</option>
+                  <option value="admin">{{ $t('admin.admins') }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Users List -->
+            <div v-if="usersLoading" class="p-6 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+            <div v-else-if="users.length === 0" class="p-6 text-center text-gray-500">
+              {{ $t('admin.noUsersFound') }}
+            </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.username') }}</th>
+                    <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">{{ $t('admin.email') }}</th>
+                    <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.role') }}</th>
+                    <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('admin.actions') }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr v-for="user in users" :key="user.user_id" class="hover:bg-gray-50">
+                    <td class="px-3 sm:px-6 py-3 sm:py-4">
+                      <router-link :to="`/profile/${user.user_id}`" class="text-sm font-medium text-blue-600 hover:underline">
+                        {{ user.username }}
+                      </router-link>
+                    </td>
+                    <td class="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-600 hidden md:table-cell">{{ user.email }}</td>
+                    <td class="px-3 sm:px-6 py-3 sm:py-4">
+                      <span :class="[
+                        'px-2 py-1 text-xs rounded',
+                        user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                      ]">
+                        {{ user.role }}
+                      </span>
+                    </td>
+                    <td class="px-3 sm:px-6 py-3 sm:py-4">
+                      <div class="flex gap-2">
+                        <button
+                          v-if="user.role === 'user' && currentUserId !== user.user_id"
+                          @click="makeAdmin(user.user_id)"
+                          class="px-3 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
+                        >
+                          {{ $t('admin.makeAdmin') }}
+                        </button>
+                        <button
+                          v-if="user.role === 'admin' && currentUserId !== user.user_id"
+                          @click="removeAdmin(user.user_id)"
+                          class="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                        >
+                          {{ $t('admin.removeAdmin') }}
+                        </button>
+                        <span v-if="currentUserId === user.user_id" class="text-xs text-gray-500 italic">
+                          {{ $t('admin.you') }}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="usersPagination.total > usersPagination.per_page" class="px-4 sm:px-6 py-4 border-t flex items-center justify-between">
+              <div class="text-sm text-gray-600">
+                {{ $t('pagination.showing') }} {{ ((usersPagination.current_page - 1) * usersPagination.per_page) + 1 }} - 
+                {{ Math.min(usersPagination.current_page * usersPagination.per_page, usersPagination.total) }} 
+                {{ $t('pagination.of') }} {{ usersPagination.total }}
+              </div>
+              <div class="flex gap-2">
+                <button
+                  @click="loadUsersPage(usersPagination.current_page - 1)"
+                  :disabled="usersPagination.current_page === 1"
+                  class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ $t('pagination.previous') }}
+                </button>
+                <button
+                  @click="loadUsersPage(usersPagination.current_page + 1)"
+                  :disabled="usersPagination.current_page === usersPagination.last_page"
+                  class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ $t('pagination.next') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Flagged Users Section -->
-        <div class="bg-white rounded-lg shadow-sm border">
-          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div v-show="activeTab === 'flagged'">
+          <div class="bg-white rounded-lg shadow-sm border">
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 class="text-lg sm:text-xl font-semibold text-gray-900">{{ $t('admin.flaggedUsers') }}</h2>
             <button 
               @click="refreshFlaggedUsers" 
@@ -170,6 +329,7 @@
                 >
                   {{ $t('admin.unflag') }}
                 </button>
+              </div>
             </div>
           </div>
           
@@ -211,18 +371,40 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
+          </div>
+          </div>
+          </div>
+          </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+const authStore = useAuthStore();
+const router = useRouter();
+const { t } = useI18n();
+
 const loading = ref(true);
 const error = ref(null);
 const stats = ref({});
 const flaggedUsers = ref([]);
+const activeTab = ref('overview');
+
+// User Management
+const users = ref([]);
+const usersLoading = ref(false);
+const userSearch = ref('');
+const userRoleFilter = ref('');
+const usersPagination = ref({
+  current_page: 1,
+  per_page: 50,
+  total: 0,
+  last_page: 1
+});
+const currentUserId = computed(() => authStore.user?.user_id);
 
 // Pagination for flagged users
 const currentPage = ref(1);
@@ -352,9 +534,108 @@ const formatDate = (date) => {
   return d.toLocaleDateString('lv-LV', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
+// User Management Functions
+const loadUsers = async (page = 1) => {
+  try {
+    usersLoading.value = true;
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: usersPagination.value.per_page.toString()
+    });
+
+    if (userSearch.value) {
+      params.append('search', userSearch.value);
+    }
+
+    if (userRoleFilter.value) {
+      params.append('role', userRoleFilter.value);
+    }
+
+    const response = await fetch(`/api/admin/users?${params}`, {
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      users.value = data.data;
+      usersPagination.value = data.pagination;
+    }
+  } catch (err) {
+    console.error('Failed to load users:', err);
+  } finally {
+    usersLoading.value = false;
+  }
+};
+
+const loadUsersPage = (page) => {
+  if (page >= 1 && page <= usersPagination.value.last_page) {
+    loadUsers(page);
+  }
+};
+
+const searchUsers = () => {
+  loadUsers(1);
+};
+
+const filterUsers = () => {
+  loadUsers(1);
+};
+
+const makeAdmin = async (userId) => {
+  if (!confirm(t('admin.confirmMakeAdmin'))) return;
+
+  try {
+    const response = await fetch(`/api/admin/users/${userId}/make-admin`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      await loadUsers(usersPagination.value.current_page);
+      await fetchStatistics();
+    } else {
+      const data = await response.json();
+      alert(data.message || t('admin.makeAdminError'));
+    }
+  } catch (err) {
+    alert(t('common.networkError'));
+  }
+};
+
+const removeAdmin = async (userId) => {
+  if (!confirm(t('admin.confirmRemoveAdmin'))) return;
+
+  try {
+    const response = await fetch(`/api/admin/users/${userId}/remove-admin`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      await loadUsers(usersPagination.value.current_page);
+      await fetchStatistics();
+    } else {
+      const data = await response.json();
+      alert(data.message || t('admin.removeAdminError'));
+    }
+  } catch (err) {
+    alert(t('common.networkError'));
+  }
+};
+
 onMounted(async () => {
   await fetchStatistics();
   await fetchFlaggedUsers();
+  await loadUsers();
 });
 </script>
 

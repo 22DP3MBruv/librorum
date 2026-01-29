@@ -8,7 +8,10 @@ import Profile from '../pages/Profile.vue';
 import BookDiscussions from '../pages/BookDiscussions.vue';
 import DiscussionDetail from '../pages/DiscussionDetail.vue';
 import PrivacySettings from '../components/PrivacySettings.vue';
+import AccountSettings from '../pages/AccountSettings.vue';
 import AdminDashboard from '../pages/AdminDashboard.vue';
+import Notifications from '../pages/Notifications.vue';
+import FollowRequestsPage from '../pages/FollowRequestsPage.vue';
 
 const routes = [
   {
@@ -58,6 +61,24 @@ const routes = [
     name: 'PrivacySettings',
     component: PrivacySettings,
     meta: { title: 'Privacy Settings - Librorum' }
+  },
+  {
+    path: '/account-settings',
+    name: 'AccountSettings',
+    component: AccountSettings,
+    meta: { title: 'Account Settings - Librorum' }
+  },
+  {
+    path: '/notifications',
+    name: 'Notifications',
+    component: Notifications,
+    meta: { title: 'Notifications - Librorum' }
+  },
+  {
+    path: '/follow-requests',
+    name: 'FollowRequests',
+    component: FollowRequestsPage,
+    meta: { title: 'Follow Requests - Librorum' }
   },
   {
     path: '/admin',

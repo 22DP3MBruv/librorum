@@ -38,7 +38,7 @@ class User extends Authenticatable
         'activity_visibility',
         'allow_follows',
         'require_follow_approval',
-        'is_flagged',
+        'is_flagged', // Note: is_flagged = is_banned (same functionality)
         'flagged_at',
         'flag_reason',
         'flagged_by',
@@ -62,7 +62,6 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password_hash' => 'hashed',
             'join_date' => 'datetime',
             'allow_follows' => 'boolean',
@@ -128,11 +127,73 @@ class User extends Authenticatable
     }
 
     /**
+     * Get pending follow requests sent by this user.
+     */
+    public function sentFollowRequests()
+    {
+        return $this->hasMany(FollowRequest::class, 'follower_id', 'user_id');
+    }
+
+    /**
+     * Get pending follow requests received by this user.
+     */
+    public function receivedFollowRequests()
+    {
+        return $this->hasMany(FollowRequest::class, 'followee_id', 'user_id');
+    }
+
+    /**
+     * Check if this user has a pending follow request to another user.
+     */
+    public function hasPendingRequestTo($userId): bool
+    {
+        return $this->sentFollowRequests()
+            ->where('followee_id', $userId)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
+    /**
+     * Check if this user has a pending follow request from another user.
+     */
+    public function hasPendingRequestFrom($userId): bool
+    {
+        return $this->receivedFollowRequests()
+            ->where('follower_id', $userId)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
+    /**
      * Get the likes made by the user.
      */
     public function likes()
     {
         return $this->hasMany(Like::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the notifications for the user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get unread notifications count.
+     */
+    public function unreadNotificationsCount()
+    {
+        return $this->notifications()->unread()->count();
+    }
+
+    /**
+     * Get notifications where this user is the actor.
+     */
+    public function sentNotifications()
+    {
+        return $this->hasMany(Notification::class, 'actor_id', 'user_id');
     }
 
     /**
@@ -307,6 +368,22 @@ class User extends Authenticatable
      * Scope to get only flagged users
      */
     public function scopeFlagged($query)
+    {
+        return $query->where('is_flagged', true);
+    }
+
+    /**
+     * Check if the user is banned (flagged)
+     */
+    public function isBanned(): bool
+    {
+        return $this->is_flagged;
+    }
+
+    /**
+     * Scope to get only banned users (alias for flagged)
+     */
+    public function scopeBanned($query)
     {
         return $query->where('is_flagged', true);
     }

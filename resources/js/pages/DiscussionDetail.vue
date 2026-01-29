@@ -73,6 +73,14 @@
                 </span>
               </div>
             </div>
+            <!-- Admin Delete Button -->
+            <button
+              v-if="authStore.user?.role === 'admin'"
+              @click="deleteThread"
+              class="ml-2 px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors whitespace-nowrap"
+            >
+              {{ t('admin.delete') }}
+            </button>
           </div>
 
           <!-- Discussion Content -->
@@ -145,13 +153,21 @@
                   {{ comment.author?.name || 'Unknown' }}
                 </button>
                 <span class="text-xs text-gray-500">{{ formatDate(comment.created_at) }}</span>
+                <!-- Delete Button -->
+                <button
+                  v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.user_id === comment.user_id)"
+                  @click="deleteComment(comment.id)"
+                  class="ml-auto px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                  {{ t('admin.delete') }}
+                </button>
               </div>
               <p class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+            </div>
           </div>
-        </div>
         
         <!-- Pagination Controls -->
-        <div v-if="comments.length > 0 && totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div v-if="totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-sm text-gray-600">
               {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, comments.length) }} {{ t('pagination.of') }} {{ comments.length }}
             </div>
@@ -300,11 +316,16 @@ const fetchDiscussion = async () => {
 const fetchComments = async () => {
   try {
     const token = localStorage.getItem('auth_token');
+    const headers = {
+      'Accept': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(`/api/threads/${route.params.discussionId}/comments`, {
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : ''
-      }
+      headers
     });
     
     if (response.ok) {
@@ -451,6 +472,60 @@ const handleAddComment = async () => {
     console.error('Failed to add comment:', err);
   } finally {
     commentLoading.value = false;
+  }
+};
+
+const deleteThread = async () => {
+  if (!confirm(t('admin.confirmDeleteThread'))) return;
+
+  try {
+    const isAdmin = authStore.user?.role === 'admin';
+    const endpoint = isAdmin 
+      ? `/api/admin/threads/${route.params.discussionId}` 
+      : `/api/threads/${route.params.discussionId}`;
+    
+    const response = await fetch(endpoint, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      router.push('/books');
+    } else {
+      alert(t('admin.deleteThreadError'));
+    }
+  } catch (err) {
+    alert(t('common.networkError'));
+  }
+};
+
+const deleteComment = async (commentId) => {
+  if (!confirm(t('admin.confirmDeleteComment'))) return;
+
+  try {
+    const isAdmin = authStore.user?.role === 'admin';
+    const endpoint = isAdmin 
+      ? `/api/admin/comments/${commentId}` 
+      : `/api/threads/${route.params.discussionId}/comments/${commentId}`;
+    
+    const response = await fetch(endpoint, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      comments.value = comments.value.filter(c => c.id !== commentId);
+    } else {
+      alert(t('admin.deleteCommentError'));
+    }
+  } catch (err) {
+    alert(t('common.networkError'));
   }
 };
 

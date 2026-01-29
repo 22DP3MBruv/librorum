@@ -20,11 +20,17 @@ export const useDiscussionsStore = defineStore('discussions', {
       this.error = null;
 
       try {
+        const headers = {
+          'Accept': 'application/json',
+        };
+        
+        const authToken = localStorage.getItem('auth_token');
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
         const response = await fetch(`/api/books/${bookId}/threads`, {
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
+          headers
         });
 
         if (response.ok) {
@@ -74,11 +80,17 @@ export const useDiscussionsStore = defineStore('discussions', {
       this.error = null;
 
       try {
+        const headers = {
+          'Accept': 'application/json',
+        };
+        
+        const authToken = localStorage.getItem('auth_token');
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
         const response = await fetch(`/api/threads/${threadId}`, {
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
+          headers
         });
 
         if (response.ok) {

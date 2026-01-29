@@ -11,7 +11,11 @@
           </div>
           
           <!-- Mobile menu button -->
-          <div class="flex items-center md:hidden">
+          <div class="flex items-center gap-2 md:hidden">
+            <!-- Notification Bell Mobile Header -->
+            <div v-if="authStore.isAuthenticated">
+              <NotificationBell />
+            </div>
             <button
               @click="mobileMenuOpen = !mobileMenuOpen"
               class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
@@ -102,6 +106,10 @@
               >
                 EN
               </button>
+            </div>
+            <!-- Notification Bell -->
+            <div v-if="authStore.isAuthenticated" class="border-l pl-4 ml-2">
+              <NotificationBell />
             </div>
           </div>
         </div>
@@ -389,8 +397,11 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from './stores/auth.js';
+import { useNotificationStore } from './stores/notifications.js';
+import NotificationBell from './components/NotificationBell.vue';
 
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const { t, locale } = useI18n();
 
 // Mobile menu state
@@ -481,11 +492,17 @@ const handleRegister = async () => {
 
 const handleLogout = () => {
   authStore.logout();
+  notificationStore.reset();
 };
 
 // Check authentication on mount
 onMounted(() => {
   authStore.checkAuth();
+  
+  // Start notification polling if authenticated
+  if (authStore.isAuthenticated) {
+    notificationStore.startPolling(30000);
+  }
 });
 </script>
 

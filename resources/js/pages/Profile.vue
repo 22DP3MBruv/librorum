@@ -75,11 +75,14 @@
                 @click="toggleFollow"
                 :disabled="followLoading"
                 class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
-                :class="isFollowing 
-                  ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'"
+                :class="{
+                  'bg-gray-200 text-gray-700 hover:bg-gray-300': isFollowing,
+                  'bg-yellow-500 text-white hover:bg-yellow-600': hasPendingRequest,
+                  'bg-blue-600 text-white hover:bg-blue-700': !isFollowing && !hasPendingRequest
+                }"
               >
                 <span v-if="followLoading">...</span>
+                <span v-else-if="hasPendingRequest">{{ t('profile.cancelRequest') }}</span>
                 <span v-else>{{ isFollowing ? t('profile.unfollow') : t('profile.follow') }}</span>
               </button>
               <div v-else class="text-xs sm:text-sm text-gray-500 text-center">
@@ -95,6 +98,29 @@
                 {{ t('profile.flagUser') }}
               </button>
             </div>
+          </div>
+          
+          <!-- Privacy Settings Button (Own Profile) -->
+          <div v-if="isOwnProfile" class="mt-4 flex justify-end gap-3">
+            <router-link
+              to="/privacy-settings"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+              {{ t('privacySettings.title') }}
+            </router-link>
+            <router-link
+              to="/account-settings"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              {{ t('accountSettings.title') }}
+            </router-link>
           </div>
         </div>
       </div>
@@ -119,10 +145,21 @@
           <div
             v-for="progress in recentProgress"
             :key="progress.id"
-            class="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            @click="goToBook(progress.book)"
+            class="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors relative group"
           >
-            <div class="flex items-start gap-3 sm:gap-4">
+            <!-- Bookmark Button -->
+            <button
+              v-if="authStore.isAuthenticated"
+              @click.stop="toggleBookmark(progress.book)"
+              class="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:shadow-lg transition-all"
+              :class="isBookmarked(progress.book?.id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
+            >
+              <svg class="w-5 h-5" :fill="isBookmarked(progress.book?.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+              </svg>
+            </button>
+            
+            <div class="flex items-start gap-3 sm:gap-4 cursor-pointer" @click="goToBook(progress.book)">
               <div class="flex-shrink-0 w-10 h-14 sm:w-12 sm:h-16 bg-gray-200 rounded overflow-hidden">
                 <img
                   v-if="progress.book?.cover_image_url"
@@ -284,6 +321,7 @@ const showFollowing = ref(false);
 const profileUser = ref(null);
 const userNotFound = ref(false);
 const isFollowing = ref(false);
+const hasPendingRequest = ref(false);
 const followLoading = ref(false);
 const profileProgress = ref([]);
 const profileProgressCount = ref({ read: 0, reading: 0, wantToRead: 0 });
@@ -362,6 +400,7 @@ const fetchUserProfile = async (userId) => {
       const data = await response.json();
       profileUser.value = data.data;
       isFollowing.value = data.data.is_following;
+      hasPendingRequest.value = data.data.has_pending_request || false;
       userNotFound.value = false;
     } else {
       userNotFound.value = true;
@@ -451,11 +490,21 @@ const toggleFollow = async () => {
   followLoading.value = true;
   try {
     const token = localStorage.getItem('auth_token');
-    const url = isFollowing.value 
-      ? `/api/user/unfollow/${route.params.userId}`
-      : `/api/user/follow/${route.params.userId}`;
+    let url, method;
     
-    const method = isFollowing.value ? 'DELETE' : 'POST';
+    if (hasPendingRequest.value) {
+      // Cancel pending request
+      url = `/api/user/follow-request/${route.params.userId}/cancel`;
+      method = 'DELETE';
+    } else if (isFollowing.value) {
+      // Unfollow
+      url = `/api/user/unfollow/${route.params.userId}`;
+      method = 'DELETE';
+    } else {
+      // Follow or send request
+      url = `/api/user/follow/${route.params.userId}`;
+      method = 'POST';
+    }
     
     const response = await fetch(url, {
       method: method,
@@ -466,7 +515,23 @@ const toggleFollow = async () => {
     });
 
     if (response.ok) {
-      isFollowing.value = !isFollowing.value;
+      const data = await response.json();
+      
+      if (hasPendingRequest.value) {
+        // Request was cancelled
+        hasPendingRequest.value = false;
+      } else if (isFollowing.value) {
+        // Unfollowed
+        isFollowing.value = false;
+      } else {
+        // Check if a request was sent or followed directly
+        if (data.has_pending_request) {
+          hasPendingRequest.value = true;
+        } else {
+          isFollowing.value = true;
+        }
+      }
+      
       // Refresh followers/following counts - pass userId when viewing another user's profile
       const targetUserId = !isOwnProfile.value ? route.params.userId : null;
       await Promise.all([
@@ -511,6 +576,34 @@ const flagUser = async () => {
     alert(t('common.networkError'));
   } finally {
     flaggingUser.value = false;
+  }
+};
+
+const isBookmarked = (bookId) => {
+  return progressStore.isBookInReadingList(bookId);
+};
+
+const toggleBookmark = async (book) => {
+  if (!book?.id) {
+    console.error('Book ID is missing:', book);
+    alert('Error: Book ID is missing');
+    return;
+  }
+  
+  const bookProgress = progressStore.getBookProgress(book.id);
+  
+  if (bookProgress) {
+    // Remove from reading list
+    const result = await progressStore.removeFromReadingList(bookProgress.id);
+    if (!result.success) {
+      alert(result.message || t('books.removeBookmarkFailed'));
+    }
+  } else {
+    // Add to reading list
+    const result = await progressStore.addToReadingList(book.id, 'want_to_read');
+    if (!result.success) {
+      alert(result.message || t('books.addBookmarkFailed'));
+    }
   }
 };
 

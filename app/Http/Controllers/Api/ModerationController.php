@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -45,19 +46,19 @@ class ModerationController extends Controller
             ], 404);
         }
 
-        // Don't allow flagging admins or moderators
+        // Don't allow banning admins or moderators
         if ($user->isModerator()) {
             return response()->json([
-                'message' => 'Cannot flag moderators or admins',
-                'message_lv' => 'Nevar atzīmēt moderatorus vai administratorus'
+                'message' => 'Cannot ban moderators or admins',
+                'message_lv' => 'Nevar bloķēt moderatorus vai administratorus'
             ], 403);
         }
 
-        // Don't flag already flagged users
+        // Don't ban already banned users
         if ($user->is_flagged) {
             return response()->json([
-                'message' => 'User is already flagged',
-                'message_lv' => 'Lietotājs jau ir atzīmēts'
+                'message' => 'User is already banned',
+                'message_lv' => 'Lietotājs jau ir bloķēts'
             ], 422);
         }
 
@@ -68,9 +69,12 @@ class ModerationController extends Controller
             'flagged_by' => $moderator->user_id,
         ]);
 
+        // Create notification for the banned user (flagging = banning)
+        Notification::createUserBanned($user, $moderator, $request->reason);
+
         return response()->json([
-            'message' => 'User flagged successfully',
-            'message_lv' => 'Lietotājs veiksmīgi atzīmēts',
+            'message' => 'User banned successfully',
+            'message_lv' => 'Lietotājs veiksmīgi bloķēts',
             'data' => [
                 'user_id' => $user->user_id,
                 'username' => $user->username,
@@ -107,8 +111,8 @@ class ModerationController extends Controller
 
         if (!$user->is_flagged) {
             return response()->json([
-                'message' => 'User is not flagged',
-                'message_lv' => 'Lietotājs nav atzīmēts'
+                'message' => 'User is not banned',
+                'message_lv' => 'Lietotājs nav bloķēts'
             ], 422);
         }
 
@@ -120,8 +124,8 @@ class ModerationController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'User unflagged successfully',
-            'message_lv' => 'Lietotāja atzīme veiksmīgi noņemta',
+            'message' => 'User unbanned successfully',
+            'message_lv' => 'Lietotāja bloķēšana veiksmīgi noņemta',
             'data' => [
                 'user_id' => $user->user_id,
                 'username' => $user->username,

@@ -263,6 +263,14 @@
                   </span>
                 </div>
               </div>
+              <!-- Delete Button -->
+              <button
+                v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.user_id === discussion.user_id)"
+                @click.stop="deleteThread(discussion.id)"
+                class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors whitespace-nowrap self-start"
+              >
+                {{ t('admin.delete') }}
+              </button>
             </div>
             </div>
           </div>
@@ -1091,6 +1099,40 @@ const handleDeleteBook = async () => {
 const closeSuccessModal = () => {
   showSuccessModal.value = false;
   successMessage.value = '';
+};
+
+const deleteThread = async (threadId) => {
+  if (!confirm(t('admin.confirmDeleteThread'))) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('auth_token');
+    const isAdmin = authStore.user?.role === 'admin';
+    const endpoint = isAdmin 
+      ? `/api/admin/threads/${threadId}` 
+      : `/api/threads/${threadId}`;
+    
+    const response = await fetch(endpoint, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      // Remove from local discussions array
+      discussions.value = discussions.value.filter(d => d.id !== threadId);
+      alert(t('admin.threadDeleted'));
+    } else {
+      const data = await response.json();
+      alert(data.message || 'Failed to delete thread');
+    }
+  } catch (err) {
+    console.error('Failed to delete thread', err);
+    alert('Failed to delete thread');
+  }
 };
 
 const resetFilters = () => {

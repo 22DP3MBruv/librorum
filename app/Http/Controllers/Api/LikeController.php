@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Like;
+use App\Models\Thread;
+use App\Models\Comment;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class LikeController extends Controller
@@ -33,11 +36,23 @@ class LikeController extends Controller
             ]);
         } else {
             // Like
-            Like::create([
+            $like = Like::create([
                 'user_id' => $request->user()->user_id,
                 'target_type' => $validated['target_type'],
                 'target_id' => $validated['target_id'],
             ]);
+
+            // Create notification for content owner
+            if ($validated['target_type'] === 'thread') {
+                $likeable = Thread::find($validated['target_id']);
+            } else {
+                $likeable = Comment::find($validated['target_id']);
+            }
+
+            if ($likeable) {
+                Notification::createLike($like, $likeable, $request->user());
+            }
+
             return response()->json([
                 'liked' => true,
                 'message' => 'Liked',
