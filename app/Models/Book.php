@@ -23,7 +23,6 @@ class Book extends Model
      */
     protected $fillable = [
         'title',
-        'author',
         'isbn',
         'isbn10',
         'isbn13',

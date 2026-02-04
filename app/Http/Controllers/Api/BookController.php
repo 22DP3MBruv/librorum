@@ -87,8 +87,10 @@ class BookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
+            'authors' => 'nullable|array',
             'isbn' => 'required|string|unique:books,isbn',
+            'isbn10' => 'nullable|string',
+            'isbn13' => 'nullable|string',
             'publication_year' => 'nullable|integer|min:1000|max:' . date('Y'),
             'genre' => 'nullable|string|max:100',
             'tag' => 'nullable|string|max:100',
@@ -97,9 +99,12 @@ class BookController extends Controller
             'cover_image_url' => 'nullable|url',
             'publisher' => 'nullable|string|max:255',
             'language' => 'nullable|string|max:10',
+            'subjects' => 'nullable|array',
+            'external_ids' => 'nullable|array',
+            'publish_date' => 'nullable|date',
+            'last_api_sync' => 'nullable|date',
         ], [
             'title.required' => 'Nosaukums ir obligāts',
-            'author.required' => 'Autors ir obligāts',
             'isbn.required' => 'ISBN ir obligāts',
             'isbn.unique' => 'Grāmata ar šo ISBN jau eksistē',
             'publication_year.integer' => 'Publikācijas gadam jābūt skaitlim',
@@ -143,8 +148,10 @@ class BookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|string|max:255',
-            'author' => 'sometimes|string|max:255',
+            'authors' => 'sometimes|array',
             'isbn' => 'sometimes|string|unique:books,isbn,' . $book->book_id . ',book_id',
+            'isbn10' => 'nullable|string',
+            'isbn13' => 'nullable|string',
             'publication_year' => 'nullable|integer|min:1000|max:' . date('Y'),
             'genre' => 'nullable|string|max:100',
             'tag' => 'nullable|string|max:100',
@@ -153,6 +160,10 @@ class BookController extends Controller
             'cover_image_url' => 'nullable|url',
             'publisher' => 'nullable|string|max:255',
             'language' => 'nullable|string|max:10',
+            'subjects' => 'nullable|array',
+            'external_ids' => 'nullable|array',
+            'publish_date' => 'nullable|date',
+            'last_api_sync' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -311,15 +322,38 @@ class BookController extends Controller
             ], 404);
         }
 
+        // Validate that book has a proper ISBN
+        if (empty($bookData['isbn']) && empty($bookData['isbn10']) && empty($bookData['isbn13'])) {
+            return response()->json([
+                'message' => 'Book found but has no valid ISBN identifiers',
+                'message_lv' => 'Grāmata atrasta, bet tai nav derīgu ISBN identifikatoru'
+            ], 422);
+        }
+
+        // Store source separately and remove from book data
+        $source = $bookData['source'] ?? 'unknown';
+        unset($bookData['source']);
+        
         // Create book with fetched data
         $bookData['last_api_sync'] = now();
-        $book = Book::create($bookData);
+        
+        try {
+            $book = Book::create($bookData);
+        } catch (\Exception $e) {
+            \Log::error('Book creation failed: ' . $e->getMessage(), ['bookData' => $bookData]);
+            return response()->json([
+                'message' => 'Failed to create book: ' . $e->getMessage(),
+                'message_lv' => 'Neizdevās izveidot grāmatu',
+                'error' => $e->getMessage(),
+                'book_data' => $bookData
+            ], 422);
+        }
 
         return response()->json([
             'message' => 'Book imported successfully',
             'message_lv' => 'Grāmata veiksmīgi importēta',
             'book' => new BookResource($book),
-            'source' => $bookData['source'] ?? 'unknown'
+            'source' => $source
         ], 201);
     }
 

@@ -78,7 +78,7 @@ class AdminController extends Controller
                 return [
                     'book_id' => $book->book_id,
                     'title' => $book->title,
-                    'author' => $book->author,
+                    'authors' => $book->authors,
                     'threads_count' => $book->threads_count,
                     'comments_count' => $book->comments_count,
                 ];

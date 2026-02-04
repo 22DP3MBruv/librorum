@@ -142,13 +142,16 @@ export const useBooksStore = defineStore('books', () => {
     try {
       const response = await fetch(`/api/books/import-isbn`, {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ isbn })
       });
 
       if (response.ok) {
         const data = await response.json();
-        const newBook = data.data || data;
+        const newBook = data.book || data.data || data;
         books.value.push(newBook);
         return { success: true, book: newBook };
       } else {

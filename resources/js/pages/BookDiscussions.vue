@@ -42,7 +42,7 @@
           <!-- Center: Book Details -->
           <div class="flex-1 min-w-0">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ book.title }}</h1>
-            <p class="text-sm sm:text-base text-gray-600 mb-2">{{ book.author }}</p>
+            <p class="text-sm sm:text-base text-gray-600 mb-2">{{ Array.isArray(book.authors) ? book.authors.join(', ') : book.authors }}</p>
             <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 mb-3">
               <span v-if="book.isbn" class="truncate">ISBN: {{ book.isbn }}</span>
               <span v-if="book.page_count">{{ book.page_count }} {{ t('books.pages') }}</span>

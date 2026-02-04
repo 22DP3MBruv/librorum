@@ -107,7 +107,7 @@
           </div>
           <div class="p-2 sm:p-4">
             <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2 text-xs sm:text-base break-words overflow-hidden">{{ book.title }}</h3>
-            <p class="text-[10px] sm:text-sm text-gray-600 mb-2 line-clamp-1 break-words overflow-hidden">{{ book.author }}</p>
+            <p class="text-[10px] sm:text-sm text-gray-600 mb-2 line-clamp-1 break-words overflow-hidden">{{ Array.isArray(book.authors) ? book.authors.join(', ') : book.authors }}</p>
             <div class="flex justify-between items-center text-xs text-gray-500 gap-1 sm:gap-2 min-w-0">
               <span v-if="book.genre" class="bg-blue-100 text-blue-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded truncate max-w-[60px] sm:max-w-[120px] text-[9px] sm:text-xs" :title="book.genre">{{ book.genre }}</span>
               <span v-if="book.page_count" class="whitespace-nowrap text-[9px] sm:text-xs">{{ book.page_count }} {{ t('books.pages') }}</span>
@@ -282,7 +282,7 @@ const filteredBooks = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(book => 
       book.title?.toLowerCase().includes(query) ||
-      book.author?.toLowerCase().includes(query) ||
+      (Array.isArray(book.authors) ? book.authors.some(a => a.toLowerCase().includes(query)) : book.authors?.toLowerCase().includes(query)) ||
       book.isbn?.includes(query) ||
       book.isbn10?.includes(query) ||
       book.isbn13?.includes(query)

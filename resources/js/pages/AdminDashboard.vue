@@ -166,9 +166,9 @@
                 <tr v-for="book in stats.popular_books" :key="book.book_id" class="hover:bg-gray-50">
                   <td class="px-3 sm:px-6 py-3 sm:py-4 text-sm">
                     <div class="font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none">{{ book.title }}</div>
-                    <div class="text-gray-600 text-xs sm:hidden">{{ book.author }}</div>
+                    <div class="text-gray-600 text-xs sm:hidden">{{ Array.isArray(book.authors) ? book.authors.join(', ') : book.authors }}</div>
                   </td>
-                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 text-sm hidden sm:table-cell">{{ book.author }}</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 text-sm hidden sm:table-cell">{{ Array.isArray(book.authors) ? book.authors.join(', ') : book.authors }}</td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-gray-900 text-sm">{{ book.threads_count }}</td>
                   <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-gray-900 text-sm">{{ book.comments_count }}</td>
                 </tr>

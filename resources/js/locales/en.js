@@ -7,7 +7,7 @@ export default {
     login: 'Login',
     register: 'Register',
     logout: 'Logout',
-    admin: 'Admin'
+    admin: 'Panel'
   },
   home: {
     welcome: 'Welcome to Librorum!',

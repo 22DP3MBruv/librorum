@@ -7,7 +7,7 @@ export default {
     login: 'Pieslēgties',
     register: 'Reģistrēties',
     logout: 'Iziet',
-    admin: 'Administrators'
+    admin: 'Panelis'
   },
   home: {
     welcome: 'Laipni lūdzam Librorum sistēmā!',

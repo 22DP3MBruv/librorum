@@ -20,14 +20,14 @@ class ExternalBookApiService
      */
     public function fetchBookByIsbn($isbn)
     {
-        $isbn = $this->cleanIsbn($isbn);
-        return $this->fetchFromGoogleBooks($isbn);
+        $cleanedIsbn = $this->cleanIsbn($isbn);
+        return $this->fetchFromGoogleBooks($cleanedIsbn, $cleanedIsbn);
     }
 
     /**
      * Fetch from Google Books API
      */
-    private function fetchFromGoogleBooks($isbn)
+    private function fetchFromGoogleBooks($isbn, $searchedIsbn = null)
     {
         try {
             $url = "https://www.googleapis.com/books/v1/volumes";
@@ -46,7 +46,7 @@ class ExternalBookApiService
                 $data = $response->json();
                 
                 if (isset($data['items'][0])) {
-                    return $this->normalizeGoogleBooksData($data['items'][0]);
+                    return $this->normalizeGoogleBooksData($data['items'][0], $searchedIsbn);
                 }
             }
         } catch (Exception $e) {
@@ -103,18 +103,32 @@ class ExternalBookApiService
     /**
      * Normalize Google Books data to our format
      */
-    private function normalizeGoogleBooksData($data)
+    private function normalizeGoogleBooksData($data, $searchedIsbn = null)
     {
         $volumeInfo = $data['volumeInfo'] ?? [];
         $saleInfo = $data['saleInfo'] ?? [];
 
+        $isbn10 = $this->extractIsbn10FromGoogleBooks($volumeInfo);
+        $isbn13 = $this->extractIsbn13FromGoogleBooks($volumeInfo);
+        
+        // Use ISBN-13 as primary, fallback to ISBN-10, then to searched ISBN
+        $primaryIsbn = $isbn13 ?? $isbn10 ?? $searchedIsbn;
+        
+        // If we have a searched ISBN but no specific ISBN-10/13, try to determine which type it is
+        if (!$isbn10 && !$isbn13 && $searchedIsbn) {
+            if (strlen($searchedIsbn) === 10) {
+                $isbn10 = $searchedIsbn;
+            } elseif (strlen($searchedIsbn) === 13) {
+                $isbn13 = $searchedIsbn;
+            }
+        }
+
         return [
             'title' => $volumeInfo['title'] ?? null,
             'authors' => $volumeInfo['authors'] ?? [],
-            'author' => isset($volumeInfo['authors'][0]) ? $volumeInfo['authors'][0] : null,
-            'isbn' => $this->extractIsbnFromGoogleBooks($volumeInfo),
-            'isbn10' => $this->extractIsbn10FromGoogleBooks($volumeInfo),
-            'isbn13' => $this->extractIsbn13FromGoogleBooks($volumeInfo),
+            'isbn' => $primaryIsbn,
+            'isbn10' => $isbn10,
+            'isbn13' => $isbn13,
             'publisher' => $volumeInfo['publisher'] ?? null,
             'publish_date' => $volumeInfo['publishedDate'] ?? null,
             'publication_year' => isset($volumeInfo['publishedDate']) ? (int)substr($volumeInfo['publishedDate'], 0, 4) : null,
@@ -207,6 +221,14 @@ class ExternalBookApiService
                 // Google Books thumbnails have a zoom parameter, increase it for better quality
                 $url = str_replace('zoom=1', 'zoom=2', $url);
                 $url = str_replace('http://', 'https://', $url); // Ensure HTTPS
+                
+                // Add edge=curl parameter to help with hotlink protection
+                if (strpos($url, '?') !== false) {
+                    $url .= '&edge=curl';
+                } else {
+                    $url .= '?edge=curl';
+                }
+                
                 return $url;
             }
         }

@@ -37,7 +37,7 @@ class ThreadResource extends JsonResource
                 return [
                     'id' => $this->book->book_id,
                     'title' => $this->book->title,
-                    'author' => $this->book->author,
+                    'authors' => $this->book->authors,
                     'isbn' => $this->book->isbn,
                 ];
             }),
