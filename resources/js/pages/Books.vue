@@ -83,7 +83,7 @@
         <button
           v-if="authStore.isAuthenticated"
           @click.stop="toggleBookmark(book)"
-          class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-10 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:shadow-lg transition-all"
+          class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-0 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:shadow-lg transition-all pointer-events-auto"
           :class="isBookmarked(book.id) ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'"
         >
           <svg class="w-5 h-5 sm:w-6 sm:h-6" :fill="isBookmarked(book.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">

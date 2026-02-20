@@ -141,7 +141,15 @@ export default {
     sortMostReplies: 'Visvairāk atbilžu',
     noResults: 'Diskusijas nav atrastas',
     noResultsDescription: 'Mēģiniet pielāgot filtrus, lai redzētu vairāk rezultātu.',
-    clearFilters: 'Notīrīt filtrus'
+    clearFilters: 'Notīrīt filtrus',
+    edit: 'Rediģēt',
+    editThread: 'Rediģēt diskusiju',
+    editComment: 'Rediģēt komentāru',
+    update: 'Atjaunināt',
+    updating: 'Atjaunina...',
+    cancel: 'Atcelt',
+    editSuccess: 'Veiksmīgi atjaunināts',
+    editFailed: 'Neizdevās atjaunināt'
   },
   profile: {
     title: 'Profils',

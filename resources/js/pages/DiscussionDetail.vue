@@ -73,19 +73,99 @@
                 </span>
               </div>
             </div>
-            <!-- Admin Delete Button -->
-            <button
-              v-if="authStore.user?.role === 'admin'"
-              @click="deleteThread"
-              class="ml-2 px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors whitespace-nowrap"
-            >
-              {{ t('admin.delete') }}
-            </button>
+            <!-- Edit and Delete Buttons -->
+            <div v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.id === discussion.user_id)" class="flex gap-2">
+              <button
+                v-if="authStore.user.id === discussion.user_id"
+                @click="openEditThreadModal"
+                class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
+              >
+                {{ t('discussions.edit') }}
+              </button>
+              <button
+                @click="deleteThread"
+                class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors whitespace-nowrap"
+              >
+                {{ t('admin.delete') }}
+              </button>
+            </div>
           </div>
 
           <!-- Discussion Content -->
-          <div class="prose max-w-none">
+          <div v-if="!isEditingThread" class="prose max-w-none">
             <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ discussion.content }}</p>
+          </div>
+
+          <!-- Edit Thread Form -->
+          <div v-else class="mt-4">
+            <form @submit.prevent="handleEditThread" class="space-y-4">
+              <div>
+                <label for="edit-thread-title" class="block text-sm font-medium text-gray-700">{{ t('discussions.title') }}</label>
+                <input 
+                  id="edit-thread-title"
+                  v-model="editThreadData.title" 
+                  type="text" 
+                  required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label for="edit-thread-content" class="block text-sm font-medium text-gray-700">{{ t('discussions.content') }}</label>
+                <textarea 
+                  id="edit-thread-content"
+                  v-model="editThreadData.content" 
+                  rows="6"
+                  required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                ></textarea>
+              </div>
+
+              <div>
+                <label for="edit-thread-scope" class="block text-sm font-medium text-gray-700">{{ t('discussions.scope') }}</label>
+                <select
+                  id="edit-thread-scope"
+                  v-model="editThreadData.scope"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="general">{{ t('discussions.scopeGeneral') }}</option>
+                  <option value="page">{{ t('discussions.scopePage') }}</option>
+                </select>
+              </div>
+
+              <div v-if="editThreadData.scope === 'page'">
+                <label for="edit-page-number" class="block text-sm font-medium text-gray-700">{{ t('discussions.pageNumber') }}</label>
+                <input 
+                  id="edit-page-number"
+                  v-model.number="editThreadData.page_number" 
+                  type="number" 
+                  min="1"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  :placeholder="t('discussions.pageNumberPlaceholder')"
+                />
+              </div>
+
+              <div v-if="editThreadError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+                {{ editThreadError }}
+              </div>
+              
+              <div class="flex justify-end space-x-3">
+                <button 
+                  type="button" 
+                  @click="cancelEditThread"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+                >
+                  {{ t('discussions.cancel') }}
+                </button>
+                <button 
+                  type="submit" 
+                  :disabled="editThreadLoading"
+                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+                >
+                  {{ editThreadLoading ? t('discussions.updating') : t('discussions.update') }}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -153,16 +233,53 @@
                   {{ comment.author?.name || 'Unknown' }}
                 </button>
                 <span class="text-xs text-gray-500">{{ formatDate(comment.created_at) }}</span>
-                <!-- Delete Button -->
-                <button
-                  v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.user_id === comment.user_id)"
-                  @click="deleteComment(comment.id)"
-                  class="ml-auto px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                >
-                  {{ t('admin.delete') }}
-                </button>
+                <!-- Edit and Delete Buttons -->
+                <div v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.id === comment.user_id)" class="ml-auto flex gap-2">
+                  <button
+                    v-if="authStore.user.id === comment.user_id && editingCommentId !== comment.id"
+                    @click="startEditComment(comment)"
+                    class="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    {{ t('discussions.edit') }}
+                  </button>
+                  <button
+                    @click="deleteComment(comment.id)"
+                    class="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                  >
+                    {{ t('admin.delete') }}
+                  </button>
+                </div>
               </div>
-              <p class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+              
+              <!-- Display Comment Content -->
+              <p v-if="editingCommentId !== comment.id" class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+              
+              <!-- Edit Comment Form -->
+              <div v-else class="space-y-2">
+                <textarea
+                  v-model="editCommentContent"
+                  rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                ></textarea>
+                <div v-if="editCommentError" class="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded text-xs">
+                  {{ editCommentError }}
+                </div>
+                <div class="flex justify-end gap-2">
+                  <button
+                    @click="cancelEditComment"
+                    class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+                  >
+                    {{ t('discussions.cancel') }}
+                  </button>
+                  <button
+                    @click="handleEditComment(comment.id)"
+                    :disabled="editCommentLoading"
+                    class="px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+                  >
+                    {{ editCommentLoading ? t('discussions.updating') : t('discussions.update') }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         
@@ -240,6 +357,14 @@ const newComment = ref('');
 const loading = ref(true);
 const error = ref(null);
 const commentLoading = ref(false);
+const isEditingThread = ref(false);
+const editThreadData = ref({});
+const editThreadLoading = ref(false);
+const editThreadError = ref('');
+const editingCommentId = ref(null);
+const editCommentContent = ref('');
+const editCommentLoading = ref(false);
+const editCommentError = ref('');
 
 // Pagination
 const currentPage = ref(1);
@@ -299,6 +424,13 @@ const fetchDiscussion = async () => {
   if (result.success) {
     discussion.value = result.data;
     book.value = discussion.value.book;
+    
+    // Debug logging
+    console.log('=== DEBUG: Discussion loaded ===');
+    console.log('authStore.user:', authStore.user);
+    console.log('authStore.user.id:', authStore.user?.id);
+    console.log('discussion.user_id:', discussion.value.user_id);
+    console.log('Comparison result:', authStore.user?.id === discussion.value.user_id);
     
     // Fetch like status for thread
     if (authStore.isAuthenticated) {
@@ -502,6 +634,68 @@ const deleteThread = async () => {
   }
 };
 
+const openEditThreadModal = () => {
+  editThreadData.value = {
+    title: discussion.value.title,
+    content: discussion.value.content,
+    scope: discussion.value.scope || 'general',
+    page_number: discussion.value.page_number || null
+  };
+  isEditingThread.value = true;
+  editThreadError.value = '';
+};
+
+const cancelEditThread = () => {
+  isEditingThread.value = false;
+  editThreadData.value = {};
+  editThreadError.value = '';
+};
+
+const handleEditThread = async () => {
+  editThreadLoading.value = true;
+  editThreadError.value = '';
+  
+  try {
+    const token = localStorage.getItem('auth_token');
+    const updateData = {
+      title: editThreadData.value.title,
+      content: editThreadData.value.content,
+      scope: editThreadData.value.scope,
+    };
+
+    if (editThreadData.value.scope === 'page' && editThreadData.value.page_number) {
+      updateData.page_number = editThreadData.value.page_number;
+    } else {
+      updateData.page_number = null;
+    }
+
+    const response = await fetch(`/api/threads/${route.params.discussionId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(updateData)
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      // Update the discussion object
+      discussion.value = { ...discussion.value, ...data.data };
+      isEditingThread.value = false;
+      alert(t('discussions.editSuccess'));
+    } else {
+      editThreadError.value = data.message || t('discussions.editFailed');
+    }
+  } catch (err) {
+    editThreadError.value = err.message || t('discussions.editFailed');
+  } finally {
+    editThreadLoading.value = false;
+  }
+};
+
 const deleteComment = async (commentId) => {
   if (!confirm(t('admin.confirmDeleteComment'))) return;
 
@@ -526,6 +720,61 @@ const deleteComment = async (commentId) => {
     }
   } catch (err) {
     alert(t('common.networkError'));
+  }
+};
+
+const startEditComment = (comment) => {
+  editingCommentId.value = comment.id;
+  editCommentContent.value = comment.content;
+  editCommentError.value = '';
+};
+
+const cancelEditComment = () => {
+  editingCommentId.value = null;
+  editCommentContent.value = '';
+  editCommentError.value = '';
+};
+
+const handleEditComment = async (commentId) => {
+  if (!editCommentContent.value.trim()) {
+    editCommentError.value = t('discussions.contentRequired') || 'Content is required';
+    return;
+  }
+
+  editCommentLoading.value = true;
+  editCommentError.value = '';
+  
+  try {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`/api/threads/${route.params.discussionId}/comments/${commentId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        content: editCommentContent.value
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      // Update the comment in the local array
+      const comment = comments.value.find(c => c.id === commentId);
+      if (comment) {
+        comment.content = data.data.content;
+      }
+      cancelEditComment();
+      alert(t('discussions.editSuccess'));
+    } else {
+      editCommentError.value = data.message || t('discussions.editFailed');
+    }
+  } catch (err) {
+    editCommentError.value = err.message || t('discussions.editFailed');
+  } finally {
+    editCommentLoading.value = false;
   }
 };
 

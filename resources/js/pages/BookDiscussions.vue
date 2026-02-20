@@ -263,14 +263,22 @@
                   </span>
                 </div>
               </div>
-              <!-- Delete Button -->
-              <button
-                v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.user_id === discussion.user_id)"
-                @click.stop="deleteThread(discussion.id)"
-                class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors whitespace-nowrap self-start"
-              >
-                {{ t('admin.delete') }}
-              </button>
+              <!-- Edit and Delete Buttons -->
+              <div v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.id === discussion.user_id)" class="flex gap-2">
+                <button
+                  v-if="authStore.user.id === discussion.user_id"
+                  @click.stop="openEditThreadModal(discussion)"
+                  class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors whitespace-nowrap self-start"
+                >
+                  {{ t('discussions.edit') }}
+                </button>
+                <button
+                  @click.stop="deleteThread(discussion.id)"
+                  class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors whitespace-nowrap self-start"
+                >
+                  {{ t('admin.delete') }}
+                </button>
+              </div>
             </div>
             </div>
           </div>
@@ -431,6 +439,90 @@
               class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
             >
               {{ discussionLoading ? t('discussions.creating') : t('discussions.create') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Thread Modal -->
+    <div v-if="showEditThreadModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">{{ t('discussions.editThread') }}</h3>
+          <button @click="closeEditThreadModal" class="text-gray-400 hover:text-gray-600">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div v-if="editThreadError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+          {{ editThreadError }}
+        </div>
+        
+        <form @submit.prevent="handleEditThread" class="space-y-4">
+          <div>
+            <label for="edit-thread-title" class="block text-sm font-medium text-gray-700">{{ t('discussions.title') }}</label>
+            <input 
+              id="edit-thread-title"
+              v-model="editThreadData.title" 
+              type="text" 
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          <div>
+            <label for="edit-thread-content" class="block text-sm font-medium text-gray-700">{{ t('discussions.content') }}</label>
+            <textarea 
+              id="edit-thread-content"
+              v-model="editThreadData.content" 
+              rows="6"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            ></textarea>
+          </div>
+
+          <div>
+            <label for="edit-thread-scope" class="block text-sm font-medium text-gray-700">{{ t('discussions.scope') }}</label>
+            <select
+              id="edit-thread-scope"
+              v-model="editThreadData.scope"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="general">{{ t('discussions.scopeGeneral') }}</option>
+              <option value="page">{{ t('discussions.scopePage') }}</option>
+            </select>
+          </div>
+
+          <div v-if="editThreadData.scope === 'page'">
+            <label for="edit-page-number" class="block text-sm font-medium text-gray-700">{{ t('discussions.pageNumber') }}</label>
+            <input 
+              id="edit-page-number"
+              v-model.number="editThreadData.page_number" 
+              type="number" 
+              min="1"
+              :max="book?.page_count"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              :placeholder="t('discussions.pageNumberPlaceholder')"
+            />
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button 
+              type="button" 
+              @click="closeEditThreadModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+            >
+              {{ t('discussions.cancel') }}
+            </button>
+            <button 
+              type="submit" 
+              :disabled="editThreadLoading"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+            >
+              {{ editThreadLoading ? t('discussions.updating') : t('discussions.update') }}
             </button>
           </div>
         </form>
@@ -682,6 +774,10 @@ const newDiscussion = ref({
 });
 const discussionLoading = ref(false);
 const discussionError = ref('');
+const showEditThreadModal = ref(false);
+const editThreadData = ref({});
+const editThreadLoading = ref(false);
+const editThreadError = ref('');
 const descriptionExpanded = ref(false);
 const showEditBookModal = ref(false);
 const editBookData = ref({});
@@ -966,6 +1062,72 @@ const closeDiscussionModal = () => {
     page_number: null
   };
   discussionError.value = '';
+};
+
+const openEditThreadModal = (discussion) => {
+  editThreadData.value = {
+    id: discussion.id,
+    title: discussion.title,
+    content: discussion.content,
+    scope: discussion.scope || 'general',
+    page_number: discussion.page_number || null
+  };
+  showEditThreadModal.value = true;
+  editThreadError.value = '';
+};
+
+const closeEditThreadModal = () => {
+  showEditThreadModal.value = false;
+  editThreadData.value = {};
+  editThreadError.value = '';
+};
+
+const handleEditThread = async () => {
+  editThreadLoading.value = true;
+  editThreadError.value = '';
+  
+  try {
+    const token = localStorage.getItem('auth_token');
+    const updateData = {
+      title: editThreadData.value.title,
+      content: editThreadData.value.content,
+      scope: editThreadData.value.scope,
+    };
+
+    if (editThreadData.value.scope === 'page' && editThreadData.value.page_number) {
+      updateData.page_number = editThreadData.value.page_number;
+    } else {
+      updateData.page_number = null;
+    }
+
+    const response = await fetch(`/api/threads/${editThreadData.value.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(updateData)
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      // Update the discussion in the local array
+      const index = discussions.value.findIndex(d => d.id === editThreadData.value.id);
+      if (index !== -1) {
+        discussions.value[index] = { ...discussions.value[index], ...data.data };
+      }
+      closeEditThreadModal();
+      alert(t('discussions.editSuccess'));
+    } else {
+      editThreadError.value = data.message || t('discussions.editFailed');
+    }
+  } catch (err) {
+    editThreadError.value = err.message || t('discussions.editFailed');
+  } finally {
+    editThreadLoading.value = false;
+  }
 };
 
 const openEditBookModal = () => {

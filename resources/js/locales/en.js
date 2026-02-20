@@ -143,7 +143,15 @@ export default {
     sortMostReplies: 'Most Replies',
     noResults: 'No discussions found',
     noResultsDescription: 'Try adjusting your filters to see more results.',
-    clearFilters: 'Clear Filters'
+    clearFilters: 'Clear Filters',
+    edit: 'Edit',
+    editThread: 'Edit Discussion',
+    editComment: 'Edit Comment',
+    update: 'Update',
+    updating: 'Updating...',
+    cancel: 'Cancel',
+    editSuccess: 'Updated successfully',
+    editFailed: 'Failed to update'
   },
     
   profile: {
