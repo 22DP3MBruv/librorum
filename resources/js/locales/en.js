@@ -256,7 +256,7 @@ export default {
     totalBooks: 'Total Books',
     totalThreads: 'Total Threads',
     totalComments: 'Total Comments',
-    activeUsers30d: 'Active Users (30 days)',
+    newUsers30d: 'New Users (30 days)',
     flaggedUsers: 'Flagged Users',
     thisWeek: 'this week',
     completed: 'completed',

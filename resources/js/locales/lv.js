@@ -253,7 +253,7 @@ export default {
     totalBooks: 'Kopā grāmatu',
     totalThreads: 'Kopā diskusiju',
     totalComments: 'Kopā komentāru',
-    activeUsers30d: 'Aktīvi lietotāji (30 dienas)',
+    newUsers30d: 'Jauni lietotāji (30 dienas)',
     flaggedUsers: 'Atzīmēti lietotāji',
     thisWeek: 'šajā nedēļā',
     completed: 'pabeigti',

@@ -138,7 +138,7 @@
         <!-- Additional Stats Row -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div class="bg-white rounded-lg shadow-sm border p-3 sm:p-4">
-            <p class="text-xs sm:text-sm text-gray-600">{{ $t('admin.activeUsers30d') }}</p>
+            <p class="text-xs sm:text-sm text-gray-600">{{ $t('admin.newUsers30d') }}</p>
             <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ stats.overview?.active_users_30d || 0 }}</p>
           </div>
           <div class="bg-white rounded-lg shadow-sm border p-3 sm:p-4">

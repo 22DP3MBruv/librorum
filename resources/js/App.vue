@@ -236,7 +236,7 @@
             </button>
           </div>
           
-          <form @submit.prevent="handleLogin" class="space-y-4">
+          <form @submit.prevent="handleLogin" name="login" class="space-y-4">
             <div v-if="loginError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
               {{ loginError }}
             </div>
@@ -246,7 +246,9 @@
               <input 
                 id="login-email"
                 v-model="loginForm.email" 
-                type="email" 
+                type="email"
+                name="username"
+                autocomplete="email"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
@@ -257,7 +259,9 @@
               <input 
                 id="login-password"
                 v-model="loginForm.password" 
-                type="password" 
+                type="password"
+                name="password"
+                autocomplete="password"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
@@ -305,7 +309,7 @@
             </button>
           </div>
           
-          <form @submit.prevent="handleRegister" class="space-y-4">
+          <form @submit.prevent="handleRegister" name="register" class="space-y-4">
             <div v-if="registerError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
               {{ registerError }}
             </div>
@@ -315,7 +319,9 @@
               <input 
                 id="register-name"
                 v-model="registerForm.name" 
-                type="text" 
+                type="text"
+                name="name"
+                autocomplete="name"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
@@ -326,7 +332,9 @@
               <input 
                 id="register-email"
                 v-model="registerForm.email" 
-                type="email" 
+                type="email"
+                name="email"
+                autocomplete="email"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
@@ -337,7 +345,9 @@
               <input 
                 id="register-password"
                 v-model="registerForm.password" 
-                type="password" 
+                type="password"
+                name="new-password"
+                autocomplete="new-password"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
@@ -348,7 +358,9 @@
               <input 
                 id="register-password-confirm"
                 v-model="registerForm.password_confirmation" 
-                type="password" 
+                type="password"
+                name="new-password-confirm"
+                autocomplete="new-password"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
