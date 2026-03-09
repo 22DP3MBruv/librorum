@@ -115,10 +115,10 @@
           </div>
         </div>
       </div>
-    </div>
-      
-    <!-- Pagination Controls -->
-    <div v-if="filteredBooks.length > 0 && totalPages > 1" class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm border p-4">
+      </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="totalPages > 1" class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm border p-4">
         <div class="text-sm text-gray-600 text-center sm:text-left w-full sm:w-auto">
           {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredBooks.length) }} {{ t('pagination.of') }} {{ filteredBooks.length }}
         </div>
@@ -162,7 +162,6 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
       </svg>
       <h3 class="mt-4 text-lg font-medium text-gray-900">{{ t('books.noBooksFound') }}</h3>
-      <p class="mt-2 text-gray-500">{{ t('books.startSearching') }}</p>
       <button 
         v-if="authStore.isAdmin"
         @click="showImportModal = true"
@@ -174,9 +173,9 @@
 
     <!-- Import Book Modal -->
     <div v-if="showImportModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-medium text-gray-900">{{ t('books.importByISBN') }}</h3>
+      <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-medium text-gray-900">{{ t('books.importBooks') }}</h3>
           <button @click="closeImportModal" class="text-gray-400 hover:text-gray-600">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -184,44 +183,203 @@
           </button>
         </div>
         
-        <div v-if="importError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
-          {{ importError }}
+        <!-- Import Mode Tabs -->
+        <div class="flex gap-0 border-b mb-6">
+          <button 
+            @click="importMode = 'isbn'"
+            :class="[
+              'px-4 py-2 font-medium border-b-2 transition-colors',
+              importMode === 'isbn' 
+                ? 'text-blue-600 border-blue-600' 
+                : 'text-gray-600 border-transparent hover:text-gray-900'
+            ]"
+          >
+            {{ t('books.importByISBN') }}
+          </button>
+          <button 
+            @click="importMode = 'genre'"
+            :class="[
+              'px-4 py-2 font-medium border-b-2 transition-colors',
+              importMode === 'genre' 
+                ? 'text-blue-600 border-blue-600' 
+                : 'text-gray-600 border-transparent hover:text-gray-900'
+            ]"
+          >
+            {{ t('books.importByGenre') }}
+          </button>
         </div>
 
-        <div v-if="importSuccess" class="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded mb-4">
-          {{ t('books.bookImported') }}
-        </div>
-        
-        <form @submit.prevent="handleImport" class="space-y-4">
-          <div>
-            <label for="isbn" class="block text-sm font-medium text-gray-700">{{ t('books.isbn') }}</label>
-            <input 
-              id="isbn"
-              v-model="isbnInput" 
-              type="text" 
-              required
-              placeholder="9780747532699"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+        <!-- ISBN Import Tab -->
+        <div v-if="importMode === 'isbn'">
+          <div v-if="importError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+            {{ importError }}
+          </div>
+
+          <div v-if="importSuccess" class="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded mb-4">
+            {{ t('books.bookImported') }}
           </div>
           
-          <div class="flex justify-end space-x-3">
-            <button 
-              type="button" 
-              @click="closeImportModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
-            >
-              {{ t('common.cancel') }}
-            </button>
-            <button 
-              type="submit" 
-              :disabled="importLoading"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
-            >
-              {{ importLoading ? t('books.importing') : t('books.importBook') }}
-            </button>
+          <form @submit.prevent="handleImport" class="space-y-4">
+            <div>
+              <label for="isbn" class="block text-sm font-medium text-gray-700">{{ t('books.isbn') }}</label>
+              <input 
+                id="isbn"
+                v-model="isbnInput" 
+                type="text" 
+                required
+                placeholder="9780747532699"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button 
+                type="button" 
+                @click="closeImportModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+              >
+                {{ t('common.cancel') }}
+              </button>
+              <button 
+                type="submit" 
+                :disabled="importLoading"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+              >
+                {{ importLoading ? t('books.importing') : t('books.importBook') }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Genre Batch Import Tab -->
+        <div v-else-if="importMode === 'genre'">
+          <div v-if="batchImportError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+            {{ batchImportError }}
           </div>
-        </form>
+
+          <div v-if="showBatchResults">
+            <div class="bg-blue-50 border border-blue-200 text-blue-600 px-4 py-3 rounded mb-4">
+              <p class="font-semibold mb-2">{{ t('books.importResults') }}</p>
+              <div class="text-sm space-y-1">
+                <p>{{ t('books.imported') }}: <span class="font-semibold text-green-600">{{ batchResults.summary?.imported || 0 }}</span></p>
+                <p>{{ t('books.skipped') }}: <span class="font-semibold text-yellow-600">{{ batchResults.summary?.skipped || 0 }}</span></p>
+                <p>{{ t('books.failed') }}: <span class="font-semibold text-red-600">{{ batchResults.summary?.failed || 0 }}</span></p>
+              </div>
+            </div>
+
+            <!-- Imported Books -->
+            <div v-if="batchResults.imported?.length > 0" class="mb-4">
+              <h4 class="font-semibold text-green-700 mb-2">{{ t('books.successfullyImported') }}</h4>
+              <div class="space-y-2 max-h-40 overflow-y-auto">
+                <div v-for="book in batchResults.imported" :key="book.book_id" class="text-sm p-2 bg-green-50 rounded border border-green-200">
+                  <p class="font-medium">{{ book.title }}</p>
+                  <p class="text-xs text-gray-600">ISBN: {{ book.isbn }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skipped Books -->
+            <div v-if="batchResults.skipped?.length > 0" class="mb-4">
+              <h4 class="font-semibold text-yellow-700 mb-2">{{ t('books.skippedBooks') }}</h4>
+              <div class="space-y-2 max-h-40 overflow-y-auto">
+                <div v-for="(book, idx) in batchResults.skipped" :key="`skipped-${idx}`" class="text-sm p-2 bg-yellow-50 rounded border border-yellow-200">
+                  <p class="font-medium">{{ book.title }}</p>
+                  <p class="text-xs text-gray-600">{{ book.reason }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Failed Books -->
+            <div v-if="batchResults.failed?.length > 0" class="mb-4">
+              <h4 class="font-semibold text-red-700 mb-2">{{ t('books.failedBooks') }}</h4>
+              <div class="space-y-2 max-h-40 overflow-y-auto">
+                <div v-for="(book, idx) in batchResults.failed" :key="`failed-${idx}`" class="text-sm p-2 bg-red-50 rounded border border-red-200">
+                  <p class="font-medium">{{ book.title }}</p>
+                  <p class="text-xs text-gray-600">{{ book.reason }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+              <button 
+                @click="resetBatchImport"
+                class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md border border-blue-200"
+              >
+                {{ t('books.importMore') }}
+              </button>
+              <button 
+                @click="closeImportModal"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+              >
+                {{ t('common.done') }}
+              </button>
+            </div>
+          </div>
+
+          <form v-else @submit.prevent="handleBatchImport" class="space-y-4">
+            <div>
+              <label for="genre" class="block text-sm font-medium text-gray-700">
+                {{ t('books.genre') }}
+                <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="genre"
+                v-model="batchGenreInput" 
+                type="text" 
+                required
+                placeholder="Science Fiction, Mystery, Fantasy, etc."
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p class="mt-1 text-xs text-gray-500">{{ t('books.genreHint') }}</p>
+            </div>
+
+            <div>
+              <label for="limit" class="block text-sm font-medium text-gray-700">
+                {{ t('books.numberOfBooks') }}
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="mt-1 flex items-center gap-2">
+                <input 
+                  id="limit"
+                  v-model.number="batchLimitInput" 
+                  type="number" 
+                  min="1" 
+                  max="40"
+                  required
+                  placeholder="10"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                <span class="text-sm text-gray-600">(max: 40)</span>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">{{ t('books.limitHint') }}</p>
+            </div>
+
+            <div class="bg-blue-50 p-3 rounded-md text-sm text-blue-800">
+              <p>{{ t('books.batchImportInfo') }}</p>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button 
+                type="button" 
+                @click="closeImportModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+              >
+                {{ t('common.cancel') }}
+              </button>
+              <button 
+                type="submit" 
+                :disabled="importLoading"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50 flex items-center gap-2"
+              >
+                <svg v-if="importLoading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ importLoading ? t('books.importing') : t('books.startImport') }}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -246,10 +404,23 @@ const searchQuery = ref('');
 const genreFilter = ref('');
 const showGenreSuggestions = ref(false);
 const showImportModal = ref(false);
+const importMode = ref('isbn'); // 'isbn' or 'genre'
 const isbnInput = ref('');
 const importLoading = ref(false);
 const importError = ref('');
 const importSuccess = ref(false);
+
+// Batch import by genre state
+const batchGenreInput = ref('');
+const batchLimitInput = ref(10);
+const batchImportError = ref('');
+const showBatchResults = ref(false);
+const batchResults = ref({
+  summary: {},
+  imported: [],
+  skipped: [],
+  failed: []
+});
 
 // Pagination
 const currentPage = ref(1);
@@ -399,6 +570,55 @@ const closeImportModal = () => {
   isbnInput.value = '';
   importError.value = '';
   importSuccess.value = false;
+  importMode.value = 'isbn';
+  resetBatchImport();
+};
+
+const resetBatchImport = () => {
+  batchGenreInput.value = '';
+  batchLimitInput.value = 10;
+  batchImportError.value = '';
+  showBatchResults.value = false;
+  batchResults.value = {
+    summary: {},
+    imported: [],
+    skipped: [],
+    failed: []
+  };
+};
+
+const handleBatchImport = async () => {
+  if (!batchGenreInput.value.trim()) {
+    batchImportError.value = t('books.genreRequired');
+    return;
+  }
+
+  if (!batchLimitInput.value || batchLimitInput.value < 1 || batchLimitInput.value > 40) {
+    batchImportError.value = t('books.limitInvalid');
+    return;
+  }
+
+  importLoading.value = true;
+  batchImportError.value = '';
+  
+  const result = await booksStore.batchImportByGenre(
+    batchGenreInput.value.trim(),
+    batchLimitInput.value
+  );
+  
+  if (result.success) {
+    batchResults.value = {
+      summary: result.summary,
+      imported: result.imported || [],
+      skipped: result.skipped || [],
+      failed: result.failed || []
+    };
+    showBatchResults.value = true;
+  } else {
+    batchImportError.value = result.message || t('books.batchImportFailed');
+  }
+  
+  importLoading.value = false;
 };
 
 const isBookmarked = (bookId) => {

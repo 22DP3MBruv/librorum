@@ -37,6 +37,16 @@ class BookController extends Controller
             $query->where('genre', $request->get('genre'));
         }
 
+        // Filter by ISBN (including isbn10 and isbn13)
+        if ($request->has('isbn')) {
+            $isbn = $request->get('isbn');
+            $query->where(function ($q) use ($isbn) {
+                $q->where('isbn', $isbn)
+                  ->orWhere('isbn10', $isbn)
+                  ->orWhere('isbn13', $isbn);
+            });
+        }
+
         // Sort options
         $sortBy = $request->get('sort', 'title');
         $sortOrder = $request->get('order', 'asc');
@@ -387,6 +397,125 @@ class BookController extends Controller
             'results' => $results,
             'count' => count($results)
         ]);
+    }
+
+    /**
+     * Batch import books by genre
+     */
+    public function batchImportByGenre(Request $request)
+    {
+        // Check if user is admin
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json([
+                'message' => 'Unauthorized to import books',
+                'message_lv' => 'Nav atļaujas importēt grāmatas'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'genre' => 'required|string|min:2|max:100',
+            'limit' => 'required|integer|min:1|max:40'
+        ], [
+            'genre.required' => 'Žanrs ir obligāts',
+            'genre.min' => 'Žanrs jābūt vismaz 2 rakstzīmes garams',
+            'limit.required' => 'Grāmatu skaits ir obligāts',
+            'limit.min' => 'Grāmatu skaitam jābūt vismaz 1',
+            'limit.max' => 'Grāmatu skaits nevar pārsniegt 40'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'message_lv' => 'Validācijas kļūda',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $genre = $request->get('genre');
+        $limit = $request->get('limit');
+
+        $bookApiService = new ExternalBookApiService();
+        $booksData = $bookApiService->searchByGenre($genre, $limit);
+
+        if (empty($booksData)) {
+            return response()->json([
+                'message' => 'No books found for the specified genre',
+                'message_lv' => 'Grāmatas norādītajam žanram nav atrastas'
+            ], 404);
+        }
+
+        $imported = [];
+        $skipped = [];
+        $failed = [];
+
+        foreach ($booksData as $bookData) {
+            try {
+                // Skip if no valid ISBN
+                if (empty($bookData['isbn']) && empty($bookData['isbn10']) && empty($bookData['isbn13'])) {
+                    $skipped[] = [
+                        'title' => $bookData['title'] ?? 'Unknown',
+                        'reason' => 'No valid ISBN found'
+                    ];
+                    continue;
+                }
+
+                // Check if book already exists
+                $existingBook = Book::where('isbn', $bookData['isbn'] ?? null)
+                                  ->orWhere('isbn10', $bookData['isbn10'] ?? null)
+                                  ->orWhere('isbn13', $bookData['isbn13'] ?? null)
+                                  ->first();
+
+                if ($existingBook) {
+                    $skipped[] = [
+                        'title' => $bookData['title'] ?? 'Unknown',
+                        'reason' => 'Book already exists in database'
+                    ];
+                    continue;
+                }
+
+                // Add metadata
+                $bookData['last_api_sync'] = now();
+                $source = $bookData['source'] ?? 'unknown';
+                unset($bookData['source']);
+
+                // Create the book
+                $book = Book::create($bookData);
+                
+                $imported[] = [
+                    'book_id' => $book->book_id,
+                    'title' => $book->title,
+                    'isbn' => $book->isbn,
+                    'source' => $source
+                ];
+
+            } catch (\Exception $e) {
+                \Log::error('Batch import - Book creation failed: ' . $e->getMessage(), [
+                    'title' => $bookData['title'] ?? 'Unknown',
+                    'isbn' => $bookData['isbn'] ?? 'Unknown'
+                ]);
+                
+                $failed[] = [
+                    'title' => $bookData['title'] ?? 'Unknown',
+                    'reason' => 'Failed to create book: ' . $e->getMessage()
+                ];
+            }
+        }
+
+        return response()->json([
+            'message' => 'Batch import completed',
+            'message_lv' => 'Partijas importēšana pabeigta',
+            'genre' => $genre,
+            'summary' => [
+                'requested' => $limit,
+                'total_processed' => count($booksData),
+                'imported' => count($imported),
+                'skipped' => count($skipped),
+                'failed' => count($failed)
+            ],
+            'imported' => $imported,
+            'skipped' => $skipped,
+            'failed' => $failed
+        ], 201);
     }
 
     /**

@@ -6,8 +6,6 @@ export const useBooksStore = defineStore('books', () => {
   const books = ref([]);
   const loading = ref(false);
   const error = ref(null);
-  const searchResults = ref([]);
-  const searchLoading = ref(false);
 
   // Helper to get auth headers
   const getAuthHeaders = () => {
@@ -29,7 +27,7 @@ export const useBooksStore = defineStore('books', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await fetch('/api/books', {
+      const response = await fetch('/api/books?per_page=999', {
         headers: getAuthHeaders()
       });
 
@@ -115,28 +113,6 @@ export const useBooksStore = defineStore('books', () => {
     }
   };
 
-  const searchBooks = async (query) => {
-    searchLoading.value = true;
-    try {
-      const response = await fetch(`/api/books/external-search?query=${encodeURIComponent(query)}`, {
-        headers: getAuthHeaders()
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        searchResults.value = data.data || data;
-        return { success: true, results: searchResults.value };
-      } else {
-        const errorData = await response.json();
-        return { success: false, message: getLocalizedMessage(errorData) || 'Search failed' };
-      }
-    } catch (err) {
-      return { success: false, message: err.message };
-    } finally {
-      searchLoading.value = false;
-    }
-  };
-
   const importByISBN = async (isbn) => {
     loading.value = true;
     try {
@@ -157,6 +133,43 @@ export const useBooksStore = defineStore('books', () => {
       } else {
         const errorData = await response.json();
         return { success: false, message: getLocalizedMessage(errorData) || 'Failed to import book' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const batchImportByGenre = async (genre, limit) => {
+    loading.value = true;
+    try {
+      const response = await fetch(`/api/books/import-by-genre`, {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ genre, limit })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Add newly imported books to the store
+        if (data.imported && Array.isArray(data.imported)) {
+          // Refresh books list to get all new books with full data
+          await fetchBooks();
+        }
+        return { 
+          success: true, 
+          summary: data.summary,
+          imported: data.imported,
+          skipped: data.skipped,
+          failed: data.failed
+        };
+      } else {
+        const errorData = await response.json();
+        return { success: false, message: getLocalizedMessage(errorData) || 'Failed to import books by genre' };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -186,15 +199,13 @@ export const useBooksStore = defineStore('books', () => {
     books,
     loading,
     error,
-    searchResults,
-    searchLoading,
     booksCount,
     fetchBooks,
     addBook,
     updateBook,
     deleteBook,
-    searchBooks,
     importByISBN,
+    batchImportByGenre,
     getBookByISBN
   };
 });

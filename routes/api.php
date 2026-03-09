@@ -122,6 +122,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Protected book routes (admin only)
     Route::post('/books', [BookController::class, 'store']);
     Route::post('/books/import-isbn', [BookController::class, 'importByIsbn']);
+    Route::post('/books/import-by-genre', [BookController::class, 'batchImportByGenre']);
     Route::put('/books/{id}', [BookController::class, 'update']);
     Route::post('/books/{id}/sync', [BookController::class, 'syncWithExternalApi']);
     Route::delete('/books/{id}', [BookController::class, 'destroy']);

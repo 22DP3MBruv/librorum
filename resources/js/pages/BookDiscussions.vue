@@ -91,6 +91,11 @@
                 <span class="ml-1 font-mono text-gray-700">{{ book.id }}</span>
               </div>
               
+              <div v-if="book.authors && book.authors.length > 0">
+                <span class="text-gray-500">{{ t('books.author') }}:</span>
+                <span class="ml-1 text-gray-700">{{ Array.isArray(book.authors) ? book.authors.join(', ') : book.authors }}</span>
+              </div>
+              
               <div v-if="book.isbn10">
                 <span class="text-gray-500">ISBN-10:</span>
                 <span class="ml-1 font-mono text-gray-700">{{ book.isbn10 }}</span>

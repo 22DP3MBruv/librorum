@@ -21,18 +21,45 @@ class ExternalBookApiService
     public function fetchBookByIsbn($isbn)
     {
         $cleanedIsbn = $this->cleanIsbn($isbn);
-        return $this->fetchFromGoogleBooks($cleanedIsbn, $cleanedIsbn);
+        
+        if (empty($cleanedIsbn)) {
+            Log::warning("ISBN cleaning resulted in empty value for input: {$isbn}");
+            return null;
+        }
+        
+        // Try with isbn: prefix first
+        $result = $this->fetchFromGoogleBooks($cleanedIsbn, $cleanedIsbn, true);
+        
+        // If not found, try without the isbn: prefix as a fallback
+        if (!$result) {
+            Log::info("ISBN search with prefix failed for {$cleanedIsbn}, attempting without prefix");
+            $result = $this->fetchFromGoogleBooks($cleanedIsbn, $cleanedIsbn, false);
+        }
+        
+        return $result;
     }
 
     /**
      * Fetch from Google Books API
      */
-    private function fetchFromGoogleBooks($isbn, $searchedIsbn = null)
+    private function fetchFromGoogleBooks($isbn, $searchedIsbn = null, $useIsbnPrefix = true)
     {
         try {
             $url = "https://www.googleapis.com/books/v1/volumes";
+            
+            // Build query based on prefix preference
+            // First attempt: use isbn:value format (Google Books API standard)
+            // Second attempt: use just the value as a general search
+            if ($useIsbnPrefix) {
+                $query = "isbn:{$isbn}";
+                $logQuery = "isbn:{$isbn}";
+            } else {
+                $query = $isbn;
+                $logQuery = $isbn;
+            }
+            
             $params = [
-                'q' => "isbn:{$isbn}",
+                'q' => $query,
                 'maxResults' => 1
             ];
 
@@ -40,17 +67,24 @@ class ExternalBookApiService
                 $params['key'] = $this->googleBooksApiKey;
             }
 
+            Log::debug("Fetching from Google Books with query: {$logQuery}");
+            
             $response = Http::get($url, $params);
 
             if ($response->successful()) {
                 $data = $response->json();
                 
                 if (isset($data['items'][0])) {
+                    Log::info("Book found for ISBN: {$isbn}");
                     return $this->normalizeGoogleBooksData($data['items'][0], $searchedIsbn);
+                } else {
+                    Log::info("No items found for ISBN: {$isbn}");
                 }
+            } else {
+                Log::warning("Google Books API returned status {$response->status()} for ISBN: {$isbn}");
             }
         } catch (Exception $e) {
-            Log::warning("Google Books API failed for ISBN {$isbn}: " . $e->getMessage());
+            Log::warning("Google Books API exception for ISBN {$isbn}: " . $e->getMessage());
         }
 
         return null;
@@ -65,40 +99,46 @@ class ExternalBookApiService
     }
 
     /**
-     * Search Google Books
+     * Search books by genre
      */
-    private function searchGoogleBooks($title, $author = null, $limit = 10)
+    public function searchByGenre($genre, $limit = 10)
     {
         try {
-            $query = "intitle:{$title}";
-            if ($author) {
-                $query .= "+inauthor:{$author}";
-            }
+            // Use subject: field for category/genre searches
+            $query = "subject:\"{$genre}\"";
 
             $params = [
                 'q' => $query,
-                'maxResults' => $limit
+                'maxResults' => min($limit, 40)
             ];
 
             if ($this->googleBooksApiKey) {
                 $params['key'] = $this->googleBooksApiKey;
             }
 
+            Log::debug("Searching Google Books by genre with query: {$query}");
+            
             $response = Http::get('https://www.googleapis.com/books/v1/volumes', $params);
 
             if ($response->successful()) {
                 $data = $response->json();
                 
                 if (isset($data['items'])) {
+                    Log::info("Found " . count($data['items']) . " books for genre: {$genre}");
                     return array_map([$this, 'normalizeGoogleBooksData'], $data['items']);
+                } else {
+                    Log::info("No items found for genre: {$genre}");
                 }
+            } else {
+                Log::warning("Google Books API returned status {$response->status()} for genre: {$genre}");
             }
         } catch (Exception $e) {
-            Log::warning("Google Books search failed: " . $e->getMessage());
+            Log::warning("Google Books genre search failed for '{$genre}': " . $e->getMessage());
         }
 
         return [];
     }
+
 
     /**
      * Normalize Google Books data to our format
@@ -123,6 +163,9 @@ class ExternalBookApiService
             }
         }
 
+        $coverImage = $this->getBestCoverImage($volumeInfo);
+        Log::debug("Cover image for '{$volumeInfo['title']}': " . ($coverImage ? "Found" : "Not found"));
+
         return [
             'title' => $volumeInfo['title'] ?? null,
             'authors' => $volumeInfo['authors'] ?? [],
@@ -134,7 +177,7 @@ class ExternalBookApiService
             'publication_year' => isset($volumeInfo['publishedDate']) ? (int)substr($volumeInfo['publishedDate'], 0, 4) : null,
             'page_count' => $volumeInfo['pageCount'] ?? null,
             'description' => $volumeInfo['description'] ?? null,
-            'cover_image_url' => $this->getBestCoverImage($volumeInfo),
+            'cover_image_url' => $coverImage,
             'language' => $volumeInfo['language'] ?? 'en',
             'genre' => isset($volumeInfo['categories'][0]) ? $volumeInfo['categories'][0] : null,
             'subjects' => $volumeInfo['categories'] ?? [],
@@ -201,46 +244,50 @@ class ExternalBookApiService
 
     /**
      * Get the best quality cover image available from Google Books
-     * Priority: extraLarge > large > medium > thumbnail > smallThumbnail
+     * Priority order: extraLarge > large > medium > thumbnail > smallThumbnail
      */
     private function getBestCoverImage($volumeInfo)
     {
         if (!isset($volumeInfo['imageLinks'])) {
+            Log::debug("No imageLinks found in volumeInfo");
             return null;
         }
 
         $imageLinks = $volumeInfo['imageLinks'];
+        Log::debug("Available image sizes: " . implode(', ', array_keys($imageLinks)));
         
-        // Priority order for image quality
+        // Priority order for image quality - try best quality first, fallback to smaller sizes if needed
         $priorityOrder = ['extraLarge', 'large', 'medium', 'thumbnail', 'smallThumbnail'];
         
         foreach ($priorityOrder as $size) {
             if (isset($imageLinks[$size])) {
-                // Replace zoom parameter to get higher quality
                 $url = $imageLinks[$size];
-                // Google Books thumbnails have a zoom parameter, increase it for better quality
-                $url = str_replace('zoom=1', 'zoom=2', $url);
-                $url = str_replace('http://', 'https://', $url); // Ensure HTTPS
+                // Ensure HTTPS
+                $url = str_replace('http://', 'https://', $url);
                 
-                // Add edge=curl parameter to help with hotlink protection
-                if (strpos($url, '?') !== false) {
-                    $url .= '&edge=curl';
-                } else {
-                    $url .= '?edge=curl';
-                }
+                Log::info("Selected cover image size: {$size}, URL length: " . strlen($url));
                 
                 return $url;
             }
         }
 
+        Log::warning("No image found in imageLinks despite having imageLinks object. Available keys: " . json_encode(array_keys($imageLinks)));
         return null;
     }
 
     /**
      * Clean and format ISBN
+     * Removes all non-alphanumeric characters (hyphens, spaces, etc.)
+     * Keeps only digits and X (valid for ISBN-10 check digit)
+     * Converts to uppercase
      */
     private function cleanIsbn($isbn)
     {
-        return preg_replace('/[^0-9X]/', '', strtoupper($isbn));
+        // Remove all characters except digits and X (X is valid check digit for ISBN-10)
+        $cleaned = preg_replace('/[^0-9X]/', '', strtoupper($isbn));
+        
+        Log::debug("ISBN cleaned from '{$isbn}' to '{$cleaned}'");
+        
+        return $cleaned;
     }
 }
