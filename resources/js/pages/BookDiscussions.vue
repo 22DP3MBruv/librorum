@@ -1140,7 +1140,7 @@ const openEditBookModal = () => {
   
   editBookData.value = {
     title: book.value.title || '',
-    author: book.value.author || '',
+    author: Array.isArray(book.value.authors) ? book.value.authors.join(', ') : (book.value.author || ''),
     isbn: book.value.isbn || '',
     isbn10: book.value.isbn10 || '',
     isbn13: book.value.isbn13 || '',
@@ -1171,6 +1171,14 @@ const handleEditBook = async () => {
   
   try {
     const token = localStorage.getItem('auth_token');
+    const bookDataToSend = { ...editBookData.value };
+    
+    // Convert author string to authors array
+    if (bookDataToSend.author) {
+      bookDataToSend.authors = bookDataToSend.author.split(',').map(a => a.trim()).filter(a => a);
+    }
+    delete bookDataToSend.author;
+    
     const response = await fetch(`/api/books/${book.value.id}`, {
       method: 'PUT',
       headers: {
@@ -1178,7 +1186,7 @@ const handleEditBook = async () => {
         'Accept': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(editBookData.value)
+      body: JSON.stringify(bookDataToSend)
     });
     
     const data = await response.json();

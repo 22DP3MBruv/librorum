@@ -244,7 +244,7 @@ class ExternalBookApiService
 
     /**
      * Get the best quality cover image available from Google Books
-     * Priority order: extraLarge > large > medium > thumbnail > smallThumbnail
+     * Uses the last link as it should be the best quality
      */
     private function getBestCoverImage($volumeInfo)
     {
@@ -256,19 +256,16 @@ class ExternalBookApiService
         $imageLinks = $volumeInfo['imageLinks'];
         Log::debug("Available image sizes: " . implode(', ', array_keys($imageLinks)));
         
-        // Priority order for image quality - try best quality first, fallback to smaller sizes if needed
-        $priorityOrder = ['extraLarge', 'large', 'medium', 'thumbnail', 'smallThumbnail'];
+        // Use the last link as it should be the best quality
+        $url = end($imageLinks);
         
-        foreach ($priorityOrder as $size) {
-            if (isset($imageLinks[$size])) {
-                $url = $imageLinks[$size];
-                // Ensure HTTPS
-                $url = str_replace('http://', 'https://', $url);
-                
-                Log::info("Selected cover image size: {$size}, URL length: " . strlen($url));
-                
-                return $url;
-            }
+        if ($url) {
+            // Ensure HTTPS
+            $url = str_replace('http://', 'https://', $url);
+            
+            Log::info("Selected cover image URL length: " . strlen($url));
+            
+            return $url;
         }
 
         Log::warning("No image found in imageLinks despite having imageLinks object. Available keys: " . json_encode(array_keys($imageLinks)));
