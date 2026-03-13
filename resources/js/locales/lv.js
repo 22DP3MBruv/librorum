@@ -75,7 +75,6 @@ export default {
     publishYear: 'Izdošanas gads',
     language: 'Valoda',
     genre: 'Žanrs',
-    tag: 'Kategorija',
     addBook: 'Pievienot grāmatu',    addBookmarkFailed: 'Neizdevās pievienot grāzmei',
     removeBookmarkFailed: 'Neizdevās noņemt grāzmei',    editBook: 'Rediģēt grāmatu',
     deleteBook: 'Dzēst grāmatu',

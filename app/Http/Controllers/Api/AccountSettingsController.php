@@ -14,7 +14,7 @@ use Illuminate\Validation\Rules\Password;
 class AccountSettingsController extends Controller
 {
     /**
-     * Update the user's username
+     * Atjaunina lietotājvārdu, pārbaudot paroli
      */
     public function updateUsername(Request $request)
     {
@@ -33,7 +33,7 @@ class AccountSettingsController extends Controller
 
         $user = $request->user();
 
-        // Verify password
+        // Apstiprina paroli
         if (!Hash::check($request->password, $user->password_hash)) {
             return response()->json([
                 'message' => 'Password is incorrect',
@@ -57,7 +57,7 @@ class AccountSettingsController extends Controller
     }
 
     /**
-     * Update the user's password
+     * Atjaunina paroli, pārbaudot pašreizējo paroli
      */
     public function updatePassword(Request $request)
     {
@@ -76,7 +76,7 @@ class AccountSettingsController extends Controller
 
         $user = $request->user();
 
-        // Verify current password
+        // Pārbauda pašreizējo paroli
         if (!Hash::check($request->current_password, $user->password_hash)) {
             return response()->json([
                 'message' => 'Current password is incorrect',
@@ -87,11 +87,11 @@ class AccountSettingsController extends Controller
             ], 422);
         }
 
-        // Update password
+        // Atjaunina paroli
         $user->password_hash = Hash::make($request->new_password);
         $user->save();
 
-        // Revoke all tokens to force re-login
+        // Atcelt visas tokenus, lai lietotājs tiktu izlogots
         $user->tokens()->delete();
 
         return response()->json([
@@ -101,7 +101,7 @@ class AccountSettingsController extends Controller
     }
 
     /**
-     * Delete all user's threads and comments
+     * Izdzēš visu lietotāja saturu (komentārus un diskusijas), pārbaudot paroli
      */
     public function deleteUserContent(Request $request)
     {
@@ -119,7 +119,7 @@ class AccountSettingsController extends Controller
 
         $user = $request->user();
 
-        // Verify password
+        // Pārbauda paroli
         if (!Hash::check($request->password, $user->password_hash)) {
             return response()->json([
                 'message' => 'Password is incorrect',
@@ -130,11 +130,11 @@ class AccountSettingsController extends Controller
             ], 422);
         }
 
-        // Delete all comments
+        // Izdzēš visus komentārus
         $commentsCount = $user->comments()->count();
         $user->comments()->delete();
 
-        // Delete all threads
+        // Izdzēš visas diskusijas
         $threadsCount = $user->threads()->count();
         $user->threads()->delete();
 
@@ -149,7 +149,7 @@ class AccountSettingsController extends Controller
     }
 
     /**
-     * Delete the user's account permanently
+     * Izdzēš visu lietotāja kontu un saistīto saturu, pārbaudot paroli
      */
     public function deleteAccount(Request $request)
     {
@@ -168,7 +168,7 @@ class AccountSettingsController extends Controller
 
         $user = $request->user();
 
-        // Verify password
+        // Pārbauda paroli
         if (!Hash::check($request->password, $user->password_hash)) {
             return response()->json([
                 'message' => 'Password is incorrect',
@@ -179,7 +179,7 @@ class AccountSettingsController extends Controller
             ], 422);
         }
 
-        // Delete all related data
+        // Izdzēš visus saistītos datus
         $user->readingProgress()->delete();
         $user->comments()->delete();
         $user->threads()->delete();
@@ -189,15 +189,15 @@ class AccountSettingsController extends Controller
         $user->followers()->detach();
         $user->tokens()->delete();
         
-        // Delete notifications related to this user
+        // Izdzēš paziņojumus, kas saistīti ar šo lietotāju
         \App\Models\Notification::where('user_id', $user->user_id)
             ->orWhere('notifier_id', $user->user_id)
             ->delete();
         
-        // Delete likes
+        // Izdzēš "like" ierakstus, kas saistīti ar šo lietotāju
         \App\Models\Like::where('user_id', $user->user_id)->delete();
 
-        // Delete the user account
+        // Izdzēš lietotāja kontu
         $user->delete();
 
         return response()->json([

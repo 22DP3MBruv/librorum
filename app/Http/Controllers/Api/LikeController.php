@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class LikeController extends Controller
 {
     /**
-     * Toggle like on a thread or comment.
+     * Ieslēdz/izslēdz patiku diskusijai vai komentāram.
      */
     public function toggle(Request $request)
     {
@@ -27,7 +27,7 @@ class LikeController extends Controller
             ->first();
 
         if ($existingLike) {
-            // Unlike
+            // Noņem patiku
             $existingLike->delete();
             return response()->json([
                 'liked' => false,
@@ -35,14 +35,14 @@ class LikeController extends Controller
                 'message_lv' => 'Patika noņemts'
             ]);
         } else {
-            // Like
+            // Pievieno patiku
             $like = Like::create([
                 'user_id' => $request->user()->user_id,
                 'target_type' => $validated['target_type'],
                 'target_id' => $validated['target_id'],
             ]);
 
-            // Create notification for content owner
+            // Izveido paziņojumu satura īpašniekam
             if ($validated['target_type'] === 'thread') {
                 $likeable = Thread::find($validated['target_id']);
             } else {
@@ -62,7 +62,7 @@ class LikeController extends Controller
     }
 
     /**
-     * Get like count and user's like status for a target.
+     * Dabū patiku skaitu un lietotāja patības statusu mērķim.
      */
     public function status(Request $request)
     {

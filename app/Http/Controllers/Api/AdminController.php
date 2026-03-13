@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     /**
-     * Get admin dashboard statistics
+     * Dabū statistiku par lietotājiem, diskusijām, komentāriem un grāmatām (admin/moderator piekļuve)
      */
     public function getStatistics(Request $request)
     {
         $user = $request->user();
 
-        // Check if user is admin or moderator
+        // Pārbauda, vai lietotājs ir admins vai moderators
         if (!$user->isModerator()) {
             return response()->json([
                 'message' => 'Unauthorized. Admin/Moderator access required.',
@@ -28,7 +28,7 @@ class AdminController extends Controller
             ], 403);
         }
 
-        // Get all statistics
+        // Dabū visu statistiku
         $totalUsers = User::count();
         $activeUsers = User::where('created_at', '>=', now()->subDays(30))->count();
         $flaggedUsers = User::where('is_flagged', true)->count();
@@ -37,39 +37,14 @@ class AdminController extends Controller
         $totalThreads = Thread::count();
         $totalComments = Comment::count();
         
-        $totalReadingProgress = ReadingProgress::count();
         $completedBooks = ReadingProgress::where('status', 'completed')->count();
-        $currentlyReading = ReadingProgress::where('status', 'reading')->count();
 
-        // Get role distribution
-        $usersByRole = User::selectRaw('role, COUNT(*) as count')
-            ->groupBy('role')
-            ->get()
-            ->pluck('count', 'role')
-            ->toArray();
-
-        // Get recent activity (last 7 days)
+        // Dabū jaunāko aktivitāti (pēdējās 7 dienas)
         $recentUsers = User::where('created_at', '>=', now()->subDays(7))->count();
         $recentThreads = Thread::where('created_at', '>=', now()->subDays(7))->count();
         $recentComments = Comment::where('created_at', '>=', now()->subDays(7))->count();
 
-        // Get most active users
-        $mostActiveUsers = User::withCount(['threads', 'comments'])
-            ->orderByDesc('threads_count')
-            ->orderByDesc('comments_count')
-            ->limit(10)
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'user_id' => $user->user_id,
-                    'username' => $user->username,
-                    'threads_count' => $user->threads_count,
-                    'comments_count' => $user->comments_count,
-                    'total_activity' => $user->threads_count + $user->comments_count,
-                ];
-            });
-
-        // Get popular books (most threads/comments)
+        // Dabū populārākās grāmatas pēc diskusiju un komentāru skaita
         $popularBooks = Book::withCount(['threads', 'comments'])
             ->orderByDesc('threads_count')
             ->limit(10)
@@ -93,30 +68,26 @@ class AdminController extends Controller
                     'total_books' => $totalBooks,
                     'total_threads' => $totalThreads,
                     'total_comments' => $totalComments,
-                    'total_reading_progress' => $totalReadingProgress,
                     'completed_books' => $completedBooks,
-                    'currently_reading' => $currentlyReading,
                 ],
-                'users_by_role' => $usersByRole,
                 'recent_activity' => [
                     'new_users_7d' => $recentUsers,
                     'new_threads_7d' => $recentThreads,
                     'new_comments_7d' => $recentComments,
                 ],
-                'most_active_users' => $mostActiveUsers,
                 'popular_books' => $popularBooks,
             ]
         ]);
     }
 
     /**
-     * Make a user an admin
+     * Padara lietotāju par administratoru
      */
     public function makeAdmin(Request $request, $userId)
     {
         $admin = $request->user();
 
-        // Only admins can make other users admins
+        // Tikai admini var piešķirt admin lomu
         if (!$admin->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Admin access required.',
@@ -154,13 +125,13 @@ class AdminController extends Controller
     }
 
     /**
-     * Remove admin role from a user
+     * Atņem administratora lomu no lietotāja
      */
     public function removeAdmin(Request $request, $userId)
     {
         $admin = $request->user();
 
-        // Only admins can remove admin role
+        // Tikai admini var atņemt admin lomu
         if (!$admin->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Admin access required.',
@@ -177,7 +148,7 @@ class AdminController extends Controller
             ], 404);
         }
 
-        // Prevent removing admin role from yourself
+        // Neļauj atņemt admin lomu sev
         if ($user->user_id === $admin->user_id) {
             return response()->json([
                 'message' => 'Cannot remove admin role from yourself',
@@ -206,7 +177,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Get all users with pagination and filtering
+     * Dabū lietotāju sarakstu ar meklēšanu un filtrēšanu (admin/moderator piekļuve)
      */
     public function getUsers(Request $request)
     {
@@ -251,7 +222,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Delete a thread (admin only)
+     * Izdzēš diskusiju (admin only)
      */
     public function deleteThread(Request $request, $threadId)
     {
@@ -282,7 +253,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Delete a comment (admin only)
+     * Izdzēš komentāru (admin only)
      */
     public function deleteComment(Request $request, $commentId)
     {

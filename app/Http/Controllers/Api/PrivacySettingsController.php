@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class PrivacySettingsController extends Controller
 {
     /**
-     * Get the authenticated user's privacy settings
+     * Dabū autentificētā lietotāja privātuma iestatījumus
      */
     public function show(Request $request)
     {
@@ -27,7 +27,7 @@ class PrivacySettingsController extends Controller
     }
 
     /**
-     * Update the authenticated user's privacy settings
+     * Atjaunina autentificētā lietotāja privātuma iestatījumus
      */
     public function update(Request $request)
     {

@@ -14,11 +14,11 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Register a new user
+     * Reģistrē jaunu lietotāju
      */
     public function register(Request $request)
     {
-        // Log the incoming request for debugging
+        // Pievienots žurnāla ieraksts reģistrācijas mēģinājumam
         \Log::info('Registration attempt', $request->all());
 
         $validator = Validator::make($request->all(), [
@@ -50,7 +50,7 @@ class AuthController extends Controller
             'username' => $request->name,
             'email' => $request->email,
             'password_hash' => Hash::make($request->password),
-            'role' => 'user', // Default role
+            'role' => 'user', // Noklusējuma loma ir "user"
             'join_date' => now(),
         ]);
 
@@ -66,7 +66,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Login user
+     * Pieslēdz lietotāju
      */
     public function login(Request $request)
     {
@@ -102,7 +102,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Get authenticated user
+     * Atgriež autentificētā lietotāja informāciju
      */
     public function user(Request $request)
     {
@@ -110,7 +110,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user
+     * Izlogojas no sistēmas, dzēšot pašreizējo piekļuves tokenu
      */
     public function logout(Request $request)
     {

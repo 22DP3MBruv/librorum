@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class ThreadController extends Controller
 {
     /**
-     * Display a listing of threads.
+     * Parāda diskusiju sarakstu.
      */
     public function index(Request $request)
     {
@@ -18,12 +18,12 @@ class ThreadController extends Controller
             ->visible($request->user()) // Pass null if not authenticated
             ->withCount('comments');
 
-        // Filter by book_id if provided
+        // Filtrē pēc grāmatas ID, ja norādīts
         if ($request->has('book_id')) {
             $query->where('book_id', $request->book_id);
         }
 
-        // Filter by user_id if provided
+        // Filtrē pēc lietotāja ID, ja norādīts
         if ($request->has('user_id')) {
             $query->where('user_id', $request->user_id);
         }
@@ -34,7 +34,7 @@ class ThreadController extends Controller
     }
 
     /**
-     * Get threads for a specific book.
+     * Dabū diskusijas konkrētai grāmatai.
      */
     public function forBook(Request $request, $bookId)
     {
@@ -49,7 +49,7 @@ class ThreadController extends Controller
     }
 
     /**
-     * Store a newly created thread.
+     * Saglabā jauni izveidotu diskusiju.
      */
     public function store(Request $request)
     {
@@ -77,7 +77,7 @@ class ThreadController extends Controller
     }
 
     /**
-     * Display the specified thread.
+     * Parāda konkrētu diskusiju.
      */
     public function show($id)
     {
@@ -89,13 +89,13 @@ class ThreadController extends Controller
     }
 
     /**
-     * Update the specified thread.
+     * Atjaunina konkrētu diskusiju.
      */
     public function update(Request $request, $id)
     {
         $thread = Thread::findOrFail($id);
 
-        // Check if user owns the thread
+        // Pārbauda, vai lietotājs ir diskusijas īpašnieks
         if ($thread->user_id !== $request->user()->user_id) {
             return response()->json([
                 'message' => 'Unauthorized',
@@ -118,13 +118,13 @@ class ThreadController extends Controller
     }
 
     /**
-     * Remove the specified thread.
+     * Izdzēš konkrētu diskusiju.
      */
     public function destroy(Request $request, $id)
     {
         $thread = Thread::findOrFail($id);
 
-        // Check if user owns the thread or is admin
+        // Pārbauda, vai lietotājs ir diskusijas īpašnieks vai administrators
         if ($thread->user_id !== $request->user()->user_id && $request->user()->role !== 'admin') {
             return response()->json([
                 'message' => 'Unauthorized',

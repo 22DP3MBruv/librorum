@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     /**
-     * Get all notifications for the authenticated user.
+     * Dabū visus autentificētā lietotāja paziņojumus.
      */
     public function index(Request $request)
     {
@@ -35,7 +35,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get unread notification count.
+     * Dabū neizlasīto paziņojumu skaitu.
      */
     public function unreadCount()
     {
@@ -52,7 +52,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark a specific notification as read.
+     * Marķē konkrētu paziņojumu kā izlasītu.
      */
     public function markAsRead($id)
     {
@@ -64,7 +64,7 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
         
-        // Refresh to get updated values from database
+        // Atjaunina, lai iegūtu atjauninātās vērtības no datubāzes
         $notification->refresh();
 
         return response()->json([
@@ -75,7 +75,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark all notifications as read.
+     * Marķē visus paziņojumus kā izlasītus.
      */
     public function markAllAsRead()
     {
@@ -96,7 +96,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark a specific notification as unread.
+     * Marķē konkrētu paziņojumu kā neizlasītu.
      */
     public function markAsUnread($id)
     {
@@ -116,7 +116,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Delete a specific notification.
+     * Izdzēš konkrētu paziņojumu.
      */
     public function destroy($id)
     {
@@ -135,7 +135,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Delete all read notifications.
+     * Izdzēš visus izlasītus paziņojumus.
      */
     public function deleteAllRead()
     {
@@ -152,24 +152,5 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Get notification settings/preferences.
-     */
-    public function getSettings()
-    {
-        $user = Auth::user();
-        
-        // If you implement notification preferences in the future
-        return response()->json([
-            'success' => true,
-            'settings' => [
-                'comment_replies' => true,
-                'thread_replies' => true,
-                'likes' => true,
-                'new_followers' => true,
-                'follow_requests' => true,
-                'moderation_actions' => true,
-            ],
-        ]);
-    }
+    
 }

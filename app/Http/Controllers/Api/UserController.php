@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Get a user's profile by ID
+     * Dabū lietotāja profilu pēc ID
      */
     public function show(Request $request, $userId)
     {
@@ -25,7 +25,7 @@ class UserController extends Controller
 
         $viewer = $request->user();
 
-        // Check profile visibility privacy
+        // Pārbauda profila redzamības privātuma iestatījumus
         if (!$user->canViewProfile($viewer)) {
             return response()->json([
                 'message' => 'This profile is private',
@@ -57,20 +57,20 @@ class UserController extends Controller
     }
 
     /**
-     * Get a user's followers (defaults to authenticated user if no userId provided)
+     * Dabū lietotāja sekotājus (noklusējuma vērtības autentificēts lietotājs, ja nav norādīts userId)
      */
     public function followers(Request $request, $userId = null)
     {
         $viewer = $request->user();
 
-        // If userId is provided, fetch that user's followers, otherwise use authenticated user
+        // Ja ir norādīts userId, nosauc šī lietotāja sekotājus, citādi izmanto autentificētu lietotāju
         if ($userId) {
             $user = \App\Models\User::find($userId);
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
 
-            // Check if viewer can see this user's profile
+            // Pārbauda, vai skatītājs var redzēt šī lietotāja profilu
             if (!$user->canViewProfile($viewer)) {
                 return response()->json([
                     'message' => 'This profile is private',
@@ -103,20 +103,20 @@ class UserController extends Controller
     }
 
     /**
-     * Get the users that a user is following (defaults to authenticated user if no userId provided)
+     * Dabū lietotājus, kurus lietotājs seko (noklusējuma vērtības autentificēts lietotājs, ja nav norādīts userId)
      */
     public function following(Request $request, $userId = null)
     {
         $viewer = $request->user();
 
-        // If userId is provided, fetch that user's following, otherwise use authenticated user
+        // Ja ir norādīts userId, nosauc šī lietotāja sekojamos, citādi izmanto autentificētu lietotāju
         if ($userId) {
             $user = \App\Models\User::find($userId);
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
 
-            // Check if viewer can see this user's profile
+            // Pārbauda, vai skatītājs var redzēt šī lietotāja profilu
             if (!$user->canViewProfile($viewer)) {
                 return response()->json([
                     'message' => 'This profile is private',
@@ -149,7 +149,7 @@ class UserController extends Controller
     }
 
     /**
-     * Follow a user
+     * Seko lietotājam
      */
     public function follow(Request $request, $userId)
     {
@@ -171,7 +171,7 @@ class UserController extends Controller
             ], 404);
         }
 
-        // Check if the user allows follows
+        // Pārbauda, vai lietotājs atļauj sekātājus
         if (!$userToFollow->canBeFollowed()) {
             return response()->json([
                 'message' => 'This user does not allow new followers',
@@ -179,7 +179,7 @@ class UserController extends Controller
             ], 403);
         }
 
-        // Check if already following
+        // Pārbauda, vai jau seko
         if ($currentUser->following()->where('followee_id', $userId)->exists()) {
             return response()->json([
                 'message' => 'You are already following this user',
@@ -187,7 +187,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        // Check if there's already a request (any status)
+        // Pārbauda, vai jau ir pieprasījums (jebkurš statuss)
         $existingRequest = FollowRequest::where('follower_id', $currentUser->user_id)
             ->where('followee_id', $userId)
             ->first();
@@ -199,11 +199,11 @@ class UserController extends Controller
                     'message_lv' => 'Jums jau ir neapstiprinājts sekošanas pieprasījums šim lietotājam'
                 ], 422);
             } else {
-                // Update existing rejected/accepted request to pending
+                // Atjaunina esojo noraidīto/apstiprināto pieprasījumu uz neapstiprinājumu
                 $existingRequest->update(['status' => 'pending']);
             }
         } else {
-            // Create new follow request
+            // Izveido jaunu sekošanas pieprasījumu
             $existingRequest = FollowRequest::create([
                 'follower_id' => $currentUser->user_id,
                 'followee_id' => $userId,
@@ -211,7 +211,7 @@ class UserController extends Controller
             ]);
         }
 
-        // If user requires follow approval, send notification
+        // Ja lietotājs praša apstiprinājumu sekošānajai, sūtīt paziņojumu
         if ($userToFollow->require_follow_approval) {
             Notification::createFollowRequest($userToFollow, $currentUser);
 
@@ -221,7 +221,7 @@ class UserController extends Controller
                 'has_pending_request' => true
             ]);
         } else {
-            // Directly follow the user
+            // Tīkšēi seko lietotājam
             $currentUser->following()->attach($userId);
             Notification::createNewFollower($userToFollow, $currentUser);
 
@@ -233,7 +233,7 @@ class UserController extends Controller
     }
 
     /**
-     * Unfollow a user
+     * Pārstāj sekot lietotājam
      */
     public function unfollow(Request $request, $userId)
     {
@@ -248,7 +248,7 @@ class UserController extends Controller
     }
 
     /**
-     * Cancel a follow request
+     * Atcelt sekošanas pieprasījumu
      */
     public function cancelFollowRequest(Request $request, $userId)
     {
@@ -275,7 +275,7 @@ class UserController extends Controller
     }
 
     /**
-     * Get pending follow requests for the authenticated user
+     * Dabū neapstiprinātus sekošanas pieprasījumus autentificētajam lietotājam
      */
     public function getFollowRequests(Request $request)
     {
@@ -304,7 +304,7 @@ class UserController extends Controller
     }
 
     /**
-     * Accept a follow request
+     * Apstiprinā sekošanas pieprasījumu
      */
     public function acceptFollowRequest(Request $request, $requestId)
     {
@@ -331,7 +331,7 @@ class UserController extends Controller
     }
 
     /**
-     * Reject a follow request
+     * Noraidīt sekošanas pieprasījumu
      */
     public function rejectFollowRequest(Request $request, $requestId)
     {

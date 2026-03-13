@@ -75,7 +75,6 @@ export default {
     publishYear: 'Publication Year',
     language: 'Language',
     genre: 'Genre',
-    tag: 'Category',
     addBook: 'Add Book',
     addBookmarkFailed: 'Failed to add bookmark',
     removeBookmarkFailed: 'Failed to remove bookmark',

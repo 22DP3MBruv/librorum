@@ -24,7 +24,6 @@ class BookResource extends JsonResource
             'publication_year' => $this->publication_year,
             'publish_date' => $this->publish_date,
             'genre' => $this->genre,
-            'tag' => $this->tag,
             'page_count' => $this->page_count,
             'description' => $this->description,
             'cover_image_url' => $this->cover_image_url,
