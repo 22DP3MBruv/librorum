@@ -16,7 +16,7 @@ class ExternalBookApiService
     }
 
     /**
-     * Fetch book data from Google Books API by ISBN
+     * Iegūt grāmatas datus no Google Books API pēc ISBN
      */
     public function fetchBookByIsbn($isbn)
     {
@@ -27,10 +27,10 @@ class ExternalBookApiService
             return null;
         }
         
-        // Try with isbn: prefix first
+        // Vispirms mēģināt ar isbn: prefiksu
         $result = $this->fetchFromGoogleBooks($cleanedIsbn, $cleanedIsbn, true);
         
-        // If not found, try without the isbn: prefix as a fallback
+        // Ja nav atrasts, mēģināt bez isbn: prefiksa kā rezerves opcija
         if (!$result) {
             Log::info("ISBN search with prefix failed for {$cleanedIsbn}, attempting without prefix");
             $result = $this->fetchFromGoogleBooks($cleanedIsbn, $cleanedIsbn, false);
@@ -40,16 +40,16 @@ class ExternalBookApiService
     }
 
     /**
-     * Fetch from Google Books API
+     * Iegūt datus no Google Books API
      */
     private function fetchFromGoogleBooks($isbn, $searchedIsbn = null, $useIsbnPrefix = true)
     {
         try {
             $url = "https://www.googleapis.com/books/v1/volumes";
             
-            // Build query based on prefix preference
-            // First attempt: use isbn:value format (Google Books API standard)
-            // Second attempt: use just the value as a general search
+            // Veidot vaicājumu, pamatojoties uz prefiksa preferences
+            // Pirmais mēģinājums: izmantot isbn:vērtība formātu (Google Books API standarts)
+            // Otrais mēģinājums: izmantot tikai vērtību kā vispārīgu meklēšanu
             if ($useIsbnPrefix) {
                 $query = "isbn:{$isbn}";
                 $logQuery = "isbn:{$isbn}";
@@ -90,21 +90,14 @@ class ExternalBookApiService
         return null;
     }
 
-    /**
-     * Search books by title and/or author
-     */
-    public function searchBooks($title, $author = null, $limit = 10)
-    {
-        return $this->searchGoogleBooks($title, $author, $limit);
-    }
 
     /**
-     * Search books by genre
+     * Meklēt grāmatas pēc žanra
      */
     public function searchByGenre($genre, $limit = 10)
     {
         try {
-            // Use subject: field for category/genre searches
+            // Izmantot subject: lauku kategoriju/žanru meklēšanai
             $query = "subject:\"{$genre}\"";
 
             $params = [
@@ -141,7 +134,7 @@ class ExternalBookApiService
 
 
     /**
-     * Normalize Google Books data to our format
+     * Normalizēt Google Books datus mūsu formātā
      */
     private function normalizeGoogleBooksData($data, $searchedIsbn = null)
     {
@@ -151,10 +144,10 @@ class ExternalBookApiService
         $isbn10 = $this->extractIsbn10FromGoogleBooks($volumeInfo);
         $isbn13 = $this->extractIsbn13FromGoogleBooks($volumeInfo);
         
-        // Use ISBN-13 as primary, fallback to ISBN-10, then to searched ISBN
+        // Izmantot ISBN-13 kā primāro, rezerve ISBN-10, tad meklētajam ISBN
         $primaryIsbn = $isbn13 ?? $isbn10 ?? $searchedIsbn;
         
-        // If we have a searched ISBN but no specific ISBN-10/13, try to determine which type it is
+        // Ja ir meklētais ISBN, bet nav konkrēts ISBN-10/13, mēģināt noteikt, kurš tips tas ir
         if (!$isbn10 && !$isbn13 && $searchedIsbn) {
             if (strlen($searchedIsbn) === 10) {
                 $isbn10 = $searchedIsbn;
@@ -189,7 +182,7 @@ class ExternalBookApiService
     }
 
     /**
-     * Extract ISBN from Google Books volume info
+     * Iegūt ISBN no Google Books sējuma informācijas
      */
     private function extractIsbnFromGoogleBooks($volumeInfo)
     {
@@ -207,7 +200,7 @@ class ExternalBookApiService
     }
 
     /**
-     * Extract ISBN-10 from Google Books volume info
+     * Iegūt ISBN-10 no Google Books sējuma informācijas
      */
     private function extractIsbn10FromGoogleBooks($volumeInfo)
     {
@@ -225,7 +218,7 @@ class ExternalBookApiService
     }
 
     /**
-     * Extract ISBN-13 from Google Books volume info
+     * Iegūt ISBN-13 no Google Books sējuma informācijas
      */
     private function extractIsbn13FromGoogleBooks($volumeInfo)
     {
@@ -243,8 +236,8 @@ class ExternalBookApiService
     }
 
     /**
-     * Get the best quality cover image available from Google Books
-     * Uses the last link as it should be the best quality
+     * Iegūt labākās kvalitātes vāka attēlu no Google Books
+     * Izmanto pēdējo saiti, jo tai vajadzētu būt labākajai kvalitātei
      */
     private function getBestCoverImage($volumeInfo)
     {
@@ -256,11 +249,11 @@ class ExternalBookApiService
         $imageLinks = $volumeInfo['imageLinks'];
         Log::debug("Available image sizes: " . implode(', ', array_keys($imageLinks)));
         
-        // Use the last link as it should be the best quality
+        // Izmantot pēdējo saiti, jo tai vajadzētu būt labākajai kvalitātei
         $url = end($imageLinks);
         
         if ($url) {
-            // Ensure HTTPS
+            // Nodrošināt HTTPS
             $url = str_replace('http://', 'https://', $url);
             
             Log::info("Selected cover image URL length: " . strlen($url));
@@ -273,14 +266,14 @@ class ExternalBookApiService
     }
 
     /**
-     * Clean and format ISBN
-     * Removes all non-alphanumeric characters (hyphens, spaces, etc.)
-     * Keeps only digits and X (valid for ISBN-10 check digit)
-     * Converts to uppercase
+     * Attīrīt un formatēt ISBN
+     * Noņem visas ne-burtu-ciparu rakstzīmes (defīses, atstarpes utt.)
+     * Saglabā tikai ciparus un X (derīgs ISBN-10 pārbaudes ciparam)
+     * Pārvērš uz lielajiem burtiem
      */
     private function cleanIsbn($isbn)
     {
-        // Remove all characters except digits and X (X is valid check digit for ISBN-10)
+        // Noņemt visas rakstzīmes izņemot ciparus un X (X ir derīgs pārbaudes cipars ISBN-10)
         $cleaned = preg_replace('/[^0-9X]/', '', strtoupper($isbn));
         
         Log::debug("ISBN cleaned from '{$isbn}' to '{$cleaned}'");

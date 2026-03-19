@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Migration disabled - using genre field instead
+        // Migrācija atspējota - tiek izmantots žanra lauks
         // Schema::table('books', function (Blueprint $table) {
         //     $table->string('tag')->nullable()->after('page_count');
         // });
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Tag column was never added, so nothing to drop
+        // Taga kolonna nekad netika pievienota, tāpēc nav ko dzēst
     }
 };

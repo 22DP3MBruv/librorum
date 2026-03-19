@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('followee_id')->constrained('users', 'user_id')->onDelete('cascade');
             $table->datetime('created_at')->default(now());
             
-            // Composite primary key to prevent duplicate follows
+            // Salikta primārā atslēga, lai novērstu dubultu sekošanu
             $table->primary(['follower_id', 'followee_id']);
             
-            // Prevent self-following with check constraint (note: not all databases support this)
-            // Will be handled in application logic as well
+            // Novērst pašsekošanu ar pārbaudes ierobežojumu (piezīme: ne visas datu bāzes to atbalsta)
+            // Tiks apstrādāts arī lietojumprogrammas loġikā
         });
     }
 

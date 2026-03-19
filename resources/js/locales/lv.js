@@ -1,5 +1,5 @@
 export default {
-  nav: { // Navigation bar
+  nav: { // Navigācijas josla
     home: 'Sākums',
     books: 'Grāmatas',
     myReading: 'Mana lasīšana',
@@ -24,7 +24,7 @@ export default {
     browseBooks: 'Pārlūkot grāmatas',
     viewProfile: 'Skatīt profilu'
   },
-  auth: { // Authentication pages
+  auth: { // Autentifikācijas lapas
     login: 'Pieslēgšanās',
     register: 'Reģistrācija',
     email: 'E-pasts',
@@ -42,7 +42,7 @@ export default {
     haveAccount: 'Jau ir konts? ',
     loginHere: 'Pieslēgties šeit'
   },
-  validation: { // Validation messages
+  validation: { // Validācijas ziņojumi
     nameRequired: 'Vārds ir obligāts',
     emailRequired: 'E-pasts ir obligāts',
     emailInvalid: 'E-pasta formāts nav pareizs',

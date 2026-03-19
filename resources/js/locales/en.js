@@ -1,5 +1,5 @@
 export default {
-  nav: { // Navigation bar
+  nav: { // Navigācijas josla
     home: 'Home',
     books: 'Books',
     myReading: 'My Reading',
@@ -24,7 +24,7 @@ export default {
     browseBooks: 'Browse Books',
     viewProfile: 'View Profile'
   },
-  auth: { // Authentication pages
+  auth: { // Autentifikācijas lapas
     login: 'Login',
     register: 'Register',
     email: 'Email',
@@ -42,7 +42,7 @@ export default {
     haveAccount: 'Already have an account? ',
     loginHere: 'Login here'
   },
-  validation: { // Validation messages
+  validation: { // Validācijas ziņojumi
     nameRequired: 'Name is required',
     emailRequired: 'Email is required',
     emailInvalid: 'Invalid email format',

@@ -33,7 +33,7 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
             
-            // Indexes for better performance
+            // Indeksi labākai veiksmējībai
             $table->index(['user_id', 'is_read']);
             $table->index(['user_id', 'created_at']);
         });

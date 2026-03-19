@@ -11,7 +11,7 @@
     </div>
     
     <form v-else @submit.prevent="saveSettings" class="privacy-form">
-      <!-- Profile Visibility -->
+      <!-- Profila redzamība -->
       <div class="form-group">
         <label for="profile_visibility">{{ $t('privacySettings.profileVisibility') }}</label>
         <select 
@@ -26,7 +26,7 @@
         <small class="form-text">{{ $t('privacySettings.profileVisibilityHelp') }}</small>
       </div>
 
-      <!-- Reading Progress Visibility -->
+      <!-- Lasīšanas progresa redzamība -->
       <div class="form-group">
         <label for="reading_progress_visibility">{{ $t('privacySettings.readingProgressVisibility') }}</label>
         <select 
@@ -41,7 +41,7 @@
         <small class="form-text">{{ $t('privacySettings.readingProgressVisibilityHelp') }}</small>
       </div>
 
-      <!-- Activity Visibility -->
+      <!-- Aktivitātes redzamība -->
       <div class="form-group">
         <label for="activity_visibility">{{ $t('privacySettings.activityVisibility') }}</label>
         <select 
@@ -56,7 +56,7 @@
         <small class="form-text">{{ $t('privacySettings.activityVisibilityHelp') }}</small>
       </div>
 
-      <!-- Allow Follows -->
+      <!-- Atļaut sekošanu -->
       <div class="form-group">
         <div class="form-check">
           <input 
@@ -72,7 +72,7 @@
         <small class="form-text">{{ $t('privacySettings.allowFollowsHelp') }}</small>
       </div>
 
-      <!-- Require Follow Approval -->
+      <!-- Pieprasīt sekošanas apstiprinājumu -->
       <div class="form-group" v-if="settings.allow_follows">
         <div class="form-check">
           <input 
@@ -88,7 +88,7 @@
         <small class="form-text">{{ $t('privacySettings.requireFollowApprovalHelp') }}</small>
       </div>
 
-      <!-- Submit Button -->
+      <!-- Iesniegt pogu -->
       <div class="form-actions">
         <button 
           type="submit" 
@@ -99,7 +99,7 @@
         </button>
       </div>
 
-      <!-- Success Message -->
+      <!-- Veiksmes ziņojums -->
       <div v-if="successMessage" class="success-message">
         {{ successMessage }}
       </div>
@@ -174,7 +174,7 @@ const saveSettings = async () => {
       settings.value = data.data;
       successMessage.value = t('privacySettings.saveSuccess');
       
-      // Redirect to profile after 2 seconds
+      // Novirzīt uz profilu pēc 2 sekundēm
       setTimeout(() => {
         router.push({ name: 'Profile', params: { username: authStore.user.username } });
       }, 2000);

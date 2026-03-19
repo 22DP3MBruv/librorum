@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['want_to_read', 'reading', 'completed','dropped'])->default('want_to_read');
             $table->timestamps();
             
-            // Prevent duplicate entries for same user-book combination
+            // Novērst dublicētus ierakstus vienam lietotāja-grāmatas pārim
             $table->unique(['user_id', 'book_id']);
         });
     }

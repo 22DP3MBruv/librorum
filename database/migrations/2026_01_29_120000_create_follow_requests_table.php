@@ -18,10 +18,10 @@ return new class extends Migration
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
             
-            // Composite unique key to prevent duplicate requests
+            // Salikta unikālā atslēga, lai novērstu dubultas pieprasījumus
             $table->unique(['follower_id', 'followee_id']);
             
-            // Index for faster queries
+            // Indekss ātrākiem vaicājumiem
             $table->index('followee_id');
             $table->index('status');
         });

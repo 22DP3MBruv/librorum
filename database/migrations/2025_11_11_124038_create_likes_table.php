@@ -18,10 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('target_id');
             $table->datetime('created_at')->default(now());
             
-            // Prevent duplicate likes from same user on same target
+            // Novērst dubultus atzīmes 'Patīk' no viena lietotāja uz vienu mērķi
             $table->unique(['user_id', 'target_type', 'target_id']);
             
-            // Index for polymorphic relationship lookups
+            // Indekss polimorfisko relāciju meklēšanai
             $table->index(['target_type', 'target_id']);
         });
     }

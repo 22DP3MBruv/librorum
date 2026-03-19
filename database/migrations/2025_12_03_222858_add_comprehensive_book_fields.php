@@ -15,17 +15,17 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('language', 10)->default('lv');
             $table->string('publisher')->nullable();
-            $table->json('subjects')->nullable(); // Array of topics/subjects
-            $table->json('authors')->nullable(); // Array for multiple authors
+            $table->json('subjects')->nullable(); // Tēmu/priekšmetu masīvs
+            $table->json('authors')->nullable(); // Masīvs vairākiem autoriem
             $table->string('isbn10')->nullable();
             $table->string('isbn13')->nullable();
             $table->date('publish_date')->nullable();
             $table->integer('publication_year')->nullable();
             $table->string('genre')->nullable();
-            $table->json('external_ids')->nullable(); // Store IDs from different APIs
+            $table->json('external_ids')->nullable(); // Glabāt ID no dažādiem API
             $table->timestamp('last_api_sync')->nullable();
             
-            // Add indexes for better performance
+            // Pievienot indeksus labākai veiksmējībai
             $table->index(['isbn10']);
             $table->index(['isbn13']);
             $table->index(['publisher']);

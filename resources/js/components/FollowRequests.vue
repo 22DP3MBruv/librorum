@@ -121,7 +121,7 @@ const acceptRequest = async (requestId) => {
     });
 
     if (response.ok) {
-      // Remove the request from the list
+      // Noņemt pieprasījumu no saraksta
       requests.value = requests.value.filter(r => r.request_id !== requestId);
     } else {
       const errorData = await response.json();
@@ -147,7 +147,7 @@ const rejectRequest = async (requestId) => {
     });
 
     if (response.ok) {
-      // Remove the request from the list
+      // Noņemt pieprasījumu no saraksta
       requests.value = requests.value.filter(r => r.request_id !== requestId);
     } else {
       const errorData = await response.json();
