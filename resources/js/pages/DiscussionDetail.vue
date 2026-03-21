@@ -1,18 +1,18 @@
 <template>
   <div class="container mx-auto px-4 sm:px-6 py-6">
-    <!-- Loading State -->
+    <!-- Ielādes stāvoklis -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
-    <!-- Error State -->
+    <!-- Kļūdas stāvoklis -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-6">
       {{ error }}
     </div>
 
     <template v-else-if="discussion">
-      <!-- Breadcrumb Navigation -->
+      <!-- Druņu ceļa navigācija -->
       <nav class="flex mb-4 sm:mb-6 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap pb-2">
         <router-link to="/" class="hover:text-blue-600">{{ t('nav.home') }}</router-link>
         <span class="mx-2">›</span>
@@ -25,9 +25,9 @@
         <span class="text-gray-900">{{ discussion.title }}</span>
       </nav>
 
-      <!-- Discussion Header -->
+      <!-- Diskusijas galvene -->
       <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6 flex items-start gap-3 sm:gap-4">
-        <!-- Upvote Section -->
+        <!-- Balsōšanas sadaļa -->
         <div class="flex flex-col items-center gap-1 flex-shrink-0">
           <button
             v-if="authStore.isAuthenticated"
@@ -44,7 +44,7 @@
           </span>
         </div>
 
-        <!-- Discussion Content -->
+        <!-- Diskusijas saturs -->
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between mb-4">
             <div class="flex-1 min-w-0">
@@ -73,7 +73,7 @@
                 </span>
               </div>
             </div>
-            <!-- Edit and Delete Buttons -->
+            <!-- Rediģēšanas un dzēšanas pogas -->
             <div v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.id === discussion.user_id)" class="flex gap-2">
               <button
                 v-if="authStore.user.id === discussion.user_id"
@@ -91,12 +91,12 @@
             </div>
           </div>
 
-          <!-- Discussion Content -->
+          <!-- Diskusijas teksts -->
           <div v-if="!isEditingThread" class="prose max-w-none">
             <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ discussion.content }}</p>
           </div>
 
-          <!-- Edit Thread Form -->
+          <!-- Diskusijas rediģēšanas forma -->
           <div v-else class="mt-4">
             <form @submit.prevent="handleEditThread" class="space-y-4">
               <div>
@@ -170,7 +170,7 @@
         </div>
       </div>
 
-      <!-- Comments Section -->
+      <!-- Komentāru sadaļa -->
       <div class="bg-white rounded-lg shadow-sm border">
         <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
           <h2 class="text-base sm:text-lg font-semibold text-gray-900">
@@ -178,7 +178,7 @@
           </h2>
         </div>
 
-        <!-- Add Comment Form -->
+        <!-- Komentāra pievienošanas forma -->
         <div v-if="authStore.isAuthenticated" class="px-4 sm:px-6 py-3 sm:py-4 border-b bg-gray-50">
           <form @submit.prevent="handleAddComment" class="space-y-3">
             <textarea
@@ -199,14 +199,14 @@
           </form>
         </div>
 
-        <!-- Comments List -->
+        <!-- Komentāru saraksts -->
         <div v-if="comments.length > 0" class="divide-y">
           <div
             v-for="comment in paginatedComments"
             :key="comment.id"
             class="p-4 sm:p-6 hover:bg-gray-50 transition-colors flex items-start gap-3 sm:gap-4"
           >
-            <!-- Upvote Section for Comment -->
+            <!-- Komentāra balsōšanas sadaļa -->
             <div class="flex flex-col items-center gap-1 flex-shrink-0">
               <button
                 v-if="authStore.isAuthenticated"
@@ -223,7 +223,7 @@
               </span>
             </div>
 
-            <!-- Comment Content -->
+            <!-- Komentāra saturs -->
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-2">
                 <button 
@@ -233,7 +233,7 @@
                   {{ comment.author?.name || 'Unknown' }}
                 </button>
                 <span class="text-xs text-gray-500">{{ formatDate(comment.created_at) }}</span>
-                <!-- Edit and Delete Buttons -->
+                <!-- Rediģēšanas un dzēšanas pogas -->
                 <div v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.id === comment.user_id)" class="ml-auto flex gap-2">
                   <button
                     v-if="authStore.user.id === comment.user_id && editingCommentId !== comment.id"
@@ -251,10 +251,10 @@
                 </div>
               </div>
               
-              <!-- Display Comment Content -->
+              <!-- Attēlot komentāra saturu -->
               <p v-if="editingCommentId !== comment.id" class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
               
-              <!-- Edit Comment Form -->
+              <!-- Komentāra rediģēšanas forma -->
               <div v-else class="space-y-2">
                 <textarea
                   v-model="editCommentContent"
@@ -283,7 +283,7 @@
             </div>
           </div>
         
-        <!-- Pagination Controls -->
+        <!-- Lapošanas vadīklas -->
         <div v-if="totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-sm text-gray-600">
               {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, comments.length) }} {{ t('pagination.of') }} {{ comments.length }}
@@ -322,7 +322,7 @@
           </div>
         </div>
 
-        <!-- Empty Comments State -->
+        <!-- Tukšs komentāru stāvoklis -->
         <div v-else class="p-6">
           <div class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +366,7 @@ const editCommentContent = ref('');
 const editCommentLoading = ref(false);
 const editCommentError = ref('');
 
-// Pagination
+// Lapošana
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
 
@@ -425,14 +425,14 @@ const fetchDiscussion = async () => {
     discussion.value = result.data;
     book.value = discussion.value.book;
     
-    // Debug logging
+    // Atklāšanas reģišēšana
     console.log('=== DEBUG: Discussion loaded ===');
     console.log('authStore.user:', authStore.user);
     console.log('authStore.user.id:', authStore.user?.id);
     console.log('discussion.user_id:', discussion.value.user_id);
     console.log('Comparison result:', authStore.user?.id === discussion.value.user_id);
     
-    // Fetch like status for thread
+    // Iegūt patik komentāram/diskusijai
     if (authStore.isAuthenticated) {
       await fetchThreadLikeStatus();
     }
@@ -464,7 +464,7 @@ const fetchComments = async () => {
       const data = await response.json();
       comments.value = data.data || [];
       
-      // Fetch like status for each comment
+      // Iegūt patik statusu katram komentāram
       if (authStore.isAuthenticated) {
         await fetchCommentsLikeStatuses();
       }
@@ -682,7 +682,7 @@ const handleEditThread = async () => {
     const data = await response.json();
     
     if (response.ok) {
-      // Update the discussion object
+      // Atjaunināt diskusijas objektu
       discussion.value = { ...discussion.value, ...data.data };
       isEditingThread.value = false;
       alert(t('discussions.editSuccess'));
@@ -761,7 +761,7 @@ const handleEditComment = async (commentId) => {
     const data = await response.json();
     
     if (response.ok) {
-      // Update the comment in the local array
+      // Atjaunināt komentāru lokālajā masvī
       const comment = comments.value.find(c => c.id === commentId);
       if (comment) {
         comment.content = data.data.content;

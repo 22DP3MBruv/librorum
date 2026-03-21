@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 sm:px-6 py-6">
-    <!-- Breadcrumb Navigation -->
+    <!-- Druņu ceļa navigācija -->
     <nav class="flex mb-4 sm:mb-6 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap pb-2">
       <router-link to="/" class="hover:text-blue-600">{{ t('nav.home') }}</router-link>
       <span class="mx-2">›</span>
@@ -9,22 +9,22 @@
       <span class="text-gray-900">{{ book?.title || t('discussions.bookDiscussions') }}</span>
     </nav>
 
-    <!-- Loading State -->
+    <!-- Ielādes stāvoklis -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
-    <!-- Error State -->
+    <!-- Kļūdas stāvoklis -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-6">
       {{ error }}
     </div>
 
     <template v-else-if="book">
-      <!-- Book Header -->
+      <!-- Grāmatas galvene -->
       <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6">
         <div class="flex flex-col lg:flex-row items-start gap-4 sm:gap-6">
-          <!-- Left side: Book Cover -->
+          <!-- Kreisajā pusē: Grāmatas vāks -->
           <div class="w-full sm:w-48 lg:w-60 h-64 sm:h-72 lg:h-90 bg-gray-200 rounded flex-shrink-0 overflow-hidden mx-auto lg:mx-0">
             <img
               v-if="book.cover_image_url"
@@ -39,7 +39,7 @@
             </div>
           </div>
 
-          <!-- Center: Book Details -->
+          <!-- Centrā: Grāmatas detaļes -->
           <div class="flex-1 min-w-0">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ book.title }}</h1>
             <p class="text-sm sm:text-base text-gray-600 mb-2">{{ Array.isArray(book.authors) ? book.authors.join(', ') : book.authors }}</p>
@@ -75,7 +75,7 @@
             </div>
           </div>
 
-          <!-- Right side: Admin Panel -->
+          <!-- Labajā pusē: Administrātora panelis -->
           <div v-if="authStore.isAdmin" class="w-full lg:w-72 flex-shrink-0 bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
             <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +158,7 @@
         </div>
       </div>
 
-      <!-- Discussions Section -->
+      <!-- Diskusiju sadaļa -->
       <div class="bg-white rounded-lg shadow-sm border">
         <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
@@ -172,9 +172,9 @@
             </button>
           </div>
           
-          <!-- Filters and Sort -->
+          <!-- Filtri un kārtošana -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <!-- Scope Filter -->
+            <!-- Apjoma filtrs -->
             <select
               v-model="scopeFilter"
               @change="currentPage = 1"
@@ -185,7 +185,7 @@
               <option value="page">{{ t('discussions.pageSpecificOnly') }}</option>
             </select>
             
-            <!-- Sort Options -->
+            <!-- Kārtošanas opcijas -->
             <select
               v-model="sortBy"
               @change="currentPage = 1"
@@ -199,7 +199,7 @@
           </div>
         </div>
 
-        <!-- Discussions List -->
+        <!-- Diskusiju saraksts -->
         <div v-if="filteredAndSortedDiscussions.length > 0">
           <div class="divide-y">
             <div
@@ -207,7 +207,7 @@
               :key="discussion.id"
               class="p-4 sm:p-6 hover:bg-gray-50 transition-colors flex items-start gap-3 sm:gap-4"
             >
-            <!-- Upvote Section -->
+            <!-- Balsōšanas sadaļa -->
             <div class="flex flex-col items-center gap-1 flex-shrink-0">
               <button
                 v-if="authStore.isAuthenticated"
@@ -224,9 +224,9 @@
               </span>
             </div>
 
-            <!-- Discussion Content -->
+            <!-- Diskusijas saturs -->
             <div class="cursor-pointer flex-1 relative">
-              <!-- Spoiler Overlay -->
+              <!-- Spoiļeru pārklajums -->
               <div 
                 v-if="shouldShowSpoiler(discussion)"
                 @click.stop="revealSpoiler(discussion.id)"
@@ -244,7 +244,7 @@
                 </div>
               </div>
 
-              <!-- Actual Discussion Content -->
+              <!-- Faktiskais diskusijas saturs -->
               <div @click="goToDiscussion(discussion.id)" class="flex items-start justify-between">
                 <div class="flex-1 min-w-0">
                   <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2">{{ discussion.title }}</h3>
@@ -268,7 +268,7 @@
                   </span>
                 </div>
               </div>
-              <!-- Edit and Delete Buttons -->
+              <!-- Rediģēšanas un dzēšanas pogas -->
               <div v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.id === discussion.user_id)" class="flex gap-2">
                 <button
                   v-if="authStore.user.id === discussion.user_id"
@@ -289,7 +289,7 @@
           </div>
           </div>
           
-          <!-- Pagination Controls -->
+          <!-- Lapošanas vadīklas -->
           <div v-if="totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-sm text-gray-600">
               {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredAndSortedDiscussions.length) }} {{ t('pagination.of') }} {{ filteredAndSortedDiscussions.length }}
@@ -328,7 +328,7 @@
           </div>
         </div>
 
-        <!-- Empty State -->
+        <!-- Tukšs stāvoklis -->
         <div v-else-if="discussions.length === 0" class="p-6">
           <div class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -347,7 +347,7 @@
           </div>
         </div>
         
-        <!-- No Results State (when filter returns no results) -->
+        <!-- Bez rezultātiem stāvoklis (kad filtrs neatgriež rezultātus) -->
         <div v-else class="p-6">
           <div class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +366,7 @@
       </div>
     </template>
 
-    <!-- New Discussion Modal -->
+    <!-- Jaunas diskusijas modāls -->
     <div v-if="showNewDiscussionModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
         <div class="flex justify-between items-center mb-4">
@@ -450,7 +450,7 @@
       </div>
     </div>
 
-    <!-- Edit Thread Modal -->
+    <!-- Diskusijas rediģēšanas modāls -->
     <div v-if="showEditThreadModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
         <div class="flex justify-between items-center mb-4">
@@ -534,7 +534,7 @@
       </div>
     </div>
 
-    <!-- Edit Book Modal -->
+    <!-- Grāmatas rediģēšanas modāls -->
     <div v-if="showEditBookModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
@@ -683,7 +683,7 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Dzēšanas apstiprinājuma modāls -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="flex items-center mb-4">
@@ -720,7 +720,7 @@
       </div>
     </div>
 
-    <!-- Success Modal -->
+    <!-- Veiksmes modāls -->
     <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="flex items-center mb-4">
@@ -797,7 +797,7 @@ const revealedSpoilers = ref(new Set());
 const scopeFilter = ref('all');
 const sortBy = ref('newest');
 
-// Pagination
+// Lapošana
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
@@ -808,12 +808,12 @@ const isBookmarked = computed(() => {
 const filteredAndSortedDiscussions = computed(() => {
   let filtered = [...discussions.value];
   
-  // Apply scope filter
+  // Piemērot apjoma filtru
   if (scopeFilter.value !== 'all') {
     filtered = filtered.filter(d => d.scope === scopeFilter.value);
   }
   
-  // Apply sorting
+  // Piemērot kārtošanu
   switch (sortBy.value) {
     case 'newest':
       filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -870,9 +870,9 @@ const fetchBook = async () => {
       const data = await response.json();
       const isbn = route.params.isbn;
       
-      // Handle both single book and array response
+      // Apstrādāt gan vienu grāmatu, gan masvīa atbildi
       if (Array.isArray(data.data)) {
-        // Find the book that matches the ISBN
+        // Atrast grāmatu, kas atbilst ISBN
         book.value = data.data.find(b => 
           b.isbn === isbn || 
           b.isbn10 === isbn || 
@@ -899,7 +899,7 @@ const fetchDiscussions = async () => {
   await discussionsStore.fetchDiscussionsForBook(book.value.id);
   discussions.value = discussionsStore.discussionsByBook[book.value.id] || [];
   
-  // Fetch like status for each discussion if authenticated
+  // Iegūt patik statusu katrai diskusijai, ja autentificēts
   if (authStore.isAuthenticated) {
     await fetchLikeStatuses();
   }
@@ -981,7 +981,7 @@ const goToDiscussion = (discussionId) => {
 
 const goToUserProfile = (userId) => {
   if (!userId) return;
-  if (parseInt(userId) === authStore.user?.id) { // Checks if the profile is the current user
+  if (parseInt(userId) === authStore.user?.id) { // Pārbauda, vai profils ir pašreizējā lietotāja
     router.push('/profile');
   } else {
     router.push(`/profile/${userId}`);
@@ -989,36 +989,36 @@ const goToUserProfile = (userId) => {
 };
 
 const shouldShowSpoiler = (discussion) => {
-  // Don't show spoiler if already manually revealed
+  // Nerādīt spoiļera brīdinājumu, ja tas jau ir manuāli atvērts
   if (revealedSpoilers.value.has(discussion.id)) {
     return false;
   }
 
-  // Don't show spoiler for general discussions
+  // Nerādīt spoiļera brīdinājumu vispārējām diskusijām
   if (discussion.scope === 'general') {
     return false;
   }
 
-  // Check if user has the book in their reading list
+  // Pārbaudīt, vai lietotājam ir grāmata lasīšanas sarakstā
   if (!book.value || !authStore.isAuthenticated) {
-    // Show spoiler if not authenticated or book not loaded
+    // Rādīt spoiļera brīdinājumu, ja nav autentificēts vai grāmata nav ielādēta
     return discussion.scope === 'page';
   }
 
   const bookProgress = progressStore.getBookProgress(book.value.id);
   
-  // If book is not in reading list, show spoiler for page-specific discussions
+  // Ja grāmata nav lasīšanas sarakstā, rādīt spoiļera brīdinājumu lapām specifiskām diskusijām
   if (!bookProgress) {
     return discussion.scope === 'page';
   }
 
-  // If book is in reading list and it's a page-specific discussion
+  // Ja grāmata ir lasīšanas sarakstā un tā ir lapām specifiska diskusija
   if (discussion.scope === 'page' && discussion.page_number) {
-    // Auto-reveal if user's progress is beyond the discussion's page
+    // Auto-atklāt, ja lietotāja progress ir aiz diskusijas lapas
     if (bookProgress.current_page && bookProgress.current_page >= discussion.page_number) {
-      return false; // Don't show spoiler - user has read past this point
+      return false; // Nerādīt spoiļeru - lietotājs ir izlasījis līdz šim punktam
     }
-    return true; // Show spoiler - user hasn't reached this page yet
+    return true; // Rādīt spoiļeru - lietotājs nav sasniedzis šo lapu
   }
 
   return false;
@@ -1041,7 +1041,7 @@ const handleCreateDiscussion = async () => {
     scope: newDiscussion.value.scope,
   };
 
-  // Add page_number if scope is 'page'
+  // Pievienot lappuses numuru, ja apjoms ir 'page'
   if (newDiscussion.value.scope === 'page' && newDiscussion.value.page_number) {
     discussionData.page_number = newDiscussion.value.page_number;
   }
@@ -1118,7 +1118,7 @@ const handleEditThread = async () => {
     const data = await response.json();
     
     if (response.ok) {
-      // Update the discussion in the local array
+      // Atjaunināt diskusiju lokālajā masvī
       const index = discussions.value.findIndex(d => d.id === editThreadData.value.id);
       if (index !== -1) {
         discussions.value[index] = { ...discussions.value[index], ...data.data };
@@ -1173,7 +1173,7 @@ const handleEditBook = async () => {
     const token = localStorage.getItem('auth_token');
     const bookDataToSend = { ...editBookData.value };
     
-    // Convert author string to authors array
+    // Konvertēt autora vīrkņi uz autoru masvīu
     if (bookDataToSend.author) {
       bookDataToSend.authors = bookDataToSend.author.split(',').map(a => a.trim()).filter(a => a);
     }
@@ -1297,7 +1297,7 @@ const deleteThread = async (threadId) => {
     });
 
     if (response.ok) {
-      // Remove from local discussions array
+      // Noņemt no lokālā diskusiju masvīa
       discussions.value = discussions.value.filter(d => d.id !== threadId);
       alert(t('admin.threadDeleted'));
     } else {

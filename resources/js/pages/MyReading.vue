@@ -1,12 +1,12 @@
 <template>
   <div class="container mx-auto px-4 sm:px-6 py-6">
-    <!-- Page Header -->
+    <!-- Lapas galvene -->
     <div class="mb-6 sm:mb-8">
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ t('reading.title') }}</h1>
       <p class="text-sm sm:text-base text-gray-600">{{ t('reading.subtitle') }}</p>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Statistikas kartes -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <div class="bg-white p-6 rounded-lg shadow-sm border">
         <div class="flex items-center justify-between">
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <!-- Filter Tabs -->
+    <!-- Filtra cilnes -->
     <div class="mb-6 border-b border-gray-200 overflow-x-auto">
       <nav class="-mb-px flex space-x-4 sm:space-x-8 min-w-max px-1">
         <button
@@ -112,18 +112,18 @@
       </nav>
     </div>
 
-    <!-- Loading State -->
+    <!-- Ielādes stāvoklis -->
     <div v-if="progressStore.loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
-    <!-- Error State -->
+    <!-- Kļūdas stāvoklis -->
     <div v-else-if="progressStore.error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-6">
       {{ progressStore.error }}
     </div>
 
-    <!-- Books List -->
+    <!-- Grāmatu saraksts -->
     <div v-else-if="filteredProgress.length > 0" class="space-y-4">
       <div
         v-for="progress in filteredProgress"
@@ -131,7 +131,7 @@
         class="bg-white rounded-lg shadow-sm border p-3 sm:p-4 hover:shadow-md transition-shadow"
       >
         <div class="flex gap-3 sm:gap-4">
-          <!-- Book Cover -->
+          <!-- Grāmatas vāks -->
           <div class="flex-shrink-0 w-16 sm:w-24 h-24 sm:h-36 bg-gray-200 rounded overflow-hidden cursor-pointer" @click="goToBook(progress.book)">
             <img
               v-if="progress.book?.cover_image_url"
@@ -146,20 +146,20 @@
             </div>
           </div>
 
-          <!-- Book Details -->
+          <!-- Grāmatas detaļas -->
           <div class="flex-1 min-w-0">
             <h3 class="font-semibold text-base sm:text-lg text-gray-900 mb-1 cursor-pointer hover:text-blue-600 truncate" @click="goToBook(progress.book)">
               {{ progress.book?.title }}
             </h3>
             <p class="text-xs sm:text-sm text-gray-600 mb-2 truncate">{{ progress.book?.author }}</p>
             
-            <!-- Progress Info -->
+            <!-- Progresa informācija -->
             <div class="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 flex-wrap">
               <span v-if="progress.book?.page_count">{{ progress.book.page_count }} {{ t('books.pages') }}</span>
               <span v-if="progress.book?.genre" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ progress.book.genre }}</span>
             </div>
 
-            <!-- Status Selector and Page Progress -->
+            <!-- Stāvoklis un lappuses progress -->
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-wrap">
               <select
                 v-model="progress.status"
@@ -193,7 +193,7 @@
               </button>
             </div>
 
-            <!-- Progress Bar -->
+            <!-- Progresa josla -->
             <div v-if="progress.status === 'reading' && progress.book?.page_count" class="mt-3">
               <div class="w-full bg-gray-200 rounded-full h-2">
                 <div
@@ -210,7 +210,7 @@
       </div>
     </div>
 
-    <!-- Empty State -->
+    <!-- Tukšs stāvoklis -->
     <div v-else class="text-center py-12">
       <svg class="mx-auto h-24 w-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
@@ -239,7 +239,7 @@ const progressStore = useReadingProgressStore();
 
 const selectedStatus = ref('all');
 
-// Computed
+// Aprēķinātais
 const filteredProgress = computed(() => {
   if (selectedStatus.value === 'all') {
     return progressStore.progressList;
@@ -247,7 +247,7 @@ const filteredProgress = computed(() => {
   return progressStore.progressByStatus[selectedStatus.value] || [];
 });
 
-// Methods
+// Metodes
 const goToBook = (book) => {
   if (book) {
     const isbn = book.isbn || book.isbn13 || book.isbn10;
@@ -264,7 +264,7 @@ const updateStatus = async (progress) => {
   
   if (!result.success) {
     alert(result.message || t('reading.updateFailed'));
-    // Revert on failure
+    // Atjaunot kļūdas gadījumā
     await progressStore.fetchProgress();
   }
 };
@@ -276,7 +276,7 @@ const updatePage = async (progress) => {
   
   if (!result.success) {
     alert(result.message || t('reading.updateFailed'));
-    // Revert on failure
+    // Atjaunot kļūdas gadījumā
     await progressStore.fetchProgress();
   }
 };
@@ -291,7 +291,7 @@ const removeBook = async (progress) => {
   }
 };
 
-// Lifecycle
+// Dzīves cikls
 onMounted(() => {
   progressStore.fetchProgress();
 });

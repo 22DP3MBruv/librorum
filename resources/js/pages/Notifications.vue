@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 py-8">
     <div class="bg-white shadow rounded-lg">
-      <!-- Header -->
+      <!-- Galvene -->
       <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex items-center justify-between">
           <h1 class="text-2xl font-bold text-gray-900">
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <!-- Filter Tabs -->
+      <!-- Filtra cilnes -->
       <div class="px-6 py-3 border-b border-gray-200">
         <div class="flex space-x-4">
           <button
@@ -45,15 +45,15 @@
         </div>
       </div>
 
-      <!-- Notifications List -->
+      <!-- Paziņojumu saraksts -->
       <div class="divide-y divide-gray-200">
-        <!-- Loading State -->
+        <!-- Ielādes stāvoklis -->
         <div v-if="notificationStore.loading" class="px-6 py-12 text-center">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600"></div>
           <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
         </div>
 
-        <!-- Empty State -->
+        <!-- Tukšs stāvoklis -->
         <div v-else-if="filteredNotifications.length === 0" class="px-6 py-12 text-center text-gray-500">
           <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -61,7 +61,7 @@
           <p class="mt-4 text-lg font-medium">{{ t('notifications.empty') }}</p>
         </div>
 
-        <!-- Notification Items -->
+        <!-- Paziņojumu elementi -->
         <div
           v-for="notification in filteredNotifications"
           :key="notification.notification_id"
@@ -70,26 +70,26 @@
           @click="handleNotificationClick(notification)"
         >
           <div class="flex items-start space-x-4">
-            <!-- Icon -->
+            <!-- Ikona -->
             <div class="flex-shrink-0 mt-1">
               <div class="h-10 w-10 rounded-full flex items-center justify-center" :class="getNotificationBgColor(notification.type)">
                 <component :is="getNotificationIcon(notification.type)" class="h-5 w-5" :class="getNotificationColor(notification.type)" />
               </div>
             </div>
 
-            <!-- Content -->
+            <!-- Saturs -->
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between">
                 <div>
                   <p class="text-sm text-gray-900" :class="{ 'font-semibold': !notification.is_read }">
-                    {{ notification.message }}
+                    {{ getNotificationMessage(notification) }}
                   </p>
                   <p class="text-xs text-gray-500 mt-1">
                     {{ formatTime(notification.created_at) }}
                   </p>
                 </div>
 
-                <!-- Actions -->
+                <!-- Darbības -->
                 <div class="flex items-center space-x-2 ml-4">
                   <button
                     v-if="!notification.is_read"
@@ -109,7 +109,7 @@
                 </div>
               </div>
 
-              <!-- Notification Type Badge -->
+              <!-- Paziņojuma tipa nozimīte -->
               <div class="mt-2">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="getTypeBadgeClass(notification.type)">
                   {{ getTypeLabel(notification.type) }}
@@ -159,7 +159,7 @@ const handleNotificationClick = async (notification) => {
     await notificationStore.markAsRead(notification.notification_id);
   }
   
-  // Navigate based on notification type
+  // Navigēt, pamatojoties uz paziņojuma tipu
   if (notification.type === 'follow_request' || notification.type === 'follow_request_accepted') {
     router.push('/follow-requests');
   } else if (notification.related_type && notification.related_id) {
@@ -197,6 +197,13 @@ const getNotificationIcon = (type) => {
     ]),
   };
   return icons[type] || icons.thread_reply;
+};
+
+const getNotificationMessage = (notification) => {
+  const actor = notification.actor?.username ?? '?';
+  const key = `notifications.messages.${notification.type}`;
+  const translated = t(key, { actor });
+  return translated === key ? notification.message : translated;
 };
 
 const getNotificationColor = (type) => {

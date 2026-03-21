@@ -1,7 +1,7 @@
 <template>
   <div class="w-full min-w-0 overflow-x-hidden">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-    <!-- Page Header -->
+    <!-- Lapas galvene -->
     <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
       <div class="flex-1 min-w-0">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ t('books.title') }}</h1>
@@ -19,7 +19,7 @@
       </button>
     </div>
 
-    <!-- Search and Filter Bar -->
+    <!-- Meklēšanas un filtrēšanas josla -->
     <div class="mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
       <div class="relative flex-1 min-w-0">
         <input
@@ -43,7 +43,7 @@
           @blur="hideGenreSuggestions"
           class="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
         >
-        <!-- Genre Suggestions Dropdown -->
+        <!-- Žanra ieteikumu nolaižamā izvēlne -->
         <div 
           v-if="showGenreSuggestions && filteredGenres.length > 0"
           class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
@@ -60,18 +60,18 @@
       </div>
     </div>
 
-    <!-- Loading State -->
+    <!-- Ielādes stāvoklis -->
     <div v-if="booksStore.loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
-    <!-- Error State -->
+    <!-- Kļūdas stāvoklis -->
     <div v-else-if="booksStore.error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-6">
       {{ booksStore.error }}
     </div>
 
-    <!-- Books Grid -->
+    <!-- Grāmatu režģis -->
     <div v-else-if="filteredBooks.length > 0" class="min-w-0 w-full">
       <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
         <div 
@@ -79,7 +79,7 @@
           :key="book.id"
           class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow relative group min-w-0 w-full max-w-full"
         >
-        <!-- Bookmark Button -->
+        <!-- Grāmatzīmes poga -->
         <button
           v-if="authStore.isAuthenticated"
           @click.stop="toggleBookmark(book)"
@@ -117,7 +117,7 @@
       </div>
       </div>
 
-      <!-- Pagination Controls -->
+      <!-- Lapošanas vadīklas -->
       <div v-if="totalPages > 1" class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg shadow-sm border p-4">
         <div class="text-sm text-gray-600 text-center sm:text-left w-full sm:w-auto">
           {{ t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredBooks.length) }} {{ t('pagination.of') }} {{ filteredBooks.length }}
@@ -156,7 +156,7 @@
       </div>
     </div>
 
-    <!-- Empty State -->
+    <!-- Tukšs stāvoklis -->
     <div v-else class="text-center py-12">
       <svg class="mx-auto h-24 w-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -171,7 +171,7 @@
       </button>
     </div>
 
-    <!-- Import Book Modal -->
+    <!-- Grāmatas importēšanas modāls -->
     <div v-if="showImportModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
@@ -183,7 +183,7 @@
           </button>
         </div>
         
-        <!-- Import Mode Tabs -->
+        <!-- Importēšanas režīma cilnes -->
         <div class="flex gap-0 border-b mb-6">
           <button 
             @click="importMode = 'isbn'"
@@ -209,7 +209,7 @@
           </button>
         </div>
 
-        <!-- ISBN Import Tab -->
+        <!-- ISBN importēšanas cilne -->
         <div v-if="importMode === 'isbn'">
           <div v-if="importError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
             {{ importError }}
@@ -251,7 +251,7 @@
           </form>
         </div>
 
-        <!-- Genre Batch Import Tab -->
+        <!-- Žanra masveida importēšanas cilne -->
         <div v-else-if="importMode === 'genre'">
           <div v-if="batchImportError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
             {{ batchImportError }}
@@ -267,7 +267,7 @@
               </div>
             </div>
 
-            <!-- Imported Books -->
+            <!-- Importētās grāmatas -->
             <div v-if="batchResults.imported?.length > 0" class="mb-4">
               <h4 class="font-semibold text-green-700 mb-2">{{ t('books.successfullyImported') }}</h4>
               <div class="space-y-2 max-h-40 overflow-y-auto">
@@ -278,7 +278,7 @@
               </div>
             </div>
 
-            <!-- Skipped Books -->
+            <!-- Izlaistās grāmatas -->
             <div v-if="batchResults.skipped?.length > 0" class="mb-4">
               <h4 class="font-semibold text-yellow-700 mb-2">{{ t('books.skippedBooks') }}</h4>
               <div class="space-y-2 max-h-40 overflow-y-auto">
@@ -289,7 +289,7 @@
               </div>
             </div>
 
-            <!-- Failed Books -->
+            <!-- Neizdevās importēt -->
             <div v-if="batchResults.failed?.length > 0" class="mb-4">
               <h4 class="font-semibold text-red-700 mb-2">{{ t('books.failedBooks') }}</h4>
               <div class="space-y-2 max-h-40 overflow-y-auto">
@@ -410,7 +410,7 @@ const importLoading = ref(false);
 const importError = ref('');
 const importSuccess = ref(false);
 
-// Batch import by genre state
+// Masveida importēšanas pēc žanra stāvoklis
 const batchGenreInput = ref('');
 const batchLimitInput = ref(10);
 const batchImportError = ref('');
@@ -422,11 +422,11 @@ const batchResults = ref({
   failed: []
 });
 
-// Pagination
+// Lapošana
 const currentPage = ref(1);
 const itemsPerPage = ref(20);
 
-// Computed
+// Aprēķinātais
 const availableGenres = computed(() => {
   const genres = new Set();
   booksStore.books.forEach(book => {
@@ -448,7 +448,7 @@ const filteredGenres = computed(() => {
 const filteredBooks = computed(() => {
   let filtered = booksStore.books;
   
-  // Filter by search query
+  // Filtrēt pēc meklēšanas vaicājuma
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(book => 
@@ -460,7 +460,7 @@ const filteredBooks = computed(() => {
     );
   }
   
-  // Filter by genre
+  // Filtrēt pēc žanra
   if (genreFilter.value) {
     const query = genreFilter.value.toLowerCase();
     filtered = filtered.filter(book => 
@@ -497,10 +497,10 @@ const paginationRange = computed(() => {
   return range;
 });
 
-// Methods
+// Metodes
 const handleSearch = () => {
-  // Real-time filtering handled by computed property
-  currentPage.value = 1; // Reset to first page on search
+  // Reāllaika filtrēšanu nodrošina aprēķinātais
+  currentPage.value = 1; // Atiestatīt uz pirmo lapu pēc meklēšanas
 };
 
 const handleGenreInput = () => {
@@ -510,7 +510,7 @@ const handleGenreInput = () => {
 const selectGenre = (genre) => {
   genreFilter.value = genre;
   showGenreSuggestions.value = false;
-  currentPage.value = 1; // Reset to first page on filter change
+  currentPage.value = 1; // Atiestatīt uz pirmo lapu pēc filtra maiņas
 };
 
 const goToPage = (page) => {
@@ -635,13 +635,13 @@ const toggleBookmark = async (book) => {
   const bookProgress = progressStore.getBookProgress(book.id);
   
   if (bookProgress) {
-    // Remove from reading list
+    // Noņemt no lasīšanas saraksta
     const result = await progressStore.removeFromReadingList(bookProgress.id);
     if (!result.success) {
       alert(result.message || t('books.removeBookmarkFailed'));
     }
   } else {
-    // Add to reading list
+    // Pievienot lasīšanas sarakstam
     const result = await progressStore.addToReadingList(book.id, 'want_to_read');
     if (!result.success) {
       alert(result.message || t('books.addBookmarkFailed'));
@@ -649,7 +649,7 @@ const toggleBookmark = async (book) => {
   }
 };
 
-// Lifecycle
+// Dzīves cikls
 onMounted(() => {
   booksStore.fetchBooks();
   if (authStore.isAuthenticated) {

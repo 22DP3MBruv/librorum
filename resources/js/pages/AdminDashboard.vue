@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4 sm:px-6 py-6">
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">{{ $t('admin.dashboard') }}</h1>
 
-      <!-- Tabs Navigation -->
+      <!-- Ciļnes navigācija -->
       <div class="mb-6 border-b border-gray-200">
         <nav class="flex space-x-4 overflow-x-auto">
           <button
@@ -45,24 +45,24 @@
         </nav>
       </div>
 
-      <!-- Loading State -->
+      <!-- Ielādes stāvoklis -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <p class="mt-4 text-gray-600">{{ $t('common.loading') }}</p>
       </div>
 
-      <!-- Error State -->
+      <!-- Kļūdas stāvoklis -->
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
         <p class="text-red-800">{{ error }}</p>
       </div>
 
-      <!-- Tab Content -->
+      <!-- Cilnes saturs -->
       <div v-else>
-        <!-- Overview Tab -->
+        <!-- Pārskata cilne -->
         <div v-show="activeTab === 'overview'">
-          <!-- Overview Cards -->
+          <!-- Pārskata kartes -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <!-- Users Card -->
+          <!-- Lietotāju karte -->
           <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
             <div class="flex items-center justify-between">
               <div class="flex-1 min-w-0">
@@ -80,7 +80,7 @@
             </div>
           </div>
 
-          <!-- Books Card -->
+          <!-- Grāmatu karte -->
           <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
             <div class="flex items-center justify-between">
               <div class="flex-1 min-w-0">
@@ -98,7 +98,7 @@
             </div>
           </div>
 
-          <!-- Threads Card -->
+          <!-- Diskusiju karte -->
           <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
             <div class="flex items-center justify-between">
               <div class="flex-1 min-w-0">
@@ -116,7 +116,7 @@
             </div>
           </div>
 
-          <!-- Comments Card -->
+          <!-- Komentāru karte -->
           <div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
             <div class="flex items-center justify-between">
               <div class="flex-1 min-w-0">
@@ -135,7 +135,7 @@
           </div>
         </div>
 
-        <!-- Additional Stats Row -->
+        <!-- Papildu statistikas rinda -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div class="bg-white rounded-lg shadow-sm border p-3 sm:p-4">
             <p class="text-xs sm:text-sm text-gray-600">{{ $t('admin.newUsers30d') }}</p>
@@ -147,7 +147,7 @@
           </div>
         </div>
 
-        <!-- Popular Books -->
+        <!-- Populārākās grāmatas -->
         <div class="bg-white rounded-lg shadow-sm border mb-4 sm:mb-6">
           <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
             <h2 class="text-lg sm:text-xl font-semibold text-gray-900">{{ $t('admin.popularBooks') }}</h2>
@@ -178,13 +178,13 @@
         </div>
         </div>
 
-        <!-- User Management Tab -->
+        <!-- Lietotāju pārvaldības cilne -->
         <div v-show="activeTab === 'users'">
           <div class="bg-white rounded-lg shadow-sm border">
             <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
               <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">{{ $t('admin.userManagement') }}</h2>
               
-              <!-- Search and Filter -->
+              <!-- Meklēšana un filtrs -->
               <div class="flex flex-col sm:flex-row gap-3">
                 <input
                   v-model="userSearch"
@@ -205,7 +205,7 @@
               </div>
             </div>
 
-            <!-- Users List -->
+            <!-- Lietotāju saraksts -->
             <div v-if="usersLoading" class="p-6 text-center">
               <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
@@ -264,7 +264,7 @@
               </table>
             </div>
 
-            <!-- Pagination -->
+            <!-- Lapošana -->
             <div v-if="usersPagination.total > usersPagination.per_page" class="px-4 sm:px-6 py-4 border-t flex items-center justify-between">
               <div class="text-sm text-gray-600">
                 {{ $t('pagination.showing') }} {{ ((usersPagination.current_page - 1) * usersPagination.per_page) + 1 }} - 
@@ -291,7 +291,7 @@
           </div>
         </div>
 
-        <!-- Flagged Users Section -->
+        <!-- Atzīmēto lietotāju sadaļa -->
         <div v-show="activeTab === 'flagged'">
           <div class="bg-white rounded-lg shadow-sm border">
             <div class="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -333,7 +333,7 @@
             </div>
           </div>
           
-          <!-- Pagination Controls -->
+          <!-- Lapošanas vadīklas -->
           <div v-if="flaggedUsers.length > 0 && totalPages > 1" class="px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
               <div class="text-sm text-gray-600">
                 {{ $t('pagination.showing') }} {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, flaggedUsers.length) }} {{ $t('pagination.of') }} {{ flaggedUsers.length }}
@@ -393,7 +393,7 @@ const stats = ref({});
 const flaggedUsers = ref([]);
 const activeTab = ref('overview');
 
-// User Management
+// Lietotāju pārvaldība
 const users = ref([]);
 const usersLoading = ref(false);
 const userSearch = ref('');
@@ -406,7 +406,7 @@ const usersPagination = ref({
 });
 const currentUserId = computed(() => authStore.user?.user_id);
 
-// Pagination for flagged users
+// Atzīmēto lietotāju lapošana
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
@@ -534,7 +534,7 @@ const formatDate = (date) => {
   return d.toLocaleDateString('lv-LV', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-// User Management Functions
+// Lietotāju pārvaldības funkcijas
 const loadUsers = async (page = 1) => {
   try {
     usersLoading.value = true;

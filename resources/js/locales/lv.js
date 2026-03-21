@@ -343,6 +343,17 @@ export default {
       follow_request_accepted: 'Sekošanas pieprasījums apstiprināts',
       content_moderated: 'Moderācija',
       user_banned: 'Konta statuss'
+    },
+    messages: {
+      comment_reply: '{actor} atbildēja uz jūsu komentāru',
+      thread_reply: '{actor} komentēja jūsu diskusiju',
+      comment_like: '{actor} atzīmēja jūsu komentāru ar "Patīk"',
+      thread_like: '{actor} atzīmēja jūsu diskusiju ar "Patīk"',
+      new_follower: '{actor} sāka sekot jums',
+      follow_request: '{actor} vēlas sekot jums',
+      follow_request_accepted: '{actor} apstiprināja jūsu sekošanas pieprasījumu',
+      content_moderated: 'Jūsu saturs tika pārskatīts no moderatora',
+      user_banned: 'Jūsu konts ir aizturēts no moderatora'
     }
   },
   followRequests: {

@@ -81,7 +81,7 @@
                 <!-- Saturs -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm text-gray-900" :class="{ 'font-semibold': !notification.is_read }">
-                    {{ notification.message }}
+                    {{ getNotificationMessage(notification) }}
                   </p>
                   <p class="text-xs text-gray-500 mt-1">
                     {{ formatTime(notification.created_at) }}
@@ -199,6 +199,14 @@ const getNotificationIcon = (type) => {
     ]),
   };
   return icons[type] || icons.thread_reply;
+};
+
+const getNotificationMessage = (notification) => {
+  const actor = notification.actor?.username ?? '?';
+  const key = `notifications.messages.${notification.type}`;
+  const translated = t(key, { actor });
+  // vue-i18n returns the key itself when missing — fall back to stored message
+  return translated === key ? notification.message : translated;
 };
 
 const getNotificationColor = (type) => {

@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 sm:px-6 py-6 max-w-4xl">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ t('accountSettings.title') }}</h1>
 
-    <!-- Change Username Section -->
+    <!-- Lietotājvārda maiņas sadaļa -->
     <div class="bg-white rounded-lg shadow-sm border mb-6">
       <div class="px-6 py-4 border-b">
         <h2 class="text-xl font-semibold text-gray-900">{{ t('accountSettings.changeUsername') }}</h2>
@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <!-- Change Password Section -->
+    <!-- Paroles maiņas sadaļa -->
     <div class="bg-white rounded-lg shadow-sm border mb-6">
       <div class="px-6 py-4 border-b">
         <h2 class="text-xl font-semibold text-gray-900">{{ t('accountSettings.changePassword') }}</h2>
@@ -107,7 +107,7 @@
       </div>
     </div>
 
-    <!-- Delete Content Section -->
+    <!-- Satura dzēšanas sadaļa -->
     <div class="bg-white rounded-lg shadow-sm border mb-6">
       <div class="px-6 py-4 border-b">
         <h2 class="text-xl font-semibold text-gray-900">{{ t('accountSettings.deleteContent') }}</h2>
@@ -123,7 +123,7 @@
       </div>
     </div>
 
-    <!-- Delete Account Section -->
+    <!-- Konta dzēšanas sadaļa -->
     <div class="bg-white rounded-lg shadow-sm border mb-6">
       <div class="px-6 py-4 border-b">
         <h2 class="text-xl font-semibold text-gray-900">{{ t('accountSettings.deleteAccount') }}</h2>
@@ -139,7 +139,7 @@
       </div>
     </div>
 
-    <!-- Delete Content Modal -->
+    <!-- Satura dzēšanas modāls -->
     <div v-if="showDeleteContentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ t('accountSettings.deleteContent') }}</h3>
@@ -174,7 +174,7 @@
       </div>
     </div>
 
-    <!-- Delete Account Modal -->
+    <!-- Konta dzēšanas modāls -->
     <div v-if="showDeleteAccountModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-xl font-semibold text-red-900 mb-4">{{ t('accountSettings.deleteAccount') }}</h3>
@@ -232,24 +232,24 @@ const { t } = useI18n();
 const router = useRouter();
 const authStore = useAuthStore();
 
-// Username change
+// Lietotājvārda maiņa
 const newUsername = ref('');const usernamePassword = ref('');const usernameError = ref('');
 const updatingUsername = ref(false);
 
-// Password change
+// Paroles maiņa
 const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const passwordError = ref('');
 const updatingPassword = ref(false);
 
-// Delete content
+// Satura dzēšana
 const showDeleteContentModal = ref(false);
 const deleteContentPassword = ref('');
 const deleteContentError = ref('');
 const deletingContent = ref(false);
 
-// Delete account
+// Konta dzēšana
 const showDeleteAccountModal = ref(false);
 const deleteAccountConfirmation = ref('');
 const deleteAccountPassword = ref('');
@@ -278,7 +278,7 @@ const updateUsername = async () => {
     const data = await response.json();
 
     if (response.ok) {
-      // Update auth store
+      // Atjaunināt autentifikācijas glabātavu
       authStore.user.username = newUsername.value;
       newUsername.value = '';
       usernamePassword.value = '';
@@ -300,7 +300,7 @@ const updateUsername = async () => {
 const updatePassword = async () => {
   passwordError.value = '';
 
-  // Validate passwords match
+  // Pārbaudīt, vai paroles sakrīt
   if (newPassword.value !== confirmPassword.value) {
     passwordError.value = t('accountSettings.passwordsDoNotMatch');
     return;
@@ -328,11 +328,11 @@ const updatePassword = async () => {
 
     if (response.ok) {
       alert(t('accountSettings.passwordUpdated'));
-      // Clear form
+      // Notīrīt formu
       currentPassword.value = '';
       newPassword.value = '';
       confirmPassword.value = '';
-      // Logout and redirect to login
+      // Iziet un novirzīt uz pieteikšanās lapu
       await authStore.logout();
       router.push('/');
     } else {
@@ -413,7 +413,7 @@ const deleteAccount = async () => {
 
     if (response.ok) {
       alert(t('accountSettings.accountDeleted'));
-      // Logout and redirect to home
+      // Iziet un novirzīt uz sākumu
       await authStore.logout();
       router.push('/');
     } else {

@@ -346,6 +346,17 @@ export default {
       follow_request_accepted: 'Follow Request Accepted',
       content_moderated: 'Moderation',
       user_banned: 'Account Status'
+    },
+    messages: {
+      comment_reply: '{actor} replied to your comment',
+      thread_reply: '{actor} commented on your thread',
+      comment_like: '{actor} liked your comment',
+      thread_like: '{actor} liked your thread',
+      new_follower: '{actor} started following you',
+      follow_request: '{actor} wants to follow you',
+      follow_request_accepted: '{actor} accepted your follow request',
+      content_moderated: 'Your content was reviewed by a moderator',
+      user_banned: 'Your account has been suspended by a moderator'
     }
   },
   followRequests: {

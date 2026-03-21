@@ -1,6 +1,6 @@
 <template>
   <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-    <!-- Hero Section -->
+    <!-- Hero sadaļa -->
     <div class="text-center mb-8 sm:mb-12">
       <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
         {{ t('home.welcome') }}
@@ -10,7 +10,7 @@
       </p>
     </div>
 
-    <!-- Features Grid -->
+    <!-- Funkciju režģis -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
       <div class="bg-white p-6 rounded-lg shadow-sm border">
         <h3 class="font-semibold text-gray-900 mb-2">{{ t('home.bookManagementTitle') }}</h3>
@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <!-- Call to Action -->
+    <!-- Aicinājums rīkoties -->
     <div class="text-center bg-blue-50 p-6 sm:p-8 rounded-lg">
       <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
         {{ t('home.ctaTitle') }}

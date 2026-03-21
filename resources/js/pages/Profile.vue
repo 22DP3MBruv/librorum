@@ -1,12 +1,12 @@
 <template>
   <div class="container mx-auto px-4 sm:px-6 py-6">
-    <!-- Loading State -->
+    <!-- Ielādes stāvoklis -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
-    <!-- User Not Found -->
+    <!-- Lietotājs nav atrasts -->
     <div v-else-if="userNotFound" class="text-center py-12">
       <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -15,18 +15,18 @@
     </div>
 
     <template v-else>
-      <!-- First Section -->
+      <!-- Pirmā sadaļa -->
       <div class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="p-4 sm:p-6 lg:p-8">
           <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            <!-- User Avatar & Name -->
+            <!-- Lietotāja avatārs un vārds -->
             <div class="flex-shrink-0">
               <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <span class="text-2xl sm:text-3xl font-bold text-white">{{ userInitial }}</span>
               </div>
             </div>
 
-            <!-- User Info & Stats -->
+            <!-- Lietotāja informācija un statistika -->
             <div class="flex-1 text-center sm:text-left">
               <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 {{ profileUser?.name || profileUser?.username || 'User' }}
@@ -35,7 +35,7 @@
                 <span>{{ t('profile.joined') }}: {{ formatDate(profileUser?.created_at) }}</span>
               </p>
 
-              <!-- Social Stats Row -->
+              <!-- Sociālās statistikas rinda -->
               <div class="flex flex-wrap gap-3 sm:gap-4 lg:gap-6 items-center justify-center sm:justify-start text-sm sm:text-base">
                 <button
                   @click="showFollowers = !showFollowers"
@@ -52,7 +52,7 @@
                   <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.following') }}</span>
                 </button>
                 
-                <!-- Reading Stats -->
+                <!-- Lasīšanas statistika -->
                 <div class="flex items-center gap-1.5 sm:gap-2">
                   <span class="text-xl sm:text-2xl font-bold text-purple-600">{{ displayProgressCount.read }}</span>
                   <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.booksRead') }}</span>
@@ -68,7 +68,7 @@
               </div>
             </div>
 
-            <!-- Follow/Unfollow Button for other users -->
+            <!-- Sekot/Pārtraukt sekošanu poga citiem lietotājiem -->
             <div v-if="!isOwnProfile" class="flex-shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <button
                 v-if="profileUser?.can_be_followed"
@@ -89,7 +89,7 @@
                 {{ t('profile.notAcceptingFollowers') }}
               </div>
               
-              <!-- Flag User Button (Moderators only) -->
+              <!-- Lietotāja atzīmēšanas poga (tikai moderatoriem) -->
               <button
                 v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'moderator') && !profileUser?.is_flagged"
                 @click="showFlagModal = true"
@@ -100,7 +100,7 @@
             </div>
           </div>
           
-          <!-- Privacy Settings Button (Own Profile) -->
+          <!-- Privātuma iestatījumu poga (paša profils) -->
           <div v-if="isOwnProfile" class="mt-4 flex justify-end gap-3">
             <router-link
               to="/privacy-settings"
@@ -125,13 +125,13 @@
         </div>
       </div>
 
-      <!-- Second Section -->
+      <!-- Otrā sadaļa -->
       <div class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
           <h2 class="text-xl font-semibold text-gray-900">{{ t('profile.recentReadingActivity') }}</h2>
         </div>
         
-        <!-- Privacy restricted message -->
+        <!-- Privātuma ierobežojuma ziņojums -->
         <div v-if="!isOwnProfile && profileUser && !profileUser.can_view_reading_progress" class="p-6">
           <div class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +147,7 @@
             :key="progress.id"
             class="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors relative group"
           >
-            <!-- Bookmark Button -->
+            <!-- Grāmatzīmes poga -->
             <button
               v-if="authStore.isAuthenticated"
               @click.stop="toggleBookmark(progress.book)"
@@ -214,7 +214,7 @@
         </div>
       </div>
 
-      <!-- Expandable Followers List -->
+      <!-- Plašāks sekotāju saraksts -->
       <div v-if="showFollowers && followers.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
           <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followersList') }}</h3>
@@ -241,7 +241,7 @@
         </div>
       </div>
 
-      <!-- Expandable Following List -->
+      <!-- Plašāks sekoto saraksts -->
       <div v-if="showFollowing && following.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
           <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followingList') }}</h3>
@@ -269,7 +269,7 @@
       </div>
     </template>
     
-    <!-- Flag User Modal -->
+    <!-- Lietotāja atzīmēšanas modāls -->
     <div v-if="showFlagModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ t('profile.flagUserTitle') }}</h3>
@@ -329,7 +329,7 @@ const showFlagModal = ref(false);
 const flagReason = ref('');
 const flaggingUser = ref(false);
 
-// Computed
+// Aprēķinātais
 const isOwnProfile = computed(() => {
   if (!route.params.userId) return true;
   return parseInt(route.params.userId) === authStore.user?.id;
@@ -351,7 +351,7 @@ const displayProgressCount = computed(() => {
   return isOwnProfile.value ? progressStore.progressCount : profileProgressCount.value;
 });
 
-// Methods
+// Metodes
 const formatDate = (date) => {
   if (!date) return '--';
   const d = new Date(date);
@@ -469,7 +469,7 @@ const fetchUserProgress = async (userId) => {
       const data = await response.json();
       profileProgress.value = data.data || data || [];
       
-      // Calculate progress counts
+      // Aprēķināt progresa skaitļus
       profileProgressCount.value = {
         read: profileProgress.value.filter(p => p.status === 'completed').length,
         reading: profileProgress.value.filter(p => p.status === 'reading').length,
@@ -493,15 +493,15 @@ const toggleFollow = async () => {
     let url, method;
     
     if (hasPendingRequest.value) {
-      // Cancel pending request
+      // Atcelt gaidošo pieprasījumu
       url = `/api/user/follow-request/${route.params.userId}/cancel`;
       method = 'DELETE';
     } else if (isFollowing.value) {
-      // Unfollow
+      // Pārtraukt sekošanu
       url = `/api/user/unfollow/${route.params.userId}`;
       method = 'DELETE';
     } else {
-      // Follow or send request
+      // Sekot vai nosūtīt pieprasījumu
       url = `/api/user/follow/${route.params.userId}`;
       method = 'POST';
     }
@@ -518,13 +518,13 @@ const toggleFollow = async () => {
       const data = await response.json();
       
       if (hasPendingRequest.value) {
-        // Request was cancelled
+        // Pieprasījums tika atcelts
         hasPendingRequest.value = false;
       } else if (isFollowing.value) {
-        // Unfollowed
+        // Sekošana pārtraukta
         isFollowing.value = false;
       } else {
-        // Check if a request was sent or followed directly
+        // Pārbaudīt, vai pieprasījums tika nosūtīts vai sekots tieši
         if (data.has_pending_request) {
           hasPendingRequest.value = true;
         } else {
@@ -532,7 +532,7 @@ const toggleFollow = async () => {
         }
       }
       
-      // Refresh followers/following counts - pass userId when viewing another user's profile
+      // Atsvaidzināt sekotāju/sekoto skaitļu - nodot userId, skatot cita lietotāja profilu
       const targetUserId = !isOwnProfile.value ? route.params.userId : null;
       await Promise.all([
         fetchFollowers(targetUserId), 
@@ -593,13 +593,13 @@ const toggleBookmark = async (book) => {
   const bookProgress = progressStore.getBookProgress(book.id);
   
   if (bookProgress) {
-    // Remove from reading list
+    // Noņemt no lasīšanas saraksta
     const result = await progressStore.removeFromReadingList(bookProgress.id);
     if (!result.success) {
       alert(result.message || t('books.removeBookmarkFailed'));
     }
   } else {
-    // Add to reading list
+    // Pievienot lasīšanas sarakstam
     const result = await progressStore.addToReadingList(book.id, 'want_to_read');
     if (!result.success) {
       alert(result.message || t('books.addBookmarkFailed'));
@@ -612,7 +612,7 @@ const loadProfile = async () => {
   userNotFound.value = false;
   
   if (isOwnProfile.value) {
-    // Own profile - use auth store data
+    // Paša profils - izmantot autentifikācijas glabātavas datus
     profileUser.value = authStore.user;
     await Promise.all([
       progressStore.fetchProgress(),
@@ -620,7 +620,7 @@ const loadProfile = async () => {
       fetchFollowing()
     ]);
   } else {
-    // Other user's profile - fetch their data
+    // Cita lietotāja profils - iegūt viņa datus
     const userId = route.params.userId;
     await Promise.all([
       fetchUserProfile(userId),
@@ -633,14 +633,14 @@ const loadProfile = async () => {
   loading.value = false;
 };
 
-// Watch for route changes
+// Uzraudzīt maršruta izmaiņas
 watch(() => route.params.userId, () => {
   if (route.name === 'Profile' || route.name === 'UserProfile') {
     loadProfile();
   }
 });
 
-// Lifecycle
+// Dzīves cikls
 onMounted(() => {
   loadProfile();
 });
