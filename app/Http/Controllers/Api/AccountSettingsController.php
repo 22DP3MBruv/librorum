@@ -179,26 +179,28 @@ class AccountSettingsController extends Controller
             ], 422);
         }
 
-        // Izdzēš visus saistītos datus
-        $user->readingProgress()->delete();
-        $user->comments()->delete();
-        $user->threads()->delete();
-        $user->sentFollowRequests()->delete();
-        $user->receivedFollowRequests()->delete();
-        $user->following()->detach();
-        $user->followers()->detach();
-        $user->tokens()->delete();
-        
-        // Izdzēš paziņojumus, kas saistīti ar šo lietotāju
-        \App\Models\Notification::where('user_id', $user->user_id)
-            ->orWhere('notifier_id', $user->user_id)
-            ->delete();
-        
-        // Izdzēš "like" ierakstus, kas saistīti ar šo lietotāju
-        \App\Models\Like::where('user_id', $user->user_id)->delete();
+        // Izdzēš visus saistītos datus un kontu atomāri
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user) {
+            $user->readingProgress()->delete();
+            $user->comments()->delete();
+            $user->threads()->delete();
+            $user->sentFollowRequests()->delete();
+            $user->receivedFollowRequests()->delete();
+            $user->following()->detach();
+            $user->followers()->detach();
 
-        // Izdzēš lietotāja kontu
-        $user->delete();
+            // Izdzēš paziņojumus, kas saistīti ar šo lietotāju
+            \App\Models\Notification::where('user_id', $user->user_id)
+                ->orWhere('actor_id', $user->user_id)
+                ->delete();
+
+            // Izdzēš "like" ierakstus, kas saistīti ar šo lietotāju
+            \App\Models\Like::where('user_id', $user->user_id)->delete();
+
+            // Izdzēš tokeni un kontu pēdējie, lai izvairītos no daļējas izlogoāšanās kļūmes
+            $user->tokens()->delete();
+            $user->delete();
+        });
 
         return response()->json([
             'message' => 'Your account has been permanently deleted',

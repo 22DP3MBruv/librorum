@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
     {
         User::create([
             'username' => 'admin',
-            'email' => 'admin@librorum.icu',
+            'email' => 'admin@librorum.app',
             'password_hash' => Hash::make('admin2026'),
             'password' => Hash::make('admin2026'), // For compatibility with the User model
             'role' => 'admin',
