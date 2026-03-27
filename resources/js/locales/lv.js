@@ -346,7 +346,7 @@ export default {
     },
     messages: {
       comment_reply: '{actor} atbildēja uz jūsu komentāru',
-      thread_reply: '{actor} komentēja jūsu diskusiju',
+      thread_reply: '{actor} komentēja jūsu diskusijā',
       comment_like: '{actor} atzīmēja jūsu komentāru ar "Patīk"',
       thread_like: '{actor} atzīmēja jūsu diskusiju ar "Patīk"',
       new_follower: '{actor} sāka sekot jums',

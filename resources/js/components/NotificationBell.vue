@@ -205,7 +205,7 @@ const getNotificationMessage = (notification) => {
   const actor = notification.actor?.username ?? '?';
   const key = `notifications.messages.${notification.type}`;
   const translated = t(key, { actor });
-  // vue-i18n returns the key itself when missing — fall back to stored message
+  // vue-i18n atgriež pašu atslēgu, ja tulkojums nav atrasts — izmanto saglabāto ziņojumu kā rezerves variantu
   return translated === key ? notification.message : translated;
 };
 
@@ -236,7 +236,7 @@ const formatTime = (timestamp) => {
   return date.toLocaleDateString();
 };
 
-// Close dropdown when clicking outside
+// Aizver nolaižamo paneli, kad lietotājs klikšķina ārpus tā
 const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
     isOpen.value = false;
@@ -246,7 +246,7 @@ const handleClickOutside = (event) => {
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
   notificationStore.fetchUnreadCount();
-  notificationStore.startPolling(30000); // Poll every 30 seconds
+  notificationStore.startPolling(30000); // Poll katru 30 sekundes, lai atjauninātu nelasīto skaitu un paziņojumus reāllaikā
 });
 
 onUnmounted(() => {
