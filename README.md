@@ -4,7 +4,7 @@
 Izstrādātājs: *Marks Gerhards Brūveris*
 Izglītības iestāde: *Rīgas Valsts tehnikums, Datorikas nodaļa*
 Programma: *Programmēšana*
-Gads: *2025*
+Gads: *2026*
 
 ---
 
@@ -19,10 +19,14 @@ Platforma paredzēta plašai mērķauditorijai — gan aktīviem lasītājiem, g
 ## Galvenās funkcijas
 
 * **Lietotāju konti** – reģistrācija, autorizācija ar Laravel Sanctum, profila pārvaldība
-* **Grāmatu pārvaldība** – meklēšana pēc nosaukuma, autora vai ISBN, importēšana pēc ISBN
-* **Lasīšanas progress** – grāmatu katalogs ar kategoriju filtriem
-* **Diskusijas un komentāri** – diskusiju izveide par grāmatām, komentēšana
-* **Sociālās funkcijas** – citu lietotāju sekošana un aktivitāšu pārraudzība
+* **Privātuma iestatījumi** – privāts/publisks profils, sekošanas pieteikumu sistēma
+* **Konta pārvaldība** – lietotājvārda un paroles maiņa, satura un konta dzēšana
+* **Grāmatu pārvaldība** – meklēšana pēc nosaukuma, autora vai ISBN, importēšana pēc ISBN vai žanra
+* **Lasīšanas progress** – grāmatu katalogs ar statusu un statistikas izsekošanu
+* **Diskusijas un komentāri** – diskusiju izveide par grāmatām, komentēšana, patīk atzīmes
+* **Sociālās funkcijas** – citu lietotāju sekošana, sekošanas pieteikumu pārvaldība
+* **Paziņojumu sistēma** – reāllaika paziņojumi par sociālām aktivitātēm
+* **Administrēšana** – lietotāju pārvaldība, satura moderācija, statistika
 * **Daudzvalodu atbalsts** – pilnīga saskarnes tulkošana latviešu un angļu valodā (Vue I18n)
 * **Ārējais datu avots** – Google Books API integrācija grāmatu datiem (autors, vāks, lappušu skaits, apraksts, izdevējs)
 
@@ -33,8 +37,8 @@ Platforma paredzēta plašai mērķauditorijai — gan aktīviem lasītājiem, g
 | Slānis    | Tehnoloģija                                                                      |
 | --------- | -------------------------------------------------------------------------------- |
 | Frontend  | Vue.js 3, Vite, Tailwind CSS, Pinia (State Management), Vue Router, Vue I18n    |
-| Backend   | PHP (Laravel Framework 12.36.1), Laravel Sanctum (API Authentication)           |
-| Datu bāze | SQLite (development), MySQL (production)                                         |
+| Backend   | PHP (Laravel Framework 12), Laravel Sanctum (API Authentication)                |
+| Datu bāze | MySQL 8.0+                                                                       |
 | API       | Google Books API                                                                 |
 | Papildus  | REST API, Axios (HTTP client), localStorage (token & locale persistence)        |
 
@@ -128,34 +132,26 @@ Rediģējiet `.env` failu:
 
 ```env
 APP_NAME="Grāmatas un Diskusijas Sistēma"
-APP_ENV=local
+APP_ENV=production
 APP_KEY=base64:... # (php artisan key:generate to izveidos)
-APP_DEBUG=true
-APP_URL=http://localhost:8000
+APP_DEBUG=false
+APP_URL=https://jūsu_domēns.com
 
-# Development: SQLite
-DB_CONNECTION=sqlite
-# DB_DATABASE=/absolute/path/to/database.sqlite
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=librorum
+DB_USERNAME=jūsu_lietotājvārds
+DB_PASSWORD=jūsu_parole
 
-# Production: MySQL
-# DB_CONNECTION=mysql
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=librorum
-# DB_USERNAME=jūsu_lietotājvārds
-# DB_PASSWORD=jūsu_parole
-
-# Google Books API Key (optional - system works without it)
-GOOGLE_BOOKS_API_KEY=
+# Google Books API Key
+GOOGLE_BOOKS_API_KEY=jūsu_api_atslēga
 ```
 
 ### 5. Datubāzes uzstādīšana ar migrācijām
 
 ```bash
-# SQLite (development) - izveidot datubāzes failu
-touch database/database.sqlite
-
-# Vai MySQL (production)
+# Izveido MySQL datubāzi
 mysql -u root -p
 CREATE DATABASE librorum CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 EXIT;
@@ -329,35 +325,105 @@ php artisan db:seed --class=TestBooksSeeder
 2. **Autentifikācija:** Laravel Sanctum SPA autentifikācija ar localStorage token
 3. **State management:** Pinia glabā lietotāja stāvokli, grāmatu datus un diskusijas
 4. **Valodu pārslēgšana:** Vue I18n ar localStorage persistence (LV/EN)
-5. **Google Books API:** ExternalBookApiService apstrādā ISBN importu un grāmatu meklēšanu
+5. **Google Books API:** ExternalBookApiService apstrādā ISBN un žanra importu
 
 ### Datubāzes struktūra
 
 **Galvenās tabulas:**
-- `users` - lietotāji ar role (admin/user)
+- `users` - lietotāji ar lomu (admin/user), privātuma iestatījumiem un moderācijas laukiem
 - `books` - grāmatas ar pilnīgu metadata (ISBN10/13, cover_image_url, page_count, description, language, publisher, subjects, authors, external_ids)
-- `reading_progress` - lietotāju lasīšanas progress
+- `reading_progress` - lietotāju lasīšanas progress un statusi
 - `threads` - diskusiju tēmas (saistītas ar grāmatām)
 - `comments` - komentāri diskusijās
-- `likes` - patīk atzīmes
-- `following` - sekotāju saites
+- `likes` - patīk atzīmes pavedieniem un komentāriem
+- `following` - sekotāju saites starp lietotājiem
+- `follow_requests` - sekošanas pieteikumi privātiem profiliem
+- `notifications` - paziņojumi par sociālām aktivitātēm
 
 ### API Endpoints
 
 **Auth:**
 - `POST /api/register` - reģistrācija
 - `POST /api/login` - pieslēgšanās
-- `GET /api/user` - autentificētais lietotājs
-- `POST /api/logout` - iziet
+- `GET /api/user` - autentificētais lietotājs *(aizsargāts)*
+- `POST /api/logout` - iziet *(aizsargāts)*
 
 **Books:**
 - `GET /api/books` - visu grāmatu saraksts
-- `GET /api/books/{id}` - viena grāmata
-- `POST /api/books` - jauna grāmata
-- `PUT /api/books/{id}` - atjaunot grāmatu
-- `DELETE /api/books/{id}` - dzēst grāmatu
-- `POST /api/books/import-isbn` - importēt no Google Books
-- `GET /api/books/external-search` - meklēt ārējos avotos
+- `GET /api/books/search` - grāmatu meklēšana
+- `GET /api/books/external-search` - meklēt Google Books API
+- `GET /api/books/popular` - populārākās grāmatas
+- `GET /api/books/{identifier}` - viena grāmata (pēc ID vai ISBN)
+- `POST /api/books` - jauna grāmata *(tikai admins)*
+- `POST /api/books/import-isbn` - importēt pēc ISBN *(tikai admins)*
+- `POST /api/books/import-by-genre` - masveidā importēt pēc žanra *(tikai admins)*
+- `PUT /api/books/{id}` - atjaunot grāmatu *(tikai admins)*
+- `POST /api/books/{id}/sync` - sinhronizēt ar Google Books *(tikai admins)*
+- `DELETE /api/books/{id}` - dzēst grāmatu *(tikai admins)*
+
+**Reading Progress:** *(aizsargāts)*
+- `GET /api/reading-progress` - lietotāja lasīšanas progress
+- `POST /api/reading-progress` - pievienot progresu
+- `GET /api/reading-progress/{id}` - viens ieraksts
+- `PUT /api/reading-progress/{id}` - atjaunot progresu
+- `DELETE /api/reading-progress/{id}` - dzēst ierakstu
+- `GET /api/reading-progress/book/{bookId}` - progress konkrētai grāmatai
+
+**Threads & Comments:**
+- `GET /api/threads` - visu diskusiju saraksts *(publisks)*
+- `GET /api/threads/{id}` - viena diskusija *(publisks)*
+- `GET /api/books/{bookId}/threads` - grāmatas diskusijas *(publisks)*
+- `POST /api/threads` - jauna diskusija *(aizsargāts)*
+- `PUT /api/threads/{id}` - atjaunot diskusiju *(aizsargāts)*
+- `DELETE /api/threads/{id}` - dzēst diskusiju *(aizsargāts)*
+- `GET /api/threads/{threadId}/comments` - komentāri *(publisks)*
+- `POST /api/threads/{threadId}/comments` - jauns komentārs *(aizsargāts)*
+- `PUT /api/threads/{threadId}/comments/{id}` - atjaunot komentāru *(aizsargāts)*
+- `DELETE /api/threads/{threadId}/comments/{id}` - dzēst komentāru *(aizsargāts)*
+
+**Likes:** *(aizsargāts)*
+- `POST /api/likes/toggle` - pārslēgt patīk atzīmi
+- `GET /api/likes/status` - pārbaudīt patīk statusu
+
+**Sociālās funkcijas:** *(aizsargāts)*
+- `GET /api/user/profile/{userId}` - skatīt profilu
+- `GET /api/user/followers` - sekotāji
+- `GET /api/user/following` - sekojamie
+- `POST /api/user/follow/{userId}` - sekot lietotājam
+- `DELETE /api/user/unfollow/{userId}` - pārtraukt sekot
+- `GET /api/user/follow-requests` - saņemtie sekošanas pieteikumi
+- `POST /api/user/follow-requests/{requestId}/accept` - apstiprināt pieteikumu
+- `POST /api/user/follow-requests/{requestId}/reject` - noraidīt pieteikumu
+- `DELETE /api/user/follow-request/{userId}/cancel` - atcelt nosūtītu pieteikumu
+
+**Privātums un Konta iestatījumi:** *(aizsargāts)*
+- `GET /api/user/privacy` - privātuma iestatījumi
+- `PUT /api/user/privacy` - atjaunot privātuma iestatījumus
+- `PUT /api/user/account/username` - mainīt lietotājvārdu
+- `PUT /api/user/account/password` - mainīt paroli
+- `DELETE /api/user/account/content` - dzēst savu saturu
+- `DELETE /api/user/account` - dzēst kontu
+
+**Paziņojumi:** *(aizsargāts)*
+- `GET /api/notifications` - paziņojumu saraksts
+- `GET /api/notifications/unread-count` - nelasīto skaits
+- `POST /api/notifications/mark-all-read` - atzīmēt visus kā lasītus
+- `POST /api/notifications/{id}/mark-read` - atzīmēt kā lasītu
+- `POST /api/notifications/{id}/mark-unread` - atzīmēt kā nelasītu
+- `DELETE /api/notifications/{id}` - dzēst paziņojumu
+- `DELETE /api/notifications/read/all` - dzēst visus lasītos
+- `GET /api/notifications/settings` - paziņojumu iestatījumi
+
+**Administrēšana:** *(tikai admins)*
+- `GET /api/admin/statistics` - sistēmas statistika
+- `GET /api/admin/users` - visu lietotāju saraksts
+- `POST /api/admin/users/{userId}/make-admin` - piešķirt admina lomu
+- `POST /api/admin/users/{userId}/remove-admin` - noņemt admina lomu
+- `DELETE /api/admin/threads/{threadId}` - dzēst diskusiju
+- `DELETE /api/admin/comments/{commentId}` - dzēst komentāru
+- `POST /api/moderation/flag-user/{userId}` - atzīmēt lietotāju
+- `POST /api/moderation/unflag-user/{userId}` - noņemt atzīmi
+- `GET /api/moderation/flagged-users` - atzīmēto lietotāju saraksts
 
 ### Datubāzes migrācijas prakses
 
@@ -372,25 +438,14 @@ php artisan db:seed --class=TestBooksSeeder
 
 Sistēma sastāv no četrām galvenajām apakšsistēmām:
 
-1. **Lietotāju datu apstrāde** – reģistrācija, autentifikācija, sociālās funkcijas
-2. **Grāmatu datu apstrāde** – katalogs, meklēšana, ISBN API integrācija
+1. **Lietotāju datu apstrāde** – reģistrācija, autentifikācija, privātuma un konta iestatījumi
+2. **Grāmatu datu apstrāde** – katalogs, meklēšana, ISBN un žanra API integrācija
 3. **Lasīšanas progresa uzskaite** – statusi, statistika, vizualizācijas
-4. **Diskusiju un komentāru apstrāde** – tēmu un komentāru pārvaldība
-
----
-
-## Nefunkcionālās prasības
-
-* Saskarne latviešu un angļu valodā
-* Responsīvs dizains dažādiem ekrāniem
-* Saskarne pielāgota populārākajiem pārlūkiem (Chrome, Firefox, Safari, Edge)
-* Droša autentifikācija un datu aizsardzība
-* Ātra darbība (< 2s atbildes laiks)
-* Atbalsts līdz 10 000 lietotāju un 100 000 grāmatu ierakstu
+4. **Sociālā un moderācijas sistēma** – sekošana, pieteikumi, paziņojumi, lietotāju moderācija
 
 ---
 
 ## Licence
 
 Šis projekts ir izstrādāts **izglītības nolūkos** Rīgas Valsts tehnikuma kvalifikācijas darba ietvaros.
-Autortiesības © 2025 *Marks Gerhards Brūveris*.
+Autortiesības © 2026 *Marks Gerhards Brūveris*.
