@@ -69,6 +69,7 @@ export default {
     bookTitle: 'Nosaukums',
     author: 'Autors',
     isbn: 'ISBN',
+    isbnLengthError: 'ISBN jābūt 10 vai 13 cipariem',
     description: 'Apraksts',
     pages: 'Lappuses',
     publisher: 'Izdevējs',
@@ -219,7 +220,10 @@ export default {
     browseBooks: 'Pārlūkot grāmatas',
     updateFailed: 'Neizdevās atjaunināt progresu',
     removeFailed: 'Neizdevās noņemt grāmatu',
-    confirmRemove: 'Vai tiešām vēlaties noņemt šo grāmatu no savas lasistēs?'
+    confirmRemove: 'Vai tiešām vēlaties noņemt šo grāmatu no savas lasistēs?',
+    pageInvalidNumber: 'Lūdzu ievadiet derīgu lappuses numuru',
+    pageNegativeError: 'Lappuses numurs nevar būt negatīvs',
+    pageExceedsTotal: 'Lappuses numurs nevar pārsniegt kopējo ({max} lappuses)'
   },
   common: {
     save: 'Saglabāt',

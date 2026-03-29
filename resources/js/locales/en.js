@@ -69,6 +69,7 @@ export default {
     bookTitle: 'Title',
     author: 'Author',
     isbn: 'ISBN',
+    isbnLengthError: 'ISBN must be 10 or 13 digits',
     description: 'Description',
     pages: 'Pages',
     publisher: 'Publisher',
@@ -222,7 +223,10 @@ export default {
     browseBooks: 'Browse Books',
     updateFailed: 'Failed to update progress',
     removeFailed: 'Failed to remove book',
-    confirmRemove: 'Are you sure you want to remove this book from your reading list?'
+    confirmRemove: 'Are you sure you want to remove this book from your reading list?',
+    pageInvalidNumber: 'Please enter a valid page number',
+    pageNegativeError: 'Page number cannot be negative',
+    pageExceedsTotal: 'Page number cannot exceed the total ({max} pages)'
   },
   common: {
     save: 'Save',

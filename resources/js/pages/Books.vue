@@ -228,8 +228,11 @@
                 type="text" 
                 required
                 placeholder="9780747532699"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                maxlength="13"
+                @input="isbnInput = isbnInput.replace(/[^0-9]/g, ''); isbnError = isbnInput.length > 0 && isbnInput.length !== 10 && isbnInput.length !== 13 ? t('books.isbnLengthError') : ''"
+                :class="['mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500', isbnError ? 'border-red-500' : 'border-gray-300']"
               />
+              <p v-if="isbnError" class="mt-1 text-xs text-red-600">{{ isbnError }}</p>
             </div>
             
             <div class="flex justify-end space-x-3">
@@ -242,7 +245,7 @@
               </button>
               <button 
                 type="submit" 
-                :disabled="importLoading"
+                :disabled="importLoading || !!isbnError || !isbnInput"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
               >
                 {{ importLoading ? t('books.importing') : t('books.importBook') }}
@@ -406,6 +409,7 @@ const showGenreSuggestions = ref(false);
 const showImportModal = ref(false);
 const importMode = ref('isbn'); // 'isbn' or 'genre'
 const isbnInput = ref('');
+const isbnError = ref('');
 const importLoading = ref(false);
 const importError = ref('');
 const importSuccess = ref(false);
@@ -568,6 +572,7 @@ const handleImport = async () => {
 const closeImportModal = () => {
   showImportModal.value = false;
   isbnInput.value = '';
+  isbnError.value = '';
   importError.value = '';
   importSuccess.value = false;
   importMode.value = 'isbn';

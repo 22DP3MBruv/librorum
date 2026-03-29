@@ -270,8 +270,32 @@ const updateStatus = async (progress) => {
 };
 
 const updatePage = async (progress) => {
+  const page = progress.current_page;
+  const maxPage = progress.book?.page_count;
+  
+  // Validācija lappuses ievadei
+  if (page === '' || page === null || page === undefined || !Number.isInteger(page)) {
+    alert(t('reading.pageInvalidNumber'));
+    await progressStore.fetchProgress();
+    return;
+  }
+
+  // Validācija lappuses vērtībai
+  if (page < 0) {
+    alert(t('reading.pageNegativeError'));
+    await progressStore.fetchProgress();
+    return;
+  }
+  
+  // Validācija lappuses vērtībai, ja pārsniedz kopējo lapu skaitu
+  if (maxPage && page > maxPage) {
+    alert(t('reading.pageExceedsTotal', { max: maxPage }));
+    await progressStore.fetchProgress();
+    return;
+  }
+
   const result = await progressStore.updateProgress(progress.id, {
-    current_page: progress.current_page
+    current_page: page
   });
   
   if (!result.success) {
