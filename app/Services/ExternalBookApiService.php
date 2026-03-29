@@ -96,40 +96,56 @@ class ExternalBookApiService
      */
     public function searchByGenre($genre, $limit = 10)
     {
+        $query = "subject:\"{$genre}\"";
+        $allItems = [];
+        $pageSize = 20;
+        $startIndex = 0;
+        // Google Books API ļauj maksimāli 40 rezultātus, bet pieprasījums atgriezt mazāk(20), tāpēc jāiterē
+
         try {
-            // Izmantot subject: lauku kategoriju/žanru meklēšanai
-            $query = "subject:\"{$genre}\"";
+            while (count($allItems) < $limit) {
+                $fetchCount = min($pageSize, $limit - count($allItems));
 
-            $params = [
-                'q' => $query,
-                'maxResults' => min($limit, 40)
-            ];
+                $params = [
+                    'q' => $query,
+                    'maxResults' => $fetchCount,
+                    'startIndex' => $startIndex
+                ];
 
-            if ($this->googleBooksApiKey) {
-                $params['key'] = $this->googleBooksApiKey;
-            }
-
-            Log::debug("Searching Google Books by genre with query: {$query}");
-            
-            $response = Http::get('https://www.googleapis.com/books/v1/volumes', $params);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                
-                if (isset($data['items'])) {
-                    Log::info("Found " . count($data['items']) . " books for genre: {$genre}");
-                    return array_map([$this, 'normalizeGoogleBooksData'], $data['items']);
-                } else {
-                    Log::info("No items found for genre: {$genre}");
+                if ($this->googleBooksApiKey) {
+                    $params['key'] = $this->googleBooksApiKey;
                 }
-            } else {
-                Log::warning("Google Books API returned status {$response->status()} for genre: {$genre}");
+
+                Log::debug("Searching Google Books by genre '{$genre}', startIndex={$startIndex}, maxResults={$fetchCount}");
+
+                $response = Http::get('https://www.googleapis.com/books/v1/volumes', $params);
+
+                if (!$response->successful()) {
+                    Log::warning("Google Books API returned status {$response->status()} for genre: {$genre}");
+                    break;
+                }
+
+                $data = $response->json();
+
+                if (empty($data['items'])) {
+                    Log::info("No more items found for genre: {$genre} at startIndex={$startIndex}");
+                    break;
+                }
+
+                $allItems = array_merge($allItems, $data['items']);
+                $startIndex += count($data['items']);
+
+                // Beidzas, ja API atgriež mazāk rezultātu nekā pieprasīts
+                if (count($data['items']) < $fetchCount) {
+                    break;
+                }
             }
         } catch (Exception $e) {
             Log::warning("Google Books genre search failed for '{$genre}': " . $e->getMessage());
         }
 
-        return [];
+        Log::info("Found " . count($allItems) . " books for genre: {$genre}");
+        return array_map([$this, 'normalizeGoogleBooksData'], array_slice($allItems, 0, $limit));
     }
 
 

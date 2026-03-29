@@ -336,7 +336,7 @@ class BookController extends Controller
             'message' => 'Book imported successfully',
             'message_lv' => 'Grāmata veiksmīgi importēta',
             'book' => new BookResource($book),
-            'source' => $source
+            'source' => $bookData['source'] ?? 'external'
         ], 201);
     }
 
