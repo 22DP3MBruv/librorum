@@ -98,18 +98,17 @@ class ExternalBookApiService
     {
         $query = "subject:\"{$genre}\"";
         $allItems = [];
-        $pageSize = 20;
+        $pageSize = 40; // Google Books API ļauj maksimāli 40 rezultātus vienā pieprasījumā
         $startIndex = 0;
-        // Google Books API ļauj maksimāli 40 rezultātus, bet pieprasījums atgriezt mazāk(20), tāpēc jāiterē
 
         try {
             while (count($allItems) < $limit) {
                 $fetchCount = min($pageSize, $limit - count($allItems));
 
                 $params = [
-                    'q' => $query,
+                    'q'          => $query,
                     'maxResults' => $fetchCount,
-                    'startIndex' => $startIndex
+                    'startIndex' => $startIndex,
                 ];
 
                 if ($this->googleBooksApiKey) {
@@ -132,10 +131,10 @@ class ExternalBookApiService
                     break;
                 }
 
-                $allItems = array_merge($allItems, $data['items']);
+                $allItems   = array_merge($allItems, $data['items']);
                 $startIndex += count($data['items']);
 
-                // Beidzas, ja API atgriež mazāk rezultātu nekā pieprasīts
+                // Ja atgrieztie rezultāti ir mazāki nekā pieprasītais skaits, tas nozīmē, ka nav vairāk rezultātu
                 if (count($data['items']) < $fetchCount) {
                     break;
                 }

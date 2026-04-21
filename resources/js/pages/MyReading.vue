@@ -112,6 +112,12 @@
       </nav>
     </div>
 
+    <!-- Darbības kļūda -->
+    <div v-if="actionError" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4 flex items-center justify-between">
+      <span>{{ actionError }}</span>
+      <button @click="actionError = ''" class="text-red-400 hover:text-red-600 ml-4 text-lg leading-none">&times;</button>
+    </div>
+    
     <!-- Ielādes stāvoklis -->
     <div v-if="progressStore.loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -243,6 +249,7 @@ const progressStore = useReadingProgressStore();
 
 const selectedStatus = ref('all');
 const pageErrors = ref({});
+const actionError = ref('');
 
 // Aprēķinātais
 const filteredProgress = computed(() => {
@@ -268,9 +275,10 @@ const updateStatus = async (progress) => {
   });
   
   if (!result.success) {
-    alert(result.message || t('reading.updateFailed'));
-    // Atjaunot kļūdas gadījumā
+    actionError.value = result.message || t('reading.updateFailed');
     await progressStore.fetchProgress();
+  } else {
+    actionError.value = '';
   }
 };
 
@@ -316,7 +324,9 @@ const removeBook = async (progress) => {
     const result = await progressStore.removeFromReadingList(progress.id);
     
     if (!result.success) {
-      alert(result.message || t('reading.removeFailed'));
+      actionError.value = result.message || t('reading.removeFailed');
+    } else {
+      actionError.value = '';
     }
   }
 };
