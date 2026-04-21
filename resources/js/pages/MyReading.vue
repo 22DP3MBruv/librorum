@@ -172,17 +172,21 @@
                 <option value="dropped">{{ t('reading.dropped') }}</option>
               </select>
 
-              <div v-if="progress.status === 'reading'" class="flex items-center gap-2 flex-1">
-                <label class="text-xs sm:text-sm text-gray-600">{{ t('reading.page') }}:</label>
-                <input
-                  v-model.number="progress.current_page"
-                  @blur="updatePage(progress)"
-                  type="number"
-                  min="0"
-                  :max="progress.book?.page_count"
-                  class="w-16 sm:w-20 px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                <span class="text-xs sm:text-sm text-gray-500">/ {{ progress.book?.page_count || '?' }}</span>
+              <div v-if="progress.status === 'reading'" class="flex flex-col gap-1 flex-1">
+                <div class="flex items-center gap-2">
+                  <label class="text-xs sm:text-sm text-gray-600">{{ t('reading.page') }}:</label>
+                  <input
+                    v-model.number="progress.current_page"
+                    @blur="updatePage(progress)"
+                    @input="pageErrors[progress.id] = ''"
+                    type="number"
+                    min="0"
+                    :max="progress.book?.page_count"
+                    :class="['w-16 sm:w-20 px-2 py-1 text-xs sm:text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent', pageErrors[progress.id] ? 'border-red-500' : 'border-gray-300']"
+                  >
+                  <span class="text-xs sm:text-sm text-gray-500">/ {{ progress.book?.page_count || '?' }}</span>
+                </div>
+                <p v-if="pageErrors[progress.id]" class="text-xs text-red-600">{{ pageErrors[progress.id] }}</p>
               </div>
 
               <button
@@ -238,6 +242,7 @@ const router = useRouter();
 const progressStore = useReadingProgressStore();
 
 const selectedStatus = ref('all');
+const pageErrors = ref({});
 
 // Aprēķinātais
 const filteredProgress = computed(() => {
@@ -275,21 +280,21 @@ const updatePage = async (progress) => {
   
   // Validācija lappuses ievadei
   if (page === '' || page === null || page === undefined || !Number.isInteger(page)) {
-    alert(t('reading.pageInvalidNumber'));
+    pageErrors.value[progress.id] = t('reading.pageInvalidNumber');
     await progressStore.fetchProgress();
     return;
   }
 
   // Validācija lappuses vērtībai
   if (page < 0) {
-    alert(t('reading.pageNegativeError'));
+    pageErrors.value[progress.id] = t('reading.pageNegativeError');
     await progressStore.fetchProgress();
     return;
   }
   
   // Validācija lappuses vērtībai, ja pārsniedz kopējo lapu skaitu
   if (maxPage && page > maxPage) {
-    alert(t('reading.pageExceedsTotal', { max: maxPage }));
+    pageErrors.value[progress.id] = t('reading.pageExceedsTotal', { max: maxPage });
     await progressStore.fetchProgress();
     return;
   }
@@ -299,9 +304,10 @@ const updatePage = async (progress) => {
   });
   
   if (!result.success) {
-    alert(result.message || t('reading.updateFailed'));
-    // Atjaunot kļūdas gadījumā
+    pageErrors.value[progress.id] = result.message || t('reading.updateFailed');
     await progressStore.fetchProgress();
+  } else {
+    pageErrors.value[progress.id] = '';
   }
 };
 
