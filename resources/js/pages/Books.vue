@@ -559,6 +559,7 @@ const handleImport = async () => {
   if (result.success) {
     importSuccess.value = true;
     isbnInput.value = '';
+    await booksStore.fetchBooks();
     setTimeout(() => {
       closeImportModal();
     }, 2000);
@@ -619,6 +620,7 @@ const handleBatchImport = async () => {
       failed: result.failed || []
     };
     showBatchResults.value = true;
+    await booksStore.fetchBooks();
   } else {
     batchImportError.value = result.message || t('books.batchImportFailed');
   }
