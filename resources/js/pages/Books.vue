@@ -58,6 +58,23 @@
           </button>
         </div>
       </div>
+      <!-- Kārtošanas izvēlne -->
+      <div class="relative w-full sm:w-48">
+        <select
+          v-model="sortBy"
+          @change="currentPage = 1"
+          class="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base appearance-none bg-white pr-10"
+        >
+          <option value="default">{{ t('books.sortDefault') }}</option>
+          <option value="bookmarks_desc">{{ t('books.sortBookmarksDesc') }}</option>
+          <option value="bookmarks_asc">{{ t('books.sortBookmarksAsc') }}</option>
+          <option value="threads_desc">{{ t('books.sortThreadsDesc') }}</option>
+          <option value="threads_asc">{{ t('books.sortThreadsAsc') }}</option>
+        </select>
+        <svg class="absolute right-3 top-2.5 sm:top-3 h-5 w-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
     </div>
 
     <!-- Ielādes stāvoklis -->
@@ -405,6 +422,7 @@ const authStore = useAuthStore();
 
 const searchQuery = ref('');
 const genreFilter = ref('');
+const sortBy = ref('default');
 const showGenreSuggestions = ref(false);
 const showImportModal = ref(false);
 const importMode = ref('isbn'); // 'isbn' or 'genre'
@@ -472,6 +490,20 @@ const filteredBooks = computed(() => {
     );
   }
   
+  // Kārtot
+  if (sortBy.value !== 'default') {
+    filtered = [...filtered];
+    if (sortBy.value === 'bookmarks_desc') {
+      filtered.sort((a, b) => (b.readers_count ?? b.bookmarks_count ?? 0) - (a.readers_count ?? a.bookmarks_count ?? 0));
+    } else if (sortBy.value === 'bookmarks_asc') {
+      filtered.sort((a, b) => (a.readers_count ?? a.bookmarks_count ?? 0) - (b.readers_count ?? b.bookmarks_count ?? 0));
+    } else if (sortBy.value === 'threads_desc') {
+      filtered.sort((a, b) => (b.threads_count ?? 0) - (a.threads_count ?? 0));
+    } else if (sortBy.value === 'threads_asc') {
+      filtered.sort((a, b) => (a.threads_count ?? 0) - (b.threads_count ?? 0));
+    }
+  }
+
   return filtered;
 });
 

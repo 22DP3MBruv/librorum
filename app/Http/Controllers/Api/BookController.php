@@ -45,13 +45,25 @@ class BookController extends Controller
         // Kārtošana
         $sortBy = $request->get('sort', 'title');
         $sortOrder = $request->get('order', 'asc');
-        
-        if (in_array($sortBy, ['title', 'author', 'publication_year', 'created_at'])) {
+
+        if (in_array($sortBy, ['bookmarks', 'readers'])) {
+            $query->withCount(['readingProgress as readers_count'])
+                ->orderBy('readers_count', $sortOrder);
+        } elseif ($sortBy === 'threads') {
+            $query->withCount(['threads as threads_count'])
+                ->orderBy('threads_count', $sortOrder);
+        } elseif (in_array($sortBy, ['title', 'author', 'publication_year', 'created_at'])) {
             $query->orderBy($sortBy, $sortOrder);
         }
 
-        // Paginācija
-        $perPage = min($request->get('per_page', 15), 50); // Max 50 per page
+        $perPage = min($request->get('per_page', 15), 50);
+
+        // Vienmēr pievieno skaitītājus, lai frontend varētu tos izmantot bez papildu vaicājumiem
+        $query->withCount([
+            'readingProgress as readers_count',
+            'threads as threads_count',
+        ]);
+
         $books = $query->paginate($perPage);
 
         return BookResource::collection($books);

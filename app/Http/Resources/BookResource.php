@@ -36,8 +36,9 @@ class BookResource extends JsonResource
             'updated_at' => $this->updated_at,
             
             // Include relationship counts when available
-            'discussions_count' => $this->whenCounted('threads'),
-            'readers_count' => $this->whenCounted('readers'),
+           'threads_count'  => $this->whenCounted('threads_count'),
+            'readers_count'  => $this->whenCounted('readers_count'),
+            
             
             // Include relationships when loaded
             'discussions' => $this->whenLoaded('threads'),
