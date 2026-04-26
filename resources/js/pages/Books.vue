@@ -494,9 +494,17 @@ const filteredBooks = computed(() => {
   if (sortBy.value !== 'default') {
     filtered = [...filtered];
     if (sortBy.value === 'bookmarks_desc') {
-      filtered.sort((a, b) => (b.readers_count ?? b.bookmarks_count ?? 0) - (a.readers_count ?? a.bookmarks_count ?? 0));
+      filtered.sort((a, b) => {
+        const diff = (isBookmarked(b.id) ? 1 : 0) - (isBookmarked(a.id) ? 1 : 0);
+        if (diff !== 0) return diff;
+        return (b.readers_count ?? b.bookmarks_count ?? 0) - (a.readers_count ?? a.bookmarks_count ?? 0);
+      });
     } else if (sortBy.value === 'bookmarks_asc') {
-      filtered.sort((a, b) => (a.readers_count ?? a.bookmarks_count ?? 0) - (b.readers_count ?? b.bookmarks_count ?? 0));
+      filtered.sort((a, b) => {
+        const diff = (isBookmarked(a.id) ? 1 : 0) - (isBookmarked(b.id) ? 1 : 0);
+        if (diff !== 0) return diff;
+        return (a.readers_count ?? a.bookmarks_count ?? 0) - (b.readers_count ?? b.bookmarks_count ?? 0);
+      });
     } else if (sortBy.value === 'threads_desc') {
       filtered.sort((a, b) => (b.threads_count ?? 0) - (a.threads_count ?? 0));
     } else if (sortBy.value === 'threads_asc') {
@@ -660,9 +668,11 @@ const handleBatchImport = async () => {
   importLoading.value = false;
 };
 
-const isBookmarked = (bookId) => {
-  return progressStore.isBookInReadingList(bookId);
-};
+const bookmarkedIds = computed(() =>
+  new Set(progressStore.progressList.map(p => p.book_id))
+);
+
+const isBookmarked = (bookId) => bookmarkedIds.value.has(bookId);
 
 const toggleBookmark = async (book) => {
   if (!book.id) {
