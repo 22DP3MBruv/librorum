@@ -81,8 +81,8 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         const data = await response.json();
         const newProgress = data.data || data;
         progressList.value.push(newProgress);
-        return { success: true, progress: newProgress };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(progressList.value))
+        return { success: true, progress: newProgress };
       } else {
         const errorData = await response.json();
         return { success: false, message: getLocalizedMessage(errorData) || 'Failed to add to reading list' };
@@ -107,8 +107,8 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         if (index !== -1) {
           progressList.value[index] = updatedProgress;
         }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progressList.value));
         return { success: true, progress: updatedProgress };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(progressList.value))
       } else {
         const errorData = await response.json();
         return { success: false, message: getLocalizedMessage(errorData) || 'Failed to update progress' };
