@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { getLocalizedMessage } from '../utils/errorHandler.js';
+import i18n from '../i18n.js';
 
 export const useNotificationStore = defineStore('notifications', () => {
   const notifications = ref([]);
@@ -35,10 +37,11 @@ export const useNotificationStore = defineStore('notifications', () => {
         notifications.value = data.notifications.data || [];
         return { success: true };
       }
-      return { success: false };
+      const errorData = await response.json().catch(() => null);
+      return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.fetch_notifications_failed') };
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
-      return { success: false };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     } finally {
       loading.value = false;
     }
@@ -60,10 +63,11 @@ export const useNotificationStore = defineStore('notifications', () => {
         unreadCount.value = data.unread_count;
         return { success: true };
       }
-      return { success: false };
+      const errorData = await response.json().catch(() => null);
+      return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.fetch_unread_count_failed') };
     } catch (error) {
       console.error('Failed to fetch unread count:', error);
-      return { success: false };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 
@@ -95,10 +99,10 @@ export const useNotificationStore = defineStore('notifications', () => {
       }
       const errorData = await response.json().catch(() => null);
       console.error('Failed to mark as read, error:', errorData);
-      return { success: false };
+      return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.mark_as_read_failed') };
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
-      return { success: false };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 
@@ -122,10 +126,11 @@ export const useNotificationStore = defineStore('notifications', () => {
         unreadCount.value = 0;
         return { success: true };
       }
-      return { success: false };
+      const errorData = await response.json().catch(() => null);
+      return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.mark_all_read_failed') };
     } catch (error) {
       console.error('Failed to mark all as read:', error);
-      return { success: false };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 
@@ -152,10 +157,11 @@ export const useNotificationStore = defineStore('notifications', () => {
         }
         return { success: true };
       }
-      return { success: false };
+      const errorData = await response.json().catch(() => null);
+      return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.delete_notification_failed') };
     } catch (error) {
       console.error('Failed to delete notification:', error);
-      return { success: false };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 

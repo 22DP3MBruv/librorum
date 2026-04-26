@@ -120,7 +120,7 @@ export default {
     importMore: 'Importēt vairāk',
     batchImportFailed: 'Masveida importēšana neizdevās',
     genreRequired: 'Lūdzu ievadiet žanru',
-    limitInvalid: 'Lūdzu ievadiet derīgu skaitli no 1 līdz 40'
+    limitInvalid: 'Lūdzu ievadiet derīgu skaitli no 1 līdz 20'
   },
   discussions: {
     discussions: 'Diskusijas',

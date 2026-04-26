@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia';
+import { getLocalizedMessage } from '../utils/errorHandler.js';
+import i18n from '../i18n.js';
 
 export const useDiscussionsStore = defineStore('discussions', {
   state: () => ({
@@ -37,7 +39,7 @@ export const useDiscussionsStore = defineStore('discussions', {
           const data = await response.json();
           this.discussionsByBook[bookId] = data.data || [];
         } else {
-          this.error = 'Failed to fetch discussions';
+          this.error = i18n.global.t('errors.fetch_discussions_failed');
         }
       } catch (err) {
         this.error = err.message;
@@ -66,7 +68,7 @@ export const useDiscussionsStore = defineStore('discussions', {
           return { success: true, data: data.data };
         } else {
           const errorData = await response.json();
-          return { success: false, message: errorData.message || 'Failed to create discussion' };
+          return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.create_discussion_failed') };
         }
       } catch (err) {
         return { success: false, message: err.message };
@@ -98,7 +100,7 @@ export const useDiscussionsStore = defineStore('discussions', {
           this.currentDiscussion = data.data;
           return { success: true, data: data.data };
         } else {
-          this.error = 'Discussion not found';
+          this.error = i18n.global.t('errors.discussion_not_found');
           return { success: false };
         }
       } catch (err) {
@@ -126,7 +128,7 @@ export const useDiscussionsStore = defineStore('discussions', {
           return { success: true };
         } else {
           const errorData = await response.json();
-          return { success: false, message: errorData.message || 'Failed to delete discussion' };
+          return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.delete_discussion_failed') };
         }
       } catch (err) {
         return { success: false, message: err.message };

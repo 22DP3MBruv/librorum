@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getLocalizedMessage } from '../utils/errorHandler.js';
+import i18n from '../i18n.js';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
@@ -32,7 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        let errorMessage = getLocalizedMessage(errorData) || 'Invalid credentials';
+        let errorMessage = getLocalizedMessage(errorData) || i18n.global.t('errors.invalid_credentials');
         
         // Handle validation errors
         if (errorData.errors) {
@@ -43,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: false, message: errorMessage };
       }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 
@@ -67,7 +68,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        let errorMessage = getLocalizedMessage(errorData) || 'Registration failed';
+        let errorMessage = getLocalizedMessage(errorData) || i18n.global.t('errors.registration_failed');
         
         // Handle validation errors
         if (errorData.errors) {
@@ -78,7 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: false, message: errorMessage };
       }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 
@@ -145,7 +146,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const updatePrivacySettings = async (settings) => {
-    if (!token.value) return { success: false, message: 'Not authenticated' };
+    if (!token.value) return { success: false, message: i18n.global.t('errors.not_authenticated') };
     
     try {
       const response = await fetch('/api/user/privacy', {
@@ -163,11 +164,11 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: true, data: data.data };
       } else {
         const errorData = await response.json();
-        return { success: false, message: errorData.message || 'Update failed' };
+        return { success: false, message: errorData.message || i18n.global.t('errors.update_failed') };
       }
     } catch (error) {
       console.error('Failed to update privacy settings:', error);
-      return { success: false, message: 'Network error' };
+      return { success: false, message: i18n.global.t('errors.network_error') };
     }
   };
 

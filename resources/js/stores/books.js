@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getLocalizedMessage } from '../utils/errorHandler.js';
+import i18n from '../i18n.js';
 
 export const useBooksStore = defineStore('books', () => {
   const books = ref([]);
@@ -36,7 +37,7 @@ export const useBooksStore = defineStore('books', () => {
         books.value = data.data || data;
       } else {
         const errorData = await response.json();
-        error.value = getLocalizedMessage(errorData) || 'Failed to fetch books';
+        error.value = getLocalizedMessage(errorData) || i18n.global.t('errors.fetch_books_failed');
         books.value = [];
       }
     } catch (err) {
@@ -62,7 +63,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, book: newBook };
       } else {
         const errorData = await response.json();
-        return { success: false, message: getLocalizedMessage(errorData) || 'Failed to add book' };
+        return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.add_book_failed') };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -87,7 +88,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, book: updatedBook };
       } else {
         const errorData = await response.json();
-        return { success: false, message: getLocalizedMessage(errorData) || 'Failed to update book' };
+        return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.update_book_failed') };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -106,7 +107,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        return { success: false, message: getLocalizedMessage(errorData) || 'Failed to delete book' };
+        return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.delete_book_failed') };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -132,7 +133,7 @@ export const useBooksStore = defineStore('books', () => {
         return { success: true, book: newBook };
       } else {
         const errorData = await response.json();
-        return { success: false, message: getLocalizedMessage(errorData) || 'Failed to import book' };
+        return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.import_book_failed') };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -169,7 +170,7 @@ export const useBooksStore = defineStore('books', () => {
         };
       } else {
         const errorData = await response.json();
-        return { success: false, message: getLocalizedMessage(errorData) || 'Failed to import books by genre' };
+        return { success: false, message: getLocalizedMessage(errorData) || i18n.global.t('errors.import_books_by_genre_failed') };
       }
     } catch (err) {
       return { success: false, message: err.message };
@@ -188,7 +189,7 @@ export const useBooksStore = defineStore('books', () => {
         const data = await response.json();
         return { success: true, book: data.data || data };
       } else {
-        return { success: false, message: 'Book not found' };
+        return { success: false, message: i18n.global.t('errors.book_not_found') };
       }
     } catch (err) {
       return { success: false, message: err.message };

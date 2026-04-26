@@ -122,7 +122,7 @@ export default {
     importMore: 'Import More',
     batchImportFailed: 'Batch import failed',
     genreRequired: 'Please enter a genre',
-    limitInvalid: 'Please enter a valid number between 1 and 40'
+    limitInvalid: 'Please enter a valid number between 1 and 20'
   },
   discussions: {
     discussions: 'Discussions',

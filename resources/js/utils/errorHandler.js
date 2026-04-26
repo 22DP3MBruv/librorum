@@ -12,5 +12,5 @@ export function getLocalizedMessage(responseData) {
     return responseData.message_lv;
   }
   
-  return responseData.message || 'An error occurred';
+  return responseData.message || i18n.global.t('errors.generic');
 }

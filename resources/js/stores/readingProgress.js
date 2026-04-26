@@ -6,7 +6,9 @@ const STORAGE_KEY = 'reading_progress_list'
 
 export const useReadingProgressStore = defineStore('readingProgress', () => {
   const stored = localStorage.getItem(STORAGE_KEY)
-  const progressList = ref(stored ? JSON.parse(stored) : [])
+  const parsedStored = stored ? JSON.parse(stored) : []
+  // Ensure we have an array, if not reset to empty array
+  const progressList = ref(Array.isArray(parsedStored) ? parsedStored : [])
   const loading = ref(false);
   const error = ref(null);
 
