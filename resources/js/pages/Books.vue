@@ -669,7 +669,7 @@ const handleBatchImport = async () => {
 };
 
 const bookmarkedIds = computed(() =>
-  new Set(progressStore.progressList.map(p => p.book_id))
+  new Set((progressStore.progressList ?? []).map(p => p.book_id))
 );
 
 const isBookmarked = (bookId) => bookmarkedIds.value.has(bookId);
