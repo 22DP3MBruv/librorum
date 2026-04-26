@@ -2,8 +2,11 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getLocalizedMessage } from '../utils/errorHandler.js';
 
+const STORAGE_KEY = 'reading_progress_list'
+
 export const useReadingProgressStore = defineStore('readingProgress', () => {
-  const progressList = ref([]);
+  const stored = localStorage.getItem(STORAGE_KEY)
+  const progressList = ref(stored ? JSON.parse(stored) : [])
   const loading = ref(false);
   const error = ref(null);
 
@@ -48,6 +51,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
       if (response.ok) {
         const data = await response.json();
         progressList.value = data.data || data;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
       } else {
         const errorData = await response.json();
         error.value = getLocalizedMessage(errorData) || 'Failed to fetch reading progress';
@@ -78,6 +82,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
         const newProgress = data.data || data;
         progressList.value.push(newProgress);
         return { success: true, progress: newProgress };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progressList.value))
       } else {
         const errorData = await response.json();
         return { success: false, message: getLocalizedMessage(errorData) || 'Failed to add to reading list' };
@@ -103,6 +108,7 @@ export const useReadingProgressStore = defineStore('readingProgress', () => {
           progressList.value[index] = updatedProgress;
         }
         return { success: true, progress: updatedProgress };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progressList.value))
       } else {
         const errorData = await response.json();
         return { success: false, message: getLocalizedMessage(errorData) || 'Failed to update progress' };
