@@ -52,6 +52,7 @@
             <div v-if="book.description" class="text-xs sm:text-sm text-gray-700">
               <p :class="descriptionExpanded ? '' : 'line-clamp-3'">{{ book.description }}</p>
               <button 
+                v-if="shouldShowExpandButton"
                 @click="descriptionExpanded = !descriptionExpanded"
                 class="text-blue-600 hover:text-blue-700 mt-2 text-xs sm:text-sm font-medium"
               >
@@ -116,9 +117,9 @@
                 <span class="ml-1 text-gray-700">{{ book.publisher }}</span>
               </div>
               
-              <div v-if="book.publish_date">
+              <div v-if="book.publication_year">
                 <span class="text-gray-500">{{ t('books.publishYear') }}:</span>
-                <span class="ml-1 text-gray-700">{{ formatDate(book.publish_date) }}</span>
+                <span class="ml-1 text-gray-700">{{ book.publication_year }}</span>
               </div>
               
               <div v-if="book.external_ids?.google_books">
@@ -803,6 +804,10 @@ const itemsPerPage = ref(10);
 
 const isBookmarked = computed(() => {
   return book.value && progressStore.isBookInReadingList(book.value.id);
+});
+
+const shouldShowExpandButton = computed(() => {
+  return book.value?.description && book.value.description.length > 150;
 });
 
 const filteredAndSortedDiscussions = computed(() => {
