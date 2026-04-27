@@ -1,12 +1,42 @@
 <template>
   <div class="container mx-auto px-4 sm:px-6 py-6">
-    <!-- Ielādes stāvoklis -->
+    <!-- Error Notification -->
+    <div v-if="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+      <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+      </svg>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-red-800">{{ errorMessage }}</p>
+      </div>
+      <button @click="errorMessage = ''" class="text-red-400 hover:text-red-600">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Success Notification -->
+    <div v-if="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+      <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+      </svg>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-green-800">{{ successMessage }}</p>
+      </div>
+      <button @click="successMessage = ''" class="text-green-400 hover:text-green-600">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">{{ t('common.loading') }}</p>
     </div>
 
-    <!-- Lietotājs nav atrasts -->
+    <!-- User Not Found -->
     <div v-else-if="userNotFound" class="text-center py-12">
       <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -15,18 +45,18 @@
     </div>
 
     <template v-else>
-      <!-- Pirmā sadaļa -->
+      <!-- User Section -->
       <div class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="p-4 sm:p-6 lg:p-8">
           <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            <!-- Lietotāja avatārs un vārds -->
+            <!-- User Avatar -->
             <div class="flex-shrink-0">
               <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <span class="text-2xl sm:text-3xl font-bold text-white">{{ userInitial }}</span>
               </div>
             </div>
 
-            <!-- Lietotāja informācija un statistika -->
+            <!-- User Information -->
             <div class="flex-1 text-center sm:text-left">
               <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 {{ profileUser?.name || profileUser?.username || 'User' }}
@@ -35,24 +65,42 @@
                 <span>{{ t('profile.joined') }}: {{ formatDate(profileUser?.created_at) }}</span>
               </p>
 
-              <!-- Sociālās statistikas rinda -->
+              <!-- Reading Statistics -->
               <div class="flex flex-wrap gap-3 sm:gap-4 lg:gap-6 items-center justify-center sm:justify-start text-sm sm:text-base">
                 <button
-                  @click="showFollowers = !showFollowers"
-                  class="flex items-center gap-1.5 sm:gap-2 hover:text-blue-600 transition-colors"
+                  @click="toggleFollowersSection"
+                  class="flex items-center gap-1.5 sm:gap-2 hover:text-blue-600 transition-colors group"
                 >
                   <span class="text-xl sm:text-2xl font-bold text-gray-900">{{ followers.length }}</span>
                   <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.followers') }}</span>
+                  <svg 
+                    class="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-transform"
+                    :class="{ 'rotate-180': showFollowers }"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                  </svg>
                 </button>
                 <button
-                  @click="showFollowing = !showFollowing"
-                  class="flex items-center gap-1.5 sm:gap-2 hover:text-blue-600 transition-colors"
+                  @click="toggleFollowingSection"
+                  class="flex items-center gap-1.5 sm:gap-2 hover:text-blue-600 transition-colors group"
                 >
                   <span class="text-xl sm:text-2xl font-bold text-gray-900">{{ following.length }}</span>
                   <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.following') }}</span>
+                  <svg 
+                    class="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-transform"
+                    :class="{ 'rotate-180': showFollowing }"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                  </svg>
                 </button>
                 
-                <!-- Lasīšanas statistika -->
+                <!-- Reading Statistics -->
                 <div class="flex items-center gap-1.5 sm:gap-2">
                   <span class="text-xl sm:text-2xl font-bold text-purple-600">{{ displayProgressCount.read }}</span>
                   <span class="text-xs sm:text-sm text-gray-600">{{ t('profile.booksRead') }}</span>
@@ -68,7 +116,7 @@
               </div>
             </div>
 
-            <!-- Sekot/Pārtraukt sekošanu poga citiem lietotājiem -->
+            <!-- Follow/Unfollow button -->
             <div v-if="!isOwnProfile" class="flex-shrink-0 flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <button
                 v-if="profileUser?.can_be_followed"
@@ -89,7 +137,7 @@
                 {{ t('profile.notAcceptingFollowers') }}
               </div>
               
-              <!-- Lietotāja atzīmēšanas poga (tikai moderatoriem) -->
+              <!-- User Flagging Button -->
               <button
                 v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'moderator') && !profileUser?.is_flagged"
                 @click="showFlagModal = true"
@@ -100,7 +148,7 @@
             </div>
           </div>
           
-          <!-- Privātuma iestatījumu poga (paša profils) -->
+          <!-- Privacy Settings (Own Profile) -->
           <div v-if="isOwnProfile" class="mt-4 flex justify-end gap-3">
             <router-link
               to="/privacy-settings"
@@ -125,13 +173,13 @@
         </div>
       </div>
 
-      <!-- Otrā sadaļa -->
+      <!-- Recent Reading Activity -->
       <div class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
           <h2 class="text-xl font-semibold text-gray-900">{{ t('profile.recentReadingActivity') }}</h2>
         </div>
         
-        <!-- Privātuma ierobežojuma ziņojums -->
+        <!-- Privacy Message -->
         <div v-if="!isOwnProfile && profileUser && !profileUser.can_view_reading_progress" class="p-6">
           <div class="text-center py-8">
             <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +195,7 @@
             :key="progress.id"
             class="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-colors relative group"
           >
-            <!-- Grāmatzīmes poga -->
+            <!-- Bookmark Button -->
             <button
               v-if="authStore.isAuthenticated"
               @click.stop="toggleBookmark(progress.book)"
@@ -214,7 +262,7 @@
         </div>
       </div>
 
-      <!-- Plašāks sekotāju saraksts -->
+      <!-- Expanded Followers List -->
       <div v-if="showFollowers && followers.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
           <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followersList') }}</h3>
@@ -241,7 +289,7 @@
         </div>
       </div>
 
-      <!-- Plašāks sekoto saraksts -->
+      <!-- Expanded Following List -->
       <div v-if="showFollowing && following.length > 0" class="bg-white rounded-lg shadow-sm border mb-6">
         <div class="px-6 py-4 border-b">
           <h3 class="text-lg font-semibold text-gray-900">{{ t('profile.followingList') }}</h3>
@@ -269,7 +317,7 @@
       </div>
     </template>
     
-    <!-- Lietotāja atzīmēšanas modāls -->
+    <!-- User Flagging Modal -->
     <div v-if="showFlagModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ t('profile.flagUserTitle') }}</h3>
@@ -328,8 +376,10 @@ const profileProgressCount = ref({ read: 0, reading: 0, wantToRead: 0 });
 const showFlagModal = ref(false);
 const flagReason = ref('');
 const flaggingUser = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
 
-// Aprēķinātais
+// computed properties
 const isOwnProfile = computed(() => {
   if (!route.params.userId) return true;
   return parseInt(route.params.userId) === authStore.user?.id;
@@ -351,7 +401,7 @@ const displayProgressCount = computed(() => {
   return isOwnProfile.value ? progressStore.progressCount : profileProgressCount.value;
 });
 
-// Metodes
+// Methods
 const formatDate = (date) => {
   if (!date) return '--';
   const d = new Date(date);
@@ -470,7 +520,7 @@ const fetchUserProgress = async (userId) => {
       const data = await response.json();
       profileProgress.value = data.data || data || [];
       
-      // Aprēķināt progresa skaitļus
+      // Calculate counts for each status
       profileProgressCount.value = {
         read: profileProgress.value.filter(p => p.status === 'completed').length,
         reading: profileProgress.value.filter(p => p.status === 'reading').length,
@@ -494,15 +544,15 @@ const toggleFollow = async () => {
     let url, method;
     
     if (hasPendingRequest.value) {
-      // Atcelt gaidošo pieprasījumu
+      // Cancel follow request
       url = `/api/user/follow-request/${route.params.userId}/cancel`;
       method = 'DELETE';
     } else if (isFollowing.value) {
-      // Pārtraukt sekošanu
+      // Stop following
       url = `/api/user/unfollow/${route.params.userId}`;
       method = 'DELETE';
     } else {
-      // Sekot vai nosūtīt pieprasījumu
+      // Follow or send follow request
       url = `/api/user/follow/${route.params.userId}`;
       method = 'POST';
     }
@@ -519,13 +569,13 @@ const toggleFollow = async () => {
       const data = await response.json();
       
       if (hasPendingRequest.value) {
-        // Pieprasījums tika atcelts
+        // Follow request cancelled
         hasPendingRequest.value = false;
       } else if (isFollowing.value) {
-        // Sekošana pārtraukta
+        // Follow stopped
         isFollowing.value = false;
       } else {
-        // Pārbaudīt, vai pieprasījums tika nosūtīts vai sekots tieši
+        // Check if follow request was sent or if user is now following immediately
         if (data.has_pending_request) {
           hasPendingRequest.value = true;
         } else {
@@ -533,7 +583,7 @@ const toggleFollow = async () => {
         }
       }
       
-      // Atsvaidzināt sekotāju/sekoto skaitļu - nodot userId, skatot cita lietotāja profilu
+      // Refresh followers/following lists if they are currently visible
       const targetUserId = !isOwnProfile.value ? route.params.userId : null;
       await Promise.all([
         fetchFollowers(targetUserId), 
@@ -566,15 +616,16 @@ const flagUser = async () => {
     if (response.ok) {
       showFlagModal.value = false;
       flagReason.value = '';
-      alert(t('profile.flagSuccess'));
+      successMessage.value = t('profile.flagSuccess');
+      setTimeout(() => { successMessage.value = ''; }, 5000);
       await loadProfile();
     } else {
       const data = await response.json();
-      alert(data.message || t('profile.flagError'));
+      errorMessage.value = data.message || t('profile.flagError');
     }
   } catch (err) {
     console.error('Failed to flag user:', err);
-    alert(t('common.networkError'));
+    errorMessage.value = t('common.networkError');
   } finally {
     flaggingUser.value = false;
   }
@@ -587,23 +638,23 @@ const isBookmarked = (bookId) => {
 const toggleBookmark = async (book) => {
   if (!book?.id) {
     console.error('Book ID is missing:', book);
-    alert('Error: Book ID is missing');
+    errorMessage.value = 'Error: Book ID is missing';
     return;
   }
   
   const bookProgress = progressStore.getBookProgress(book.id);
   
   if (bookProgress) {
-    // Noņemt no lasīšanas saraksta
+    // Remove from reading list
     const result = await progressStore.removeFromReadingList(bookProgress.id);
     if (!result.success) {
-      alert(result.message || t('books.removeBookmarkFailed'));
+      errorMessage.value = result.message || t('books.removeBookmarkFailed');
     }
   } else {
-    // Pievienot lasīšanas sarakstam
+    // Add to reading list with default status "want_to_read"
     const result = await progressStore.addToReadingList(book.id, 'want_to_read');
     if (!result.success) {
-      alert(result.message || t('books.addBookmarkFailed'));
+      errorMessage.value = result.message || t('books.addBookmarkFailed');
     }
   }
 };
@@ -613,20 +664,16 @@ const loadProfile = async () => {
   userNotFound.value = false;
   
   if (isOwnProfile.value) {
-    // Paša profils - izmantot autentifikācijas glabātavas datus
+    // Own profile - use authenticated user data and fetch progress
     profileUser.value = authStore.user;
     await Promise.all([
-      progressStore.fetchProgress(),
-      fetchFollowers(),
-      fetchFollowing()
+      progressStore.fetchProgress()
     ]);
   } else {
-    // Cita lietotāja profils - iegūt viņa datus
+    // Different user's profile - fetch data based on route param
     const userId = route.params.userId;
     await Promise.all([
       fetchUserProfile(userId),
-      fetchFollowers(userId),
-      fetchFollowing(userId),
       fetchUserProgress(userId)
     ]);
   }
@@ -634,14 +681,34 @@ const loadProfile = async () => {
   loading.value = false;
 };
 
-// Uzraudzīt maršruta izmaiņas
+const toggleFollowersSection = async () => {
+  showFollowers.value = !showFollowers.value;
+  
+  // Lazy-load followers data if not already loaded
+  if (showFollowers.value && followers.value.length === 0) {
+    const userId = !isOwnProfile.value ? route.params.userId : null;
+    await fetchFollowers(userId);
+  }
+};
+
+const toggleFollowingSection = async () => {
+  showFollowing.value = !showFollowing.value;
+  
+  // Lazy-load following data if not already loaded
+  if (showFollowing.value && following.value.length === 0) {
+    const userId = !isOwnProfile.value ? route.params.userId : null;
+    await fetchFollowing(userId);
+  }
+};
+
+// React to route changes (e.g., navigating to another user's profile)
 watch(() => route.params.userId, () => {
   if (route.name === 'Profile' || route.name === 'UserProfile') {
     loadProfile();
   }
 });
 
-// Dzīves cikls
+// Lifecycle
 onMounted(() => {
   loadProfile();
 });
