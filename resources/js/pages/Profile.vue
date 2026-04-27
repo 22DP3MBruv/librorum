@@ -400,7 +400,8 @@ const fetchUserProfile = async (userId) => {
       const data = await response.json();
       profileUser.value = data.data;
       isFollowing.value = data.data.is_following;
-      hasPendingRequest.value = data.data.has_pending_request || false;
+      // Forces hasPendingRequest to be true only if the user is not currently following and there is a pending request
+      hasPendingRequest.value = !data.data.is_following && (data.data.has_pending_request || false);
       userNotFound.value = false;
     } else {
       userNotFound.value = true;
