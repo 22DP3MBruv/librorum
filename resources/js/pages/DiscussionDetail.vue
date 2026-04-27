@@ -173,9 +173,27 @@
       <!-- Komentāru sadaļa -->
       <div class="bg-white rounded-lg shadow-sm border">
         <div class="px-4 sm:px-6 py-3 sm:py-4 border-b">
-          <h2 class="text-base sm:text-lg font-semibold text-gray-900">
-            {{ t('discussions.replies') }} ({{ comments.length }})
-          </h2>
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900">
+              {{ t('discussions.replies') }} ({{ comments.length }})
+            </h2>
+            <!-- Sort Options -->
+            <div v-if="comments.length > 0" class="flex flex-wrap gap-2">
+              <button
+                v-for="option in sortOptions"
+                :key="option.value"
+                @click="sortOption = option.value"
+                :class="[
+                  'px-3 py-1 text-xs sm:text-sm rounded-md border transition-colors',
+                  sortOption === option.value
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-600'
+                ]"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Komentāra pievienošanas forma -->
@@ -338,7 +356,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth.js';
@@ -369,15 +387,36 @@ const editCommentError = ref('');
 // Lapošana
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
+const sortOption = ref('newest');
+
+const sortOptions = computed(() => [
+  { value: 'newest', label: t('discussions.sortNewest') },
+  { value: 'oldest', label: t('discussions.sortOldest') },
+  { value: 'popular', label: t('discussions.sortMostLiked') }
+]);
+
+const sortedComments = computed(() => {
+  const sorted = [...comments.value];
+  
+  switch (sortOption.value) {
+    case 'oldest':
+      return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    case 'popular':
+      return sorted.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+    case 'newest':
+    default:
+      return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+});
 
 const totalPages = computed(() => {
-  return Math.ceil(comments.value.length / itemsPerPage.value);
+  return Math.ceil(sortedComments.value.length / itemsPerPage.value);
 });
 
 const paginatedComments = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return comments.value.slice(start, end);
+  return sortedComments.value.slice(start, end);
 });
 
 const paginationRange = computed(() => {
@@ -792,6 +831,11 @@ const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString('lv-LV', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
+
+// Reset page when sort option changes
+watch(() => sortOption.value, () => {
+  currentPage.value = 1;
+});
 
 onMounted(() => {
   fetchDiscussion();
