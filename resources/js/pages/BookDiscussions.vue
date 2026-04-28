@@ -749,6 +749,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal ref="confirmationModal" />
   </div>
 </template>
 
@@ -759,6 +762,7 @@ import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth.js';
 import { useReadingProgressStore } from '../stores/readingProgress.js';
 import { useDiscussionsStore } from '../stores/discussions.js';
+import ConfirmationModal from '../components/ConfirmationModal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -766,6 +770,7 @@ const { t } = useI18n();
 const authStore = useAuthStore();
 const progressStore = useReadingProgressStore();
 const discussionsStore = useDiscussionsStore();
+const confirmationModal = ref(null);
 
 const book = ref(null);
 const discussions = ref([]);
@@ -875,7 +880,7 @@ const fetchBook = async () => {
       const data = await response.json();
       const isbn = route.params.isbn;
       
-      // Apstrādāt gan vienu grāmatu, gan masvīa atbildi
+      // Apstrādāt gan vienu grāmatu, gan masīva atbildi
       if (Array.isArray(data.data)) {
         // Atrast grāmatu, kas atbilst ISBN
         book.value = data.data.find(b => 
@@ -967,7 +972,13 @@ const toggleBookmark = async () => {
   
   if (!book.value.id) {
     console.error('Book ID is missing:', book.value);
-    alert('Error: Book ID is missing');
+    await confirmationModal.value?.show({
+      title: t('common.error'),
+      message: 'Error: Book ID is missing',
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
     return;
   }
   
@@ -1129,7 +1140,12 @@ const handleEditThread = async () => {
         discussions.value[index] = { ...discussions.value[index], ...data.data };
       }
       closeEditThreadModal();
-      alert(t('discussions.editSuccess'));
+      await confirmationModal.value?.show({
+        title: t('common.success'),
+        message: t('discussions.editSuccess'),
+        confirmLabel: t('common.ok'),
+        cancelLabel: ''
+      });
     } else {
       editThreadError.value = data.message || t('discussions.editFailed');
     }
@@ -1234,10 +1250,22 @@ const syncBookWithApi = async () => {
       successMessage.value = t('books.syncSuccess');
       showSuccessModal.value = true;
     } else {
-      alert(data.message || t('books.syncFailed'));
+      await confirmationModal.value?.show({
+        title: t('common.error'),
+        message: data.message || t('books.syncFailed'),
+        confirmLabel: t('common.ok'),
+        cancelLabel: '',
+        isDangerous: true
+      });
     }
   } catch (err) {
-    alert(err.message || t('books.syncFailed') || 'Failed to sync book');
+    await confirmationModal.value?.show({
+      title: t('common.error'),
+      message: err.message || t('books.syncFailed') || 'Failed to sync book',
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
   } finally {
     syncLoading.value = false;
   }
@@ -1266,10 +1294,22 @@ const handleDeleteBook = async () => {
       }, 1500);
     } else {
       const data = await response.json();
-      alert(data.message || t('books.deleteFailed') || 'Failed to delete book');
+      await confirmationModal.value?.show({
+        title: t('common.error'),
+        message: data.message || t('books.deleteFailed') || 'Failed to delete book',
+        confirmLabel: t('common.ok'),
+        cancelLabel: '',
+        isDangerous: true
+      });
     }
   } catch (err) {
-    alert(err.message || t('books.deleteFailed') || 'Failed to delete book');
+    await confirmationModal.value?.show({
+      title: t('common.error'),
+      message: err.message || t('books.deleteFailed') || 'Failed to delete book',
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
   } finally {
     deleteLoading.value = false;
     showDeleteConfirm.value = false;
@@ -1282,7 +1322,15 @@ const closeSuccessModal = () => {
 };
 
 const deleteThread = async (threadId) => {
-  if (!confirm(t('admin.confirmDeleteThread'))) {
+  const confirmed = await confirmationModal.value?.show({
+    title: t('common.confirm'),
+    message: t('admin.confirmDeleteThread'),
+    confirmLabel: t('common.delete'),
+    cancelLabel: t('common.cancel'),
+    isDangerous: true
+  });
+
+  if (!confirmed) {
     return;
   }
 
@@ -1304,14 +1352,31 @@ const deleteThread = async (threadId) => {
     if (response.ok) {
       // Noņemt no lokālā diskusiju masvīa
       discussions.value = discussions.value.filter(d => d.id !== threadId);
-      alert(t('admin.threadDeleted'));
+      await confirmationModal.value?.show({
+        title: t('common.success'),
+        message: t('admin.threadDeleted'),
+        confirmLabel: t('common.ok'),
+        cancelLabel: ''
+      });
     } else {
       const data = await response.json();
-      alert(data.message || 'Failed to delete thread');
+      await confirmationModal.value?.show({
+        title: t('common.error'),
+        message: data.message || 'Failed to delete thread',
+        confirmLabel: t('common.ok'),
+        cancelLabel: '',
+        isDangerous: true
+      });
     }
   } catch (err) {
     console.error('Failed to delete thread', err);
-    alert('Failed to delete thread');
+    await confirmationModal.value?.show({
+      title: t('common.error'),
+      message: 'Failed to delete thread',
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
   }
 };
 

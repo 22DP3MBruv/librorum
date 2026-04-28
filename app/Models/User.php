@@ -349,14 +349,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user is a moderator
-     */
-    public function isModerator(): bool
-    {
-        return$this->role === 'admin';
-    }
-
-    /**
      * Scope to get only unflagged users
      */
     public function scopeUnflagged($query)

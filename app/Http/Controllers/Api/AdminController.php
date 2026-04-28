@@ -21,7 +21,7 @@ class AdminController extends Controller
         $user = $request->user();
 
         // Pārbauda, vai lietotājs ir admins vai moderators
-        if (!$user->isModerator()) {
+        if (!$user->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Admin/Moderator access required.',
                 'message_lv' => 'Nav atļauts. Nepieciešama administratora/moderatora piekļuve.'
@@ -183,7 +183,7 @@ class AdminController extends Controller
     {
         $admin = $request->user();
 
-        if (!$admin->isModerator()) {
+        if (!$admin->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Admin/Moderator access required.',
                 'message_lv' => 'Nav atļauts. Nepieciešama administratora/moderatora piekļuve.'

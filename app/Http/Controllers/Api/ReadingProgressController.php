@@ -11,21 +11,21 @@ use Illuminate\Support\Facades\Auth;
 class ReadingProgressController extends Controller
 {
     /**
-     * Parāda autentificētā lietotāja lasīšanas progresa sarakstu.
-     * Opcijas kārtā atbalsta user_id vaicājuma parametru, lai iegūtu citu lietotāju progresu.
+     * Shows authenticated user's reading progress list.
+     * Optionally supports user_id query parameter to get other user's progress.
      */
     public function index(Request $request)
     {
         $userId = $request->query('user_id');
         
         if ($userId) {
-            // Nosauc cita lietotāja lasīšanas progresu
+            // Gets other user's reading progress
             $progress = ReadingProgress::where('user_id', $userId)
                 ->with('book')
                 ->orderBy('last_updated', 'desc')
                 ->get();
         } else {
-            // Nosauc autentificētā lietotāja lasīšanas progresu
+            // Gets authenticated user's reading progress
             $user = Auth::user();
             $progress = ReadingProgress::where('user_id', $user->user_id)
                 ->with('book')
@@ -37,7 +37,7 @@ class ReadingProgressController extends Controller
     }
 
     /**
-     * Saglabā jauni izveidotu lasīšanas progresu.
+     * Saves newly created reading progress.
      */
     public function store(Request $request)
     {
@@ -49,7 +49,7 @@ class ReadingProgressController extends Controller
 
         $user = Auth::user();
 
-        // Pārbauda, vai progress jau eksistē
+        // Checks if progress already exists
         $existing = ReadingProgress::where('user_id', $user->user_id)
             ->where('book_id', $validated['book_id'])
             ->first();
@@ -76,7 +76,7 @@ class ReadingProgressController extends Controller
     }
 
     /**
-     * Parāda konkrētu lasīšanas progresu.
+     * Shows specific reading progress.
      */
     public function show($id)
     {
@@ -91,7 +91,7 @@ class ReadingProgressController extends Controller
     }
 
     /**
-     * Atjaunina konkrētu lasīšanas progresu.
+     * Updates specific reading progress.
      */
     public function update(Request $request, $id)
     {
@@ -118,7 +118,7 @@ class ReadingProgressController extends Controller
     }
 
     /**
-     * Izdzēš konkrēto lasīšanas progresu.
+     * Deletes specific reading progress.
      */
     public function destroy($id)
     {
@@ -137,7 +137,7 @@ class ReadingProgressController extends Controller
     }
 
     /**
-     * Dabū lasīšanas progresu konkrētai grāmatai.
+     * Gets reading progress for specific book.
      */
     public function getByBook($bookId)
     {

@@ -11,15 +11,15 @@ use Illuminate\Support\Facades\Validator;
 class ModerationController extends Controller
 {
     /**
-     * Marķē lietotāju (tikai moderatori un admini)
-     * Mērķētie lietototāji tiek slēpti diskusijās un komentāros
+     * Flags user (admins only)
+     * Flagged users are hidden in discussions and comments
      */
     public function flagUser(Request $request, $userId)
     {
         $moderator = $request->user();
 
-        // Pārbauda, vai lietotājs ir moderators vai administrators
-        if (!$moderator->isModerator()) {
+        // Checks if user is administrator
+        if (!$moderator->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Moderator access required.',
                 'message_lv' => 'Nav atļauts. Nepieciešama moderatora piekļuve.'
@@ -47,15 +47,15 @@ class ModerationController extends Controller
             ], 404);
         }
 
-        // Neatļauj bloķēt moderatorus vai administratorus
-        if ($user->isModerator()) {
+        // Prevents flagging administrators
+        if ($user->isAdmin()) {
             return response()->json([
                 'message' => 'Cannot ban moderators or admins',
                 'message_lv' => 'Nevar bloķēt moderatorus vai administratorus'
             ], 403);
         }
 
-        // Nebloķē jau bloķētus lietotājus
+        // Does not flag already flagged users
         if ($user->is_flagged) {
             return response()->json([
                 'message' => 'User is already banned',
@@ -70,7 +70,7 @@ class ModerationController extends Controller
             'flagged_by' => $moderator->user_id,
         ]);
 
-        // Izveido paziņojumu bloķētajam lietotājam (marķēšana = bloķēšana)
+        // Creates notification for flagged user (flagging = banning)
         Notification::createUserBanned($user, $moderator, $request->reason);
 
         return response()->json([
@@ -87,14 +87,14 @@ class ModerationController extends Controller
     }
 
     /**
-     * Noņem marķējumu no lietotāja (tikai moderatori un admini)
+     * Removes flag from user (admins only)
      */
     public function unflagUser(Request $request, $userId)
     {
         $moderator = $request->user();
 
-        // Pārbauda, vai lietotājs ir moderators vai administrators
-        if (!$moderator->isModerator()) {
+        // Checks if user is administrator
+        if (!$moderator->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Moderator access required.',
                 'message_lv' => 'Nav atļauts. Nepieciešama moderatora piekļuve.'
@@ -136,14 +136,14 @@ class ModerationController extends Controller
     }
 
     /**
-     * Dabū visus marķētus lietotājus (tikai moderatori un admini)
+     * Gets all flagged users (admins only)
      */
     public function getFlaggedUsers(Request $request)
     {
         $moderator = $request->user();
 
-        // Pārbauda, vai lietotājs ir moderators vai administrators
-        if (!$moderator->isModerator()) {
+        // Checks if user is administrator
+        if (!$moderator->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized. Moderator access required.',
                 'message_lv' => 'Nav atļauts. Nepieciešama moderatora piekļuve.'

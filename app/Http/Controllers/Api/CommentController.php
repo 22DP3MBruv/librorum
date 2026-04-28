@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class CommentController extends Controller
 {
     /**
-     * Parāda komentāru sarakstu konkrētajai diskusijai.
+     * Shows comment list for specific thread.
      */
     public function index(Request $request, $threadId)
     {
@@ -29,7 +29,7 @@ class CommentController extends Controller
     }
 
     /**
-     * Saglabā jauni izveidotu komentāru.
+     * Saves newly created comment.
      */
     public function store(Request $request, $threadId)
     {
@@ -48,14 +48,14 @@ class CommentController extends Controller
         $comment->load('user');
         $comment->loadCount('likes');
 
-        // Izveido paziņojumu diskusijas īpašniekam
+        // Creates notification for thread owner
         Notification::createThreadReply($comment, $thread, $request->user());
 
         return new CommentResource($comment);
     }
 
     /**
-     * Parāda konkrētu komentāru.
+     * Shows specific comment.
      */
     public function show($threadId, $id)
     {
@@ -67,13 +67,13 @@ class CommentController extends Controller
     }
 
     /**
-     * Atjaunina konkrētu komentāru.
+     * Updates specific comment.
      */
     public function update(Request $request, $threadId, $id)
     {
         $comment = Comment::where('thread_id', $threadId)->findOrFail($id);
 
-        // Pārbauda, vai lietotājs ir komentāra īpašnieks
+        // Checks if user is comment owner
         if ($comment->user_id !== $request->user()->user_id) {
             return response()->json([
                 'message' => 'Unauthorized',
@@ -92,13 +92,13 @@ class CommentController extends Controller
     }
 
     /**
-     * Izdzēš konkrētu komentāru.
+     * Deletes specific comment.
      */
     public function destroy(Request $request, $threadId, $id)
     {
         $comment = Comment::where('thread_id', $threadId)->findOrFail($id);
 
-        // Pārbauda, vai lietotājs ir komentāra īpašnieks vai administrators
+        // Checks if user is comment owner or administrator
         if ($comment->user_id !== $request->user()->user_id && $request->user()->role !== 'admin') {
             return response()->json([
                 'message' => 'Unauthorized',

@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Validator;
 class BookController extends Controller
 {
     /**
-     * Dabū grāmatu sarakstu ar meklēšanas, filtrēšanas un kārtošanas iespējām
+     * Get a list of books with search, filtering and sorting options
      */
     public function index(Request $request)
     {
         $query = Book::query();
 
-        // Meklēšana pēc nosaukuma, autora vai ISBN
+        // Search by title, author or ISBN
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
@@ -27,12 +27,12 @@ class BookController extends Controller
             });
         }
 
-        // Filtrēšana pēc žanra
+        // Filter by genre
         if ($request->has('genre')) {
             $query->where('genre', $request->get('genre'));
         }
 
-        // Filtrēšana pēc ISBN (ieskaitot isbn10 un isbn13)
+        // Filter by ISBN (including isbn10 and isbn13)
         if ($request->has('isbn')) {
             $isbn = $request->get('isbn');
             $query->where(function ($q) use ($isbn) {
@@ -42,7 +42,7 @@ class BookController extends Controller
             });
         }
 
-        // Kārtošana
+        // Sorting
         $sortBy = $request->get('sort', 'title');
         $sortOrder = $request->get('order', 'asc');
 
@@ -58,7 +58,7 @@ class BookController extends Controller
 
         $perPage = min($request->get('per_page', 15), 50);
 
-        // Vienmēr pievieno skaitītājus, lai frontend varētu tos izmantot bez papildu vaicājumiem
+        // Always add counters so frontend can use them without additional requests
         $query->withCount([
             'readingProgress as readers_count',
             'threads as threads_count',
@@ -70,11 +70,11 @@ class BookController extends Controller
     }
 
     /**
-     * Dabū konkrētu grāmatu pēc ID vai ISBN
+     * Get a specific book by ID or ISBN
      */
     public function show($identifier)
     {
-        // Mēģināt atrast pēc book_id, pēc tam pēc ISBN
+        // Try to find by book_id, then by ISBN
         $book = Book::where('book_id', $identifier)
                    ->orWhere('isbn', $identifier)
                    ->first();
@@ -90,11 +90,11 @@ class BookController extends Controller
     }
 
     /**
-     * Izveido jaunu grāmatu (admin only)
+     * Create a new book (admin only)
      */
     public function store(Request $request)
     {
-        // Pārbauda, vai lietotājs ir admin
+        // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized to add books',
@@ -141,11 +141,11 @@ class BookController extends Controller
     }
 
     /**
-     * Atjaunina grāmatu (admin only)
+     * Update a book (admin only)
      */
     public function update(Request $request, $id)
     {
-        // Pārbauda, vai lietotājs ir admin
+        // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized to edit books',
@@ -195,11 +195,11 @@ class BookController extends Controller
     }
 
     /**
-     * Izdzēš grāmatu (admin only)
+     * Delete a book (admin only)
      */
     public function destroy(Request $request, $id)
     {
-        // Pārbauda, vai lietotājs ir admin
+        // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized to delete books',
@@ -226,7 +226,7 @@ class BookController extends Controller
 
 
     /**
-     * Meklē grāmatas pēc nosaukuma, autora, ISBN vai visu lauku kombinācijas, ar papildu filtriem un kārtošanu
+     * Search for books by title, author, ISBN or combination of all fields, with additional filters and sorting
      */
     public function search(Request $request)
     {
@@ -277,7 +277,7 @@ class BookController extends Controller
     }
 
     /**
-     * Importē grāmatu pēc ISBN no ārējām datubāzēm (admin only)
+     * Import a book by ISBN from external databases (admin only)
      */
     public function importByIsbn(Request $request)
     {
@@ -295,7 +295,7 @@ class BookController extends Controller
 
         $isbn = $request->get('isbn');
         
-        // Pārbauda, grāmata ar šo ISBN jau eksistē
+        // Check if a book with this ISBN already exists
         $existingBook = Book::where('isbn', $isbn)
                           ->orWhere('isbn10', $isbn)
                           ->orWhere('isbn13', $isbn)
@@ -309,7 +309,7 @@ class BookController extends Controller
             ], 409);
         }
 
-        // Dabū grāmatas datus no ārējām datubāzēm
+        // Get book data from external databases
         $bookApiService = new ExternalBookApiService();
         $bookData = $bookApiService->fetchBookByIsbn($isbn);
 
@@ -320,7 +320,7 @@ class BookController extends Controller
             ], 404);
         }
 
-        // Validē, vai ir vismaz viens derīgs ISBN (isbn10 vai isbn13)
+        // Validate if there is at least one valid ISBN (isbn10 or isbn13)
         if (empty($bookData['isbn']) && empty($bookData['isbn10']) && empty($bookData['isbn13'])) {
             return response()->json([
                 'message' => 'Book found but has no valid ISBN identifiers',
@@ -353,11 +353,11 @@ class BookController extends Controller
     }
 
     /**
-     * Importē grāmatas pēc žanra no ārējām datubāzēm (admin only)
+     * Import books by genre from external databases (admin only)
      */
     public function batchImportByGenre(Request $request)
     {
-        // Pārbauda, vai lietotājs ir admin
+        // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized to import books',
@@ -403,7 +403,7 @@ class BookController extends Controller
 
         foreach ($booksData as $bookData) {
             try {
-                // Izmet grāmatu, ja tai nav derīga ISBN (nevar importēt bez ISBN, jo tas ir galvenais identifikators)
+                // Skip the book if it doesn't have a valid ISBN (cannot import without ISBN as it's the main identifier)
                 if (empty($bookData['isbn']) && empty($bookData['isbn10']) && empty($bookData['isbn13'])) {
                     $skipped[] = [
                         'title' => $bookData['title'] ?? 'Unknown',
@@ -412,7 +412,7 @@ class BookController extends Controller
                     continue;
                 }
 
-                // Pārbauda, vai grāmata ar šo ISBN jau eksistē datubāzē (lai izvairītos no dublikātiem)
+                // Check if a book with this ISBN already exists in the database (to avoid duplicates)
                 $existingBook = Book::where('isbn', $bookData['isbn'] ?? null)
                                   ->orWhere('isbn10', $bookData['isbn10'] ?? null)
                                   ->orWhere('isbn13', $bookData['isbn13'] ?? null)
@@ -426,12 +426,12 @@ class BookController extends Controller
                     continue;
                 }
 
-                // Pievieno metadata
+                // Add metadata
                 $bookData['last_api_sync'] = now();
                 $source = $bookData['source'] ?? 'unknown';
                 unset($bookData['source']);
 
-                // Izveido grāmatu datubāzē
+                // Create book in database
                 $book = Book::create($bookData);
                 
                 $imported[] = [
@@ -472,11 +472,11 @@ class BookController extends Controller
     }
 
     /**
-     * Sinhronizē grāmatas datus ar ārējām datubāzēm pēc ISBN (admin only)
+     * Synchronize book data with external databases by ISBN (admin only)
      */
     public function syncWithExternalApi(Request $request, $id)
     {
-        // Pārbauda, vai lietotājs ir admin
+        // Check if user is admin
         if (!$request->user() || !$request->user()->isAdmin()) {
             return response()->json([
                 'message' => 'Unauthorized to sync book data',
@@ -511,7 +511,7 @@ class BookController extends Controller
             ], 404);
         }
 
-        // Saglabā esošos laukus, kurus nevēlamies pārrakstīt ar API datiem
+        // Preserve existing fields that we don't want to overwrite with API data
         $preserveFields = ['created_at', 'updated_at'];
         $updateData = array_diff_key($bookData, array_flip($preserveFields));
         $updateData['last_api_sync'] = now();
