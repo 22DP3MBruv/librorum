@@ -280,6 +280,7 @@ export default {
     confirmRemoveAdminMessage: 'Šī darbība noņems lietotāja administratora privilēģijas.',
     confirmUnflagMessage: 'Šī darbība noņems lietotāja atzīmi un atjaunos viņa satura redzamību.',
     confirmDeleteThreadMessage: 'Spiežiet dzēst, lai turpinātu',
+    confirmDeleteCommentMessage: 'Spiežiet dzēst, lai turpinātu',
     dashboard: 'Administratora panelis',
     totalUsers: 'Kopā lietotāju',
     totalBooks: 'Kopā grāmatu',
