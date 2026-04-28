@@ -278,9 +278,9 @@ export default {
     saveSuccess: 'Privacy settings updated successfully'
   },
   admin: {
-    confirmMakeAdminMessage: 'Are you sure you want to make this user an admin?',
-    confirmRemoveAdminMessage: 'Are you sure you want to remove admin role from this user?',
-    confirmUnflagMessage: 'Are you sure you want to unflag this user?',
+    confirmMakeAdminMessage: 'This will give the user admin privileges.',
+    confirmRemoveAdminMessage: 'This will remove the user\'s admin privileges.',
+    confirmUnflagMessage: 'This will unflag the user and restore their content visibility.',
     dashboard: 'Admin Dashboard',
     totalUsers: 'Total Users',
     totalBooks: 'Total Books',

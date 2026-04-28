@@ -275,9 +275,9 @@ export default {
     saveSuccess: 'Privātuma iestatījumi veiksmīgi atjaunināti'
   },
   admin: {
-    confirmMakeAdminMessage: 'Vai tiešām vēlaties padarīt šo lietotāju par administratoru?',
-    confirmRemoveAdminMessage: 'Vai tiešām vēlaties noņemt administratora lomu no šī lietotāja?',
-    confirmUnflagMessage: 'Vai tiešām vēlaties noņemt šī lietotāja atzīmi?',
+    confirmMakeAdminMessage: 'Šī darbība piešķirs lietotājam administratora privilēģijas.',
+    confirmRemoveAdminMessage: 'Šī darbība noņems lietotāja administratora privilēģijas.',
+    confirmUnflagMessage: 'Šī darbība noņems lietotāja atzīmi un atjaunos viņa satura redzamību.',
     dashboard: 'Administratora panelis',
     totalUsers: 'Kopā lietotāju',
     totalBooks: 'Kopā grāmatu',
