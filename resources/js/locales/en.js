@@ -169,6 +169,7 @@ export default {
     edit: 'Edit',
     editThread: 'Edit Discussion',
     editComment: 'Edit Comment',
+    confirmDeleteCommentMessage: 'Press delete to proceed.',
     update: 'Update',
     updating: 'Updating...',
     cancel: 'Cancel',

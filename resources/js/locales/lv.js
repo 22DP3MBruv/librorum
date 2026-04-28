@@ -167,6 +167,7 @@ export default {
     edit: 'Rediģēt',
     editThread: 'Rediģēt diskusiju',
     editComment: 'Rediģēt komentāru',
+    confirmDeleteCommentMessage: 'Nospiediet dzēst, lai apstiprinātu.',
     update: 'Atjaunināt',
     updating: 'Atjaunina...',
     cancel: 'Atcelt',
