@@ -226,7 +226,8 @@ export default {
     browseBooks: 'Pārlūkot grāmatas',
     updateFailed: 'Neizdevās atjaunināt progresu',
     removeFailed: 'Neizdevās noņemt grāmatu',
-    confirmRemove: 'Vai tiešām vēlaties noņemt šo grāmatu no savas lasistēs?',
+    removeBook: 'Vai tiešām vēlaties noņemt šo grāmatu no savas lasīšanas listēm?',
+    confirmRemove: 'Nospiediet noņemt, lai apstiprinātu.',
     pageInvalidNumber: 'Lūdzu ievadiet derīgu lappuses numuru',
     pageNegativeError: 'Lappuses numurs nevar būt negatīvs',
     pageExceedsTotal: 'Lappuses numurs nevar pārsniegt kopējo ({max} lappuses)'

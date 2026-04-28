@@ -229,7 +229,8 @@ export default {
     browseBooks: 'Browse Books',
     updateFailed: 'Failed to update progress',
     removeFailed: 'Failed to remove book',
-    confirmRemove: 'Are you sure you want to remove this book from your reading list?',
+    removeBook: 'Are you sure you want to remove this book from your reading list?',
+    confirmRemove: 'Press remove to proceed.',
     pageInvalidNumber: 'Please enter a valid page number',
     pageNegativeError: 'Page number cannot be negative',
     pageExceedsTotal: 'Page number cannot exceed the total ({max} pages)'

@@ -235,6 +235,9 @@
       </router-link>
     </div>
   </div>
+
+  <!-- Confirmation Modal -->
+  <ConfirmationModal ref="confirmationModal" />
 </template>
 
 <script setup>
@@ -242,6 +245,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useReadingProgressStore } from '../stores/readingProgress.js';
+import ConfirmationModal from '../components/ConfirmationModal.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -250,6 +254,7 @@ const progressStore = useReadingProgressStore();
 const selectedStatus = ref('all');
 const pageErrors = ref({});
 const actionError = ref('');
+const confirmationModal = ref(null);
 
 // Computed
 const filteredProgress = computed(() => {
@@ -320,8 +325,19 @@ const updatePage = async (progress) => {
 };
 
 const removeBook = async (progress) => {
-  if (confirm(t('reading.confirmRemove'))) {
+  const confirmed = await confirmationModal.value.show({
+    title: t('reading.removeBook'),
+    message: t('reading.confirmRemove'),
+    confirmLabel: t('common.remove'),
+    cancelLabel: t('common.cancel'),
+    isDangerous: true,
+  });
+
+  if (confirmed) {
+    confirmationModal.value.setLoading(true);
     const result = await progressStore.removeFromReadingList(progress.id);
+    confirmationModal.value.setLoading(false);
+    confirmationModal.value.close();
     
     if (!result.success) {
       actionError.value = result.message || t('reading.removeFailed');
