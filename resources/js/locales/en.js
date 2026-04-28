@@ -294,6 +294,7 @@ export default {
     popularBooks: 'Popular Books',
     threads: 'Threads',
     comments: 'Comments',
+    confirmDeleteCommentMessage: 'Press delete to proceed.',
     title: 'Title',
     author: 'Author',
     noFlaggedUsers: 'No flagged users',
