@@ -364,7 +364,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth.js';
 import { useDiscussionsStore } from '../stores/discussions.js';
-import ConfirmationModal from './ConfirmationModal.vue';
+import ConfirmationModal from '../components/ConfirmationModal.vue';
 
 const route = useRoute();
 const router = useRouter();
