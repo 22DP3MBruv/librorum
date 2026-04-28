@@ -374,8 +374,7 @@
           </div>
           </div>
           </div>
-          </div>
-    </div>
+        </div>
 
     <!-- Confirmation Modal -->
     <ConfirmationModal ref="confirmModal" />

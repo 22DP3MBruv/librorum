@@ -365,7 +365,7 @@ export default {
       follow_request: '{actor} wants to follow you',
       follow_request_accepted: '{actor} accepted your follow request',
       content_moderated: 'Your content was reviewed by a moderator',
-      user_banned: 'Your account has been suspended by a moderator'
+      user_banned: 'Your account has been flagged by a moderator'
     }
   },
   followRequests: {

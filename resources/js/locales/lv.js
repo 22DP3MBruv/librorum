@@ -362,7 +362,7 @@ export default {
       follow_request: '{actor} vēlas sekot jums',
       follow_request_accepted: '{actor} apstiprināja jūsu sekošanas pieprasījumu',
       content_moderated: 'Jūsu saturs tika pārskatīts no moderatora',
-      user_banned: 'Jūsu konts ir aizturēts no moderatora'
+      user_banned: 'Jūsu konts ir atzīmēts no moderatora'
     }
   },
   followRequests: {
