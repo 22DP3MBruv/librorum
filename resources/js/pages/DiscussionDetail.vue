@@ -352,7 +352,10 @@
         </div>
       </div>
     </template>
-  </div>
+
+  <!-- Confirmation Modal -->
+  <ConfirmationModal ref="confirmModal" />
+</div>
 </template>
 
 <script setup>
@@ -361,6 +364,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth.js';
 import { useDiscussionsStore } from '../stores/discussions.js';
+import ConfirmationModal from './ConfirmationModal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -383,6 +387,7 @@ const editingCommentId = ref(null);
 const editCommentContent = ref('');
 const editCommentLoading = ref(false);
 const editCommentError = ref('');
+const confirmModal = ref(null);
 
 // Pagination state
 const currentPage = ref(1);
@@ -647,7 +652,14 @@ const handleAddComment = async () => {
 };
 
 const deleteThread = async () => {
-  if (!confirm(t('admin.confirmDeleteThread'))) return;
+  const confirmed = await confirmModal.value.show({
+    title: t('admin.confirmDeleteThread'),
+    message: t('admin.confirmDeleteThreadMessage') || t('admin.confirmDeleteThread'),
+    confirmLabel: t('admin.delete'),
+    cancelLabel: t('discussions.cancel'),
+    isDangerous: true,
+  });
+  if (!confirmed) return;
 
   try {
     const isAdmin = authStore.user?.role === 'admin';
@@ -663,13 +675,28 @@ const deleteThread = async () => {
       },
     });
 
+    confirmModal.value.close();
+
     if (response.ok) {
       router.push('/books');
     } else {
-      alert(t('admin.deleteThreadError'));
+      await confirmModal.value.show({
+        title: t('common.error') || 'Error',
+        message: t('admin.deleteThreadError'),
+        confirmLabel: t('common.ok') || 'OK',
+        cancelLabel: '',
+        isDangerous: false,
+      });
     }
   } catch (err) {
-    alert(t('common.networkError'));
+    confirmModal.value.close();
+    await confirmModal.value.show({
+      title: t('common.error') || 'Error',
+      message: t('common.networkError'),
+      confirmLabel: t('common.ok') || 'OK',
+      cancelLabel: '',
+      isDangerous: false,
+    });
   }
 };
 
@@ -724,7 +751,14 @@ const handleEditThread = async () => {
       // Refresh discussion data with updated values
       discussion.value = { ...discussion.value, ...data.data };
       isEditingThread.value = false;
-      alert(t('discussions.editSuccess'));
+      await confirmModal.value.show({
+        title: t('common.success') || 'Success',
+        message: t('discussions.editSuccess'),
+        confirmLabel: t('common.ok') || 'OK',
+        cancelLabel: '',
+        isDangerous: false,
+      });
+      confirmModal.value.close();
     } else {
       editThreadError.value = data.message || t('discussions.editFailed');
     }
@@ -736,7 +770,14 @@ const handleEditThread = async () => {
 };
 
 const deleteComment = async (commentId) => {
-  if (!confirm(t('admin.confirmDeleteComment'))) return;
+  const confirmed = await confirmModal.value.show({
+    title: t('admin.confirmDeleteComment'),
+    message: t('admin.confirmDeleteCommentMessage') || t('admin.confirmDeleteComment'),
+    confirmLabel: t('admin.delete'),
+    cancelLabel: t('discussions.cancel'),
+    isDangerous: true,
+  });
+  if (!confirmed) return;
 
   try {
     const isAdmin = authStore.user?.role === 'admin';
@@ -752,13 +793,30 @@ const deleteComment = async (commentId) => {
       },
     });
 
+    confirmModal.value.close();
+
     if (response.ok) {
       comments.value = comments.value.filter(c => c.id !== commentId);
     } else {
-      alert(t('admin.deleteCommentError'));
+      await confirmModal.value.show({
+        title: t('common.error') || 'Error',
+        message: t('admin.deleteCommentError'),
+        confirmLabel: t('common.ok') || 'OK',
+        cancelLabel: '',
+        isDangerous: false,
+      });
+      confirmModal.value.close();
     }
   } catch (err) {
-    alert(t('common.networkError'));
+    confirmModal.value.close();
+    await confirmModal.value.show({
+      title: t('common.error') || 'Error',
+      message: t('common.networkError'),
+      confirmLabel: t('common.ok') || 'OK',
+      cancelLabel: '',
+      isDangerous: false,
+    });
+    confirmModal.value.close();
   }
 };
 
@@ -806,7 +864,14 @@ const handleEditComment = async (commentId) => {
         comment.content = data.data.content;
       }
       cancelEditComment();
-      alert(t('discussions.editSuccess'));
+      await confirmModal.value.show({
+        title: t('common.success') || 'Success',
+        message: t('discussions.editSuccess'),
+        confirmLabel: t('common.ok') || 'OK',
+        cancelLabel: '',
+        isDangerous: false,
+      });
+      confirmModal.value.close();
     } else {
       editCommentError.value = data.message || t('discussions.editFailed');
     }
