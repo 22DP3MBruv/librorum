@@ -237,6 +237,7 @@ export default {
     save: 'Save',
     saving: 'Saving...',
     cancel: 'Cancel',
+    confirm: 'Confirm',
     done: 'Done',
     delete: 'Delete',
     edit: 'Edit',
@@ -277,6 +278,9 @@ export default {
     saveSuccess: 'Privacy settings updated successfully'
   },
   admin: {
+    confirmMakeAdminMessage: 'Are you sure you want to make this user an admin?',
+    confirmRemoveAdminMessage: 'Are you sure you want to remove admin role from this user?',
+    confirmUnflagMessage: 'Are you sure you want to unflag this user?',
     dashboard: 'Admin Dashboard',
     totalUsers: 'Total Users',
     totalBooks: 'Total Books',

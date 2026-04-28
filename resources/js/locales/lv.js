@@ -234,6 +234,7 @@ export default {
     save: 'Saglabāt',
     saving: 'Saglabā...',
     cancel: 'Atcelt',
+    confirm: 'Apstiprināt',
     done: 'Pabeigts',
     delete: 'Dzēst',
     edit: 'Rediģēt',
@@ -274,6 +275,9 @@ export default {
     saveSuccess: 'Privātuma iestatījumi veiksmīgi atjaunināti'
   },
   admin: {
+    confirmMakeAdminMessage: 'Vai tiešām vēlaties padarīt šo lietotāju par administratoru?',
+    confirmRemoveAdminMessage: 'Vai tiešām vēlaties noņemt administratora lomu no šī lietotāja?',
+    confirmUnflagMessage: 'Vai tiešām vēlaties noņemt šī lietotāja atzīmi?',
     dashboard: 'Administratora panelis',
     totalUsers: 'Kopā lietotāju',
     totalBooks: 'Kopā grāmatu',
