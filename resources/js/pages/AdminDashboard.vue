@@ -375,6 +375,10 @@
           </div>
           </div>
           </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal ref="confirmModal" />
 </template>
 
 <script setup>
@@ -382,10 +386,12 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import ConfirmationModal from '../components/ConfirmationModal.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
 const { t } = useI18n();
+const confirmModal = ref(null);
 
 const loading = ref(true);
 const error = ref(null);
@@ -502,9 +508,18 @@ const fetchFlaggedUsers = async () => {
 };
 
 const unflagUser = async (userId) => {
-  if (!confirm(t('admin.confirmUnflag'))) return;
+  const confirmed = await confirmModal.value?.show({
+    title: t('admin.confirmUnflag'),
+    message: t('admin.confirmUnflagMessage') || t('admin.confirmUnflag'),
+    confirmLabel: t('common.confirm'),
+    cancelLabel: t('common.cancel'),
+    isDangerous: false
+  });
+
+  if (!confirmed) return;
 
   try {
+    confirmModal.value?.setLoading(true);
     const response = await fetch(`/api/moderation/unflag-user/${userId}`, {
       method: 'POST',
       headers: {
@@ -516,11 +531,26 @@ const unflagUser = async (userId) => {
     if (response.ok) {
       await refreshFlaggedUsers();
       await fetchStatistics();
+      confirmModal.value?.close();
     } else {
-      alert(t('admin.unflagError'));
+      confirmModal.value?.setLoading(false);
+      await confirmModal.value?.show({
+        title: t('common.error'),
+        message: t('admin.unflagError'),
+        confirmLabel: t('common.ok'),
+        cancelLabel: '',
+        isDangerous: true
+      });
     }
   } catch (err) {
-    alert(t('common.networkError'));
+    confirmModal.value?.setLoading(false);
+    await confirmModal.value?.show({
+      title: t('common.error'),
+      message: t('common.networkError'),
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
   }
 };
 
@@ -585,9 +615,18 @@ const filterUsers = () => {
 };
 
 const makeAdmin = async (userId) => {
-  if (!confirm(t('admin.confirmMakeAdmin'))) return;
+  const confirmed = await confirmModal.value?.show({
+    title: t('admin.confirmMakeAdmin'),
+    message: t('admin.confirmMakeAdminMessage') || t('admin.confirmMakeAdmin'),
+    confirmLabel: t('common.confirm'),
+    cancelLabel: t('common.cancel'),
+    isDangerous: false
+  });
+
+  if (!confirmed) return;
 
   try {
+    confirmModal.value?.setLoading(true);
     const response = await fetch(`/api/admin/users/${userId}/make-admin`, {
       method: 'POST',
       headers: {
@@ -599,19 +638,43 @@ const makeAdmin = async (userId) => {
     if (response.ok) {
       await loadUsers(usersPagination.value.current_page);
       await fetchStatistics();
+      confirmModal.value?.close();
     } else {
       const data = await response.json();
-      alert(data.message || t('admin.makeAdminError'));
+      confirmModal.value?.setLoading(false);
+      await confirmModal.value?.show({
+        title: t('common.error'),
+        message: data.message || t('admin.makeAdminError'),
+        confirmLabel: t('common.ok'),
+        cancelLabel: '',
+        isDangerous: true
+      });
     }
   } catch (err) {
-    alert(t('common.networkError'));
+    confirmModal.value?.setLoading(false);
+    await confirmModal.value?.show({
+      title: t('common.error'),
+      message: t('common.networkError'),
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
   }
 };
 
 const removeAdmin = async (userId) => {
-  if (!confirm(t('admin.confirmRemoveAdmin'))) return;
+  const confirmed = await confirmModal.value?.show({
+    title: t('admin.confirmRemoveAdmin'),
+    message: t('admin.confirmRemoveAdminMessage') || t('admin.confirmRemoveAdmin'),
+    confirmLabel: t('common.confirm'),
+    cancelLabel: t('common.cancel'),
+    isDangerous: true
+  });
+
+  if (!confirmed) return;
 
   try {
+    confirmModal.value?.setLoading(true);
     const response = await fetch(`/api/admin/users/${userId}/remove-admin`, {
       method: 'POST',
       headers: {
@@ -623,12 +686,27 @@ const removeAdmin = async (userId) => {
     if (response.ok) {
       await loadUsers(usersPagination.value.current_page);
       await fetchStatistics();
+      confirmModal.value?.close();
     } else {
       const data = await response.json();
-      alert(data.message || t('admin.removeAdminError'));
+      confirmModal.value?.setLoading(false);
+      await confirmModal.value?.show({
+        title: t('common.error'),
+        message: data.message || t('admin.removeAdminError'),
+        confirmLabel: t('common.ok'),
+        cancelLabel: '',
+        isDangerous: true
+      });
     }
   } catch (err) {
-    alert(t('common.networkError'));
+    confirmModal.value?.setLoading(false);
+    await confirmModal.value?.show({
+      title: t('common.error'),
+      message: t('common.networkError'),
+      confirmLabel: t('common.ok'),
+      cancelLabel: '',
+      isDangerous: true
+    });
   }
 };
 
