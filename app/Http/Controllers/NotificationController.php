@@ -20,6 +20,7 @@ class NotificationController extends Controller
 
         $query = Notification::where('user_id', $user->user_id)
             ->with('actor:user_id,username')
+            ->with('related')
             ->orderBy('created_at', 'desc');
 
         if ($unreadOnly) {

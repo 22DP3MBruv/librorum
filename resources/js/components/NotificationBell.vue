@@ -163,8 +163,10 @@ const handleNotificationClick = async (notification) => {
     if (notification.related_type.includes('Thread')) {
       router.push(`/discussions/${notification.related_id}`);
     } else if (notification.related_type.includes('Comment')) {
-      // Navigēt uz diskusiju (iespējams, vajadzēs iegūt thread_id no komentāra)
-      router.push(`/discussions`);
+      // Navigēt uz diskusiju, izmantojot komentāra thread_id
+      if (notification.related && notification.related.thread_id) {
+        router.push(`/discussions/${notification.related.thread_id}`);
+      }
     }
   }
   
