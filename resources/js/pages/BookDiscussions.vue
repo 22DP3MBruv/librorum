@@ -254,7 +254,7 @@
                     <span>
                       {{ t('discussions.by') }} 
                       <button
-                        @click.stop="goToUserProfile(discussion.author?.user_id)"
+                        @click.stop="goToUserProfile(discussion.author?.id)"
                         class="font-medium hover:text-blue-600 hover:underline transition-colors"
                       >
                         {{ discussion.author?.name || 'Unknown' }}

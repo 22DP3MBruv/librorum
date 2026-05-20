@@ -28,7 +28,12 @@
             <span>{{ request.follower.name.charAt(0).toUpperCase() }}</span>
           </div>
           <div class="user-info">
-            <h4 class="user-name">{{ request.follower.name }}</h4>
+            <button
+              @click="goToUserProfile(request.follower.id)"
+              class="user-name hover:text-blue-600 hover:underline transition-colors"
+            >
+              {{ request.follower.name }}
+            </button>
             <p class="request-time">{{ formatDate(request.created_at) }}</p>
           </div>
         </div>
@@ -55,10 +60,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
+const router = useRouter();
 const authStore = useAuthStore();
 
 const requests = ref([]);
@@ -81,6 +88,15 @@ const formatDate = (date) => {
   if (diffDays < 7) return t('time.daysAgo', { count: diffDays });
   
   return d.toLocaleDateString('lv-LV', { year: 'numeric', month: 'long', day: 'numeric' });
+};
+
+const goToUserProfile = (userId) => {
+  if (!userId) return;
+  if (parseInt(userId) === authStore.user?.id) {
+    router.push('/profile');
+  } else {
+    router.push(`/profile/${userId}`);
+  }
 };
 
 const fetchRequests = async () => {
@@ -262,6 +278,11 @@ onMounted(() => {
   font-weight: 600;
   color: #111827;
   margin: 0 0 0.25rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
 }
 
 .request-time {
