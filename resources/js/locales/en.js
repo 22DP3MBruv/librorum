@@ -432,7 +432,6 @@ export default {
     deleteAccountButton: 'Delete My Account',
     accountDeleted: 'Your account has been permanently deleted',
     accountDeleteError: 'Failed to delete account',
-    typeDeleteToConfirm: 'Type DELETE to confirm',
     confirmationRequired: 'Please type DELETE to confirm',
     confirmationInvalid: 'You must type DELETE exactly to confirm',
     passwordForConfirmation: 'Enter your password to confirm',

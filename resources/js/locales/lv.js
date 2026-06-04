@@ -430,7 +430,6 @@ export default {
     deleteAccountButton: 'Dzēst manu kontu',
     accountDeleted: 'Jūsu konts ir neatgriezeniski dzēsts',
     accountDeleteError: 'Neizdevās dzēst kontu',
-    typeDeleteToConfirm: 'Ierakstiet DELETE, lai apstiprinātu',
     confirmationRequired: 'Lūdzu, ierakstiet DELETE, lai apstiprinātu',
     confirmationInvalid: 'Jums precīzi jāieraksta DELETE, lai apstiprinātu',
     passwordForConfirmation: 'Ievadiet savu paroli, lai apstiprinātu',

@@ -181,17 +181,6 @@
         <p class="text-gray-600 mb-4">{{ t('accountSettings.deleteAccountDescription') }}</p>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            {{ t('accountSettings.typeDeleteToConfirm') }}
-          </label>
-          <input
-            v-model="deleteAccountConfirmation"
-            type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            placeholder="DELETE"
-          />
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
             {{ t('accountSettings.passwordForConfirmation') }}
           </label>
           <input
@@ -205,13 +194,13 @@
         <div class="flex gap-3">
           <button
             @click="deleteAccount"
-            :disabled="deleteAccountConfirmation !== 'DELETE' || !deleteAccountPassword || deletingAccount"
+            :disabled="!deleteAccountPassword || deletingAccount"
             class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
           >
             {{ deletingAccount ? t('accountSettings.deleting') : t('accountSettings.deleteAccountButton') }}
           </button>
           <button
-            @click="showDeleteAccountModal = false; deleteAccountConfirmation = ''; deleteAccountPassword = ''; deleteAccountError = ''"
+            @click="showDeleteAccountModal = false; deleteAccountPassword = ''; deleteAccountError = ''"
             class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
           >
             {{ t('common.cancel') }}
@@ -251,7 +240,6 @@ const deletingContent = ref(false);
 
 // Konta dzēšana
 const showDeleteAccountModal = ref(false);
-const deleteAccountConfirmation = ref('');
 const deleteAccountPassword = ref('');
 const deleteAccountError = ref('');
 const deletingAccount = ref(false);
@@ -386,12 +374,6 @@ const deleteUserContent = async () => {
 
 const deleteAccount = async () => {
   deleteAccountError.value = '';
-
-  if (deleteAccountConfirmation.value !== 'DELETE') {
-    deleteAccountError.value = t('accountSettings.confirmationInvalid');
-    return;
-  }
-
   deletingAccount.value = true;
 
   try {
@@ -404,8 +386,7 @@ const deleteAccount = async () => {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        password: deleteAccountPassword.value,
-        confirmation: deleteAccountConfirmation.value
+        password: deleteAccountPassword.value
       })
     });
 
