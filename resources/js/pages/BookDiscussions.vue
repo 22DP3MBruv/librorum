@@ -1028,6 +1028,11 @@ const shouldShowSpoiler = (discussion) => {
     return discussion.scope === 'page';
   }
 
+  // Nerādīt spoiļera brīdinājumu, ja grāmata ir nolasīta (completed status)
+  if (bookProgress.status === 'completed') {
+    return false;
+  }
+
   // Ja grāmata ir lasīšanas sarakstā un tā ir lapām specifiska diskusija
   if (discussion.scope === 'page' && discussion.page_number) {
     // Auto-atklāt, ja lietotāja progress ir aiz diskusijas lapas
